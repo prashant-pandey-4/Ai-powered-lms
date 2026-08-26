@@ -5,10 +5,13 @@ import { prisma } from '../config/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 
-const razorpay = new Razorpay({
-  key_id: env.RAZORPAY_KEY_ID,
-  key_secret: env.RAZORPAY_KEY_SECRET,
-});
+// Lazy initialization — avoids crash when RAZORPAY keys are placeholder
+function getRazorpay() {
+  return new Razorpay({
+    key_id: env.RAZORPAY_KEY_ID,
+    key_secret: env.RAZORPAY_KEY_SECRET,
+  });
+}
 
 /**
  * POST /api/payment/create-order
@@ -33,6 +36,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     }
 
     // Create Razorpay order (amount in paise = price * 100)
+  const razorpay = getRazorpay();
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(course.price * 100),
       currency: 'INR',
