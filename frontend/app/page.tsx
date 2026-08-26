@@ -282,17 +282,22 @@ export default async function DashboardPage() {
               <div className="space-y-3 text-xs">
                 <div className="flex items-center gap-3">
                   <span className="w-12 text-[11px] font-semibold text-[#6c6c7a]">10:00</span>
-                  <div className="flex flex-1 items-center gap-2 rounded-xl bg-[#23232a] p-2.5 text-white border-l-4 border-[#d4f76d]">
-                    <Radio className="h-3.5 w-3.5 text-[#d4f76d]" />
-                    <span className="font-bold">Live Lecture: Typography</span>
+                  <div className="flex flex-1 items-center justify-between rounded-xl bg-[#23232a] px-3 py-2.5 text-white">
+                    <div className="flex items-center gap-2">
+                      <Radio className="h-3.5 w-3.5 text-[#d4f76d]" />
+                      <span className="font-bold">Live Lecture: Typography</span>
+                    </div>
+                    <span className="h-2 w-2 rounded-full bg-[#d4f76d] animate-pulse" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span className="w-12 text-[11px] font-semibold text-[#6c6c7a]">12:00</span>
-                  <div className="flex flex-1 items-center gap-2 rounded-xl bg-[#1c1c22] p-2.5 text-[#8e8e9c] border-l-4 border-slate-600">
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span className="font-semibold text-white">Exam: Typography</span>
+                  <div className="flex flex-1 items-center justify-between rounded-xl bg-[#1c1c22] px-3 py-2.5 text-[#8e8e9c]">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      <span className="font-semibold text-white">Exam: Typography</span>
+                    </div>
                   </div>
                 </div>
 
