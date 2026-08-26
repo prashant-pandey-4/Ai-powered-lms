@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+dist/
+
+# Environment
+.env
+
+# Prisma
+prisma/migrations/
+
+# Logs
+*.log

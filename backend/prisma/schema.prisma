@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// ─────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique          // Clerk's userId (foreign key from Clerk)
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  courses     Course[]     @relation("InstructorCourses")
+  enrollments Enrollment[]
+  payments    Payment[]
+  chatLogs    ChatLog[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  thumbnail   String?
+  price       Float    @default(0)    // 0 = free
+  isPublished Boolean  @default(false)
+  level       String?                 // beginner / intermediate / advanced
+  category    String?
+  language    String   @default("English")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  instructorId String
+  instructor   User   @relation("InstructorCourses", fields: [instructorId], references: [id])
+
+  lectures    Lecture[]
+  enrollments Enrollment[]
+  payments    Payment[]
+  chatLogs    ChatLog[]
+
+  @@index([instructorId])
+  @@index([isPublished])
+}
+
+model Lecture {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  videoUrl    String                  // YouTube unlisted URL (MVP)
+  pdfUrl      String?                 // S3/R2 signed URL for PDF
+  duration    Int?                    // Duration in seconds
+  order       Int                     // Position within course
+  isFree      Boolean  @default(false) // Preview lecture (no enrollment needed)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  completions LectureCompletion[]
+
+  @@index([courseId])
+  @@unique([courseId, order])         // Enforce unique ordering per course
+}
+
+model Enrollment {
+  id          String    @id @default(cuid())
+  progress    Int       @default(0)  // Percentage 0-100
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+
+  lectureCompletions LectureCompletion[]
+
+  @@unique([userId, courseId])        // One enrollment per student per course
+  @@index([userId])
+  @@index([courseId])
+}
+
+model LectureCompletion {
+  id          String   @id @default(cuid())
+  completedAt DateTime @default(now())
+
+  // Relations
+  enrollmentId String
+  lectureId    String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lecture      Lecture    @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lectureId])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model ChatLog {
+  id        String   @id @default(cuid())
+  question  String   @db.Text
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+
+  @@index([userId, courseId])
+}
