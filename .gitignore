@@ -27,3 +27,12 @@ yarn-error.log*
 .idea/
 .vscode/
 Thumbs.db
+
+# Agent Metadata & Tooling Files
+.agents/
+.impeccable/
+.claude/
+.codex/
+.kiro/
+.gemini/
+.agent/
