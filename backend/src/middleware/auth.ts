@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { requireAuth as clerkRequireAuth } from '@clerk/express';
 import { prisma } from '../config/prisma';
 import { AppError } from './errorHandler';
 import { Role } from '@prisma/client';
@@ -23,10 +22,7 @@ declare global {
  * Verifies Clerk JWT and attaches Postgres user to req.dbUser
  */
 export const requireAuth = [
-  // Step 1: Clerk verifies the JWT token
-  clerkRequireAuth(),
-
-  // Step 2: Fetch our Postgres user record
+  // Step 1: Check if globally verified Clerk ID is present (via clerkMiddleware in app.ts)
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const clerkId = (req as any).auth?.userId;
