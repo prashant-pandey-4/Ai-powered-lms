@@ -7,6 +7,10 @@ import {
   deleteCourse,
   publishCourse,
 } from '../controllers/course.controller';
+import {
+  previewPlaylist,
+  importPlaylist,
+} from '../controllers/playlist.controller';
 import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
@@ -15,10 +19,14 @@ const router = Router();
 router.get('/', getCourses);
 router.get('/:id', getCourseById);
 
-// Instructor-only routes
-router.post('/', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), createCourse);
-router.patch('/:id', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), updateCourse);
-router.delete('/:id', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), deleteCourse);
-router.post('/:id/publish', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), publishCourse);
+// Admin-only management routes
+router.post('/', requireAuth, requireRole('ADMIN'), createCourse);
+router.patch('/:id', requireAuth, requireRole('ADMIN'), updateCourse);
+router.delete('/:id', requireAuth, requireRole('ADMIN'), deleteCourse);
+router.post('/:id/publish', requireAuth, requireRole('ADMIN'), publishCourse);
+
+// 1-Click YouTube Playlist Importer routes
+router.post('/preview-playlist', requireAuth, requireRole('ADMIN'), previewPlaylist);
+router.post('/:courseId/import-playlist', requireAuth, requireRole('ADMIN'), importPlaylist);
 
 export default router;
