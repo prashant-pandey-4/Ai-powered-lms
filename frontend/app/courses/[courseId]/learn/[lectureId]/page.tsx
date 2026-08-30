@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef, use } from 'react';
+import { useEffect, useState, useRef, use, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
+import { VideoPlayer } from '@/components/video-player';
 import {
   Play,
   CheckCircle2,
@@ -16,19 +17,41 @@ import {
   ArrowRight,
   ExternalLink,
   Bot,
-  User as UserIcon,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function getYouTubeEmbedUrl(url: string): string {
-  if (!url) return '';
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  if (match && match[2].length === 11) {
-    return `https://www.youtube.com/embed/${match[2]}?autoplay=0&rel=0`;
+// Returns embed URL and type for YouTube, Vimeo, or raw video
+function getVideoEmbed(url: string): { type: 'youtube' | 'vimeo' | 'raw' | 'none'; embedUrl: string } {
+  if (!url) return { type: 'none', embedUrl: '' };
+
+  // YouTube – supports watch?v=, youtu.be/, /shorts/, /embed/
+  const ytRegex = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const ytMatch = url.match(ytRegex);
+  if (ytMatch) {
+    // Privacy-enhanced mode with auto-play on switch
+    return {
+      type: 'youtube',
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1&controls=1`,
+    };
   }
-  return url;
+
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch) {
+    return {
+      type: 'vimeo',
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&dnt=1&title=0&byline=0`,
+    };
+  }
+
+  // Direct video file (MP4, WebM, OGG)
+  if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) {
+    return { type: 'raw', embedUrl: url };
+  }
+
+  // Fallback: try as raw URL
+  return { type: 'raw', embedUrl: url };
 }
 
 export default function LecturePlayerPage({
@@ -52,7 +75,9 @@ export default function LecturePlayerPage({
   const [userQuestion, setUserQuestion] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const activeLectureItemRef = useRef<HTMLButtonElement | null>(null);
 
+  // Load course and initial lecture
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -61,18 +86,22 @@ export default function LecturePlayerPage({
       const courseRes = await fetchApi<any>(`/courses/${courseId}`);
       if (courseRes.success && courseRes.data) {
         setCourse(courseRes.data);
-        const active = courseRes.data.lectures?.find((l: any) => l.id === lectureId);
-        setCurrentLecture(active || courseRes.data.lectures?.[0]);
-      } else {
-        // Fallback sample course & lectures
-        const sampleLectures = [
-          { id: 'lec-1', title: '01. Typography & Readability Rules', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', description: 'Understanding type scale, font pairings, line-height and rhythm.', pdfUrl: 'https://example.com/notes.pdf' },
-          { id: 'lec-2', title: '02. Mobile & Desktop Responsive Grids', videoUrl: '', description: 'Building 12-column grid systems for desktop and fluid flex layouts for mobile.' },
-          { id: 'lec-3', title: '03. Modern Color Contrast & WCAG', videoUrl: '', description: 'Ensuring accessible color palettes with 4.5:1 minimum contrast ratios.' },
-        ];
-        setCourse({ id: courseId, title: 'Start in Web Design', lectures: sampleLectures });
-        const active = sampleLectures.find((l) => l.id === lectureId) || sampleLectures[0];
+        const active =
+          courseRes.data.lectures?.find((l: any) => l.id === lectureId) ||
+          courseRes.data.lectures?.[0];
         setCurrentLecture(active);
+      } else {
+        const sampleLectures = [
+          {
+            id: 'lec-1',
+            title: '01. Typography & Readability Rules',
+            videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            description: 'Understanding type scale, font pairings, line-height and rhythm.',
+            pdfUrl: 'https://example.com/notes.pdf',
+          },
+        ];
+        setCourse({ id: courseId, title: 'Course Studio', lectures: sampleLectures });
+        setCurrentLecture(sampleLectures[0]);
       }
 
       if (token) {
@@ -84,7 +113,28 @@ export default function LecturePlayerPage({
       setLoading(false);
     }
     loadData();
-  }, [courseId, lectureId, getToken]);
+  }, [courseId, getToken]);
+
+  // Instant seamless lecture switch (NO page reload)
+  const handleSelectLecture = useCallback(
+    (lec: any) => {
+      if (!lec || lec.id === currentLecture?.id) return;
+      setCurrentLecture(lec);
+      // Update browser URL silently without page remount
+      window.history.replaceState(null, '', `/courses/${courseId}/learn/${lec.id}`);
+    },
+    [courseId, currentLecture]
+  );
+
+  // Auto-scroll active item into view inside playlist
+  useEffect(() => {
+    if (activeLectureItemRef.current) {
+      activeLectureItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [currentLecture]);
 
   useEffect(() => {
     if (chatScrollRef.current) {
@@ -115,7 +165,10 @@ export default function LecturePlayerPage({
       const res = await fetchApi(`/chatbot/${courseId}/ask`, {
         method: 'POST',
         token,
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify({
+          question: q,
+          lectureId: currentLecture?.id,
+        }),
       });
 
       if (res.success && res.data?.answer) {
@@ -129,15 +182,18 @@ export default function LecturePlayerPage({
           const updated = [...prev];
           updated[tempIndex] = {
             question: q,
-            answer: res.message || 'The AI tutor explained: In typography, always prioritize line-height (1.5x) and a clean font scale (16px base body).',
+            answer: res.message || 'Grounded explanation generated for this syllabus topic.',
           };
           return updated;
         });
       }
-    } catch (err) {
+    } catch {
       setChatLogs((prev) => {
         const updated = [...prev];
-        updated[tempIndex] = { question: q, answer: 'Grounded explanation generated for this syllabus topic.' };
+        updated[tempIndex] = {
+          question: q,
+          answer: 'Grounded explanation generated for this syllabus topic.',
+        };
         return updated;
       });
     } finally {
@@ -175,30 +231,46 @@ export default function LecturePlayerPage({
           {/* Left 8 Cols: Video Player & Lecture Notes */}
           <div className="space-y-6 lg:col-span-8">
             {/* Video Container */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#23232a] bg-black shadow-xl">
-              {currentLecture?.videoUrl ? (
-                <iframe
-                  src={getYouTubeEmbedUrl(currentLecture.videoUrl)}
-                  title={currentLecture.title}
-                  className="h-full w-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-[#8e8e9c]">
-                  No video stream URL provided for this lesson
+            {currentLecture?.videoUrl ? (() => {
+              const { type, embedUrl } = getVideoEmbed(currentLecture.videoUrl);
+              if (type === 'raw') {
+                return (
+                  <VideoPlayer
+                    key={currentLecture.id}
+                    src={embedUrl}
+                    title={currentLecture.title}
+                    onEnded={handleMarkComplete}
+                  />
+                );
+              }
+              // YouTube / Vimeo -> instant embed iframe
+              return (
+                <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#23232a] bg-black shadow-xl">
+                  <iframe
+                    key={currentLecture.id}
+                    src={embedUrl}
+                    title={currentLecture.title}
+                    className="h-full w-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                  />
                 </div>
-              )}
-            </div>
+              );
+            })() : (
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#23232a] bg-black shadow-xl flex items-center justify-center">
+                <p className="text-xs text-[#8e8e9c]">No video stream URL provided for this lesson</p>
+              </div>
+            )}
 
-            {/* Action Bar (Prev / Complete / Next) */}
+            {/* Action Bar (Prev / Complete / Next) - Smooth Instant Switch */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#23232a] pb-5">
               {prevLecture ? (
-                <Link href={`/courses/${courseId}/learn/${prevLecture.id}`}>
-                  <button className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d]">
-                    <ArrowLeft className="h-3.5 w-3.5" /> Previous
-                  </button>
-                </Link>
+                <button
+                  onClick={() => handleSelectLecture(prevLecture)}
+                  className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d] transition-colors"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Previous
+                </button>
               ) : (
                 <div />
               )}
@@ -216,11 +288,12 @@ export default function LecturePlayerPage({
               </button>
 
               {nextLecture ? (
-                <Link href={`/courses/${courseId}/learn/${nextLecture.id}`}>
-                  <button className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d]">
-                    Next <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </Link>
+                <button
+                  onClick={() => handleSelectLecture(nextLecture)}
+                  className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d] transition-colors"
+                >
+                  Next <ArrowRight className="h-3.5 w-3.5" />
+                </button>
               ) : (
                 <div />
               )}
@@ -229,7 +302,7 @@ export default function LecturePlayerPage({
             {/* Title & Notes */}
             <div className="space-y-3">
               <span className="text-[11px] font-bold text-[#d4f76d] uppercase tracking-wider">
-                Lesson {currentIndex + 1} of {lectures.length}
+                Lesson {currentIndex >= 0 ? currentIndex + 1 : 1} of {lectures.length}
               </span>
               <h2 className="text-xl font-bold text-white">{currentLecture?.title}</h2>
               {currentLecture?.description && (
@@ -246,7 +319,7 @@ export default function LecturePlayerPage({
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white">Lesson Notes PDF</p>
-                      <p className="text-[10px] text-[#8e8e9c]">Downloadable cheatsheet</p>
+                      <p className="text-[10px] text-[#8e8e9c]">Downloadable cheatsheet & resource</p>
                     </div>
                   </div>
                   <a href={currentLecture.pdfUrl} target="_blank" rel="noopener noreferrer">
@@ -261,7 +334,7 @@ export default function LecturePlayerPage({
           </div>
 
           {/* Right 4 Cols: Playlist & AI Doubt Assistant */}
-          <div className="flex flex-col h-[650px] rounded-2xl border border-[#23232a] bg-[#16161a] overflow-hidden lg:col-span-4">
+          <div className="flex flex-col h-162.5 rounded-2xl border border-[#23232a] bg-[#16161a] overflow-hidden lg:col-span-4">
             {/* Tab Switcher */}
             <div className="grid grid-cols-2 border-b border-[#23232a]">
               <button
@@ -273,7 +346,7 @@ export default function LecturePlayerPage({
                 }`}
               >
                 <ListVideo className="h-4 w-4" />
-                Playlist
+                Playlist ({lectures.length})
               </button>
               <button
                 onClick={() => setActiveTab('ai-tutor')}
@@ -288,26 +361,29 @@ export default function LecturePlayerPage({
               </button>
             </div>
 
-            {/* Playlist Tab */}
+            {/* Playlist Tab - Seamless instant switch */}
             {activeTab === 'playlist' && (
-              <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+              <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scroll-smooth">
                 {lectures.map((lec: any, idx: number) => {
                   const isActive = lec.id === currentLecture?.id;
                   const isDone = completedLectureIds.includes(lec.id);
 
                   return (
-                    <Link
+                    <button
                       key={lec.id}
-                      href={`/courses/${courseId}/learn/${lec.id}`}
-                      className={`flex items-center justify-between rounded-xl p-3 text-xs transition-colors ${
+                      ref={isActive ? (el) => { activeLectureItemRef.current = el; } : undefined}
+                      onClick={() => handleSelectLecture(lec)}
+                      className={`flex w-full items-center justify-between rounded-xl p-3 text-left text-xs transition-all ${
                         isActive
-                          ? 'bg-[#d4f76d] font-bold text-black'
+                          ? 'bg-[#d4f76d] font-bold text-black shadow-md'
                           : 'text-[#8e8e9c] hover:bg-[#1c1c22] hover:text-white'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
                         {isDone ? (
-                          <CheckCircle2 className={`h-4 w-4 shrink-0 ${isActive ? 'text-black' : 'text-[#d4f76d]'}`} />
+                          <CheckCircle2
+                            className={`h-4 w-4 shrink-0 ${isActive ? 'text-black' : 'text-[#d4f76d]'}`}
+                          />
                         ) : (
                           <Circle className="h-4 w-4 shrink-0 text-[#6c6c7a]" />
                         )}
@@ -317,11 +393,11 @@ export default function LecturePlayerPage({
                       </div>
 
                       {isActive && (
-                        <span className="rounded-full bg-black px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d]">
+                        <span className="rounded-full bg-black px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d] shrink-0">
                           Playing
                         </span>
                       )}
-                    </Link>
+                    </button>
                   );
                 })}
               </div>
@@ -330,8 +406,8 @@ export default function LecturePlayerPage({
             {/* AI Doubt Assistant Tab */}
             {activeTab === 'ai-tutor' && (
               <div className="flex flex-1 flex-col h-full overflow-hidden">
-                <div className="bg-[#d4f76d]/10 px-3.5 py-2 text-[11px] font-bold text-[#d4f76d] border-b border-[#23232a]">
-                  🤖 Grounded AI Tutor: Ask anything about this course!
+                <div className="bg-[#d4f76d]/10 px-3.5 py-2 text-[11px] font-bold text-[#d4f76d] border-b border-[#23232a] truncate">
+                  🤖 AI Tutor · Live in: <span className="text-white font-normal">{currentLecture?.title || 'Course'}</span>
                 </div>
 
                 <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-3.5">
@@ -339,7 +415,9 @@ export default function LecturePlayerPage({
                     <div className="py-12 text-center text-xs text-[#8e8e9c]">
                       <BrainCircuit className="mx-auto mb-2 h-8 w-8 text-[#6c6c7a]" />
                       <p className="font-bold text-white">Have a doubt in this lesson?</p>
-                      <p className="text-[11px] text-[#8e8e9c] mt-1">Ask below to get instant explanation.</p>
+                      <p className="text-[11px] text-[#8e8e9c] mt-1">
+                        Ask below to get instant explanation.
+                      </p>
                     </div>
                   )}
 

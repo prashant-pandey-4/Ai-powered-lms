@@ -68,13 +68,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     setEnrolling(true);
     try {
       const token = await getToken();
-      if (course?.price === 0) {
-        const res = await fetchApi(`/enrollment/free/${courseId}`, { method: 'POST', token });
-        if (res.success) {
-          setIsEnrolled(true);
-        }
-      } else {
-        // Direct proceed for testing
+      const res = await fetchApi(`/enrollment/free/${courseId}`, { method: 'POST', token });
+      if (res.success) {
         setIsEnrolled(true);
       }
     } catch (err) {
@@ -101,11 +96,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
       <div className="p-6 lg:p-8">
         <Link
-          href="/courses"
+          href="/"
           className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Library
+          Back to Courses
         </Link>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
