@@ -8,20 +8,18 @@ import { SkillUpHeader } from '@/components/skillup-header';
 import {
   ArrowLeft,
   Plus,
-  Play,
   Trash2,
-  CheckCircle2,
   Eye,
-  FileText,
-  Clock,
-  Layers,
-  Radio,
+  ListVideo,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
-import { formatPrice, formatDuration } from '@/lib/utils';
+import { formatDuration } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MediaUpload } from '@/components/media-upload';
+import { PlaylistImporterModal } from '@/components/playlist-importer-modal';
+import { toast } from 'sonner';
 
-export default function EditCourseLecturesPage({
+export default function AdminEditCourseLecturesPage({
   params,
 }: {
   params: Promise<{ courseId: string }>;
@@ -33,6 +31,8 @@ export default function EditCourseLecturesPage({
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
+  const [deletingCourse, setDeletingCourse] = useState(false);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
   // New Lecture Form State
   const [showAddForm, setShowAddForm] = useState(false);
@@ -46,7 +46,7 @@ export default function EditCourseLecturesPage({
     isFree: false,
   });
 
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
 
   const loadCourse = async () => {
     try {
@@ -67,92 +67,94 @@ export default function EditCourseLecturesPage({
 
   const handleTogglePublish = async () => {
     setPublishing(true);
-    setMessage(null);
-
     try {
       const token = await getToken();
-      const res = await fetchApi(`/courses/${courseId}/publish`, {
-        method: 'POST',
-        token,
-      });
-
+      const res = await fetchApi(`/courses/${courseId}/publish`, { method: 'POST', token });
       if (res.success && res.data) {
         setCourse({ ...course, isPublished: res.data.isPublished });
-        setMessage({
-          type: 'success',
-          text: res.data.isPublished ? 'Course published successfully!' : 'Course unpublished (Draft).',
-        });
+        toast.success(res.data.isPublished ? 'Course published successfully!' : 'Course moved to draft.');
       } else {
-        setMessage({
-          type: 'error',
-          text: res.message || 'Cannot publish. Ensure you have at least 1 lecture.',
-        });
+        toast.error(res.message || 'Cannot publish — ensure you have at least 1 lecture.');
       }
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Publishing toggle failed' });
+    } catch {
+      toast.error('Publishing toggle failed. Please try again.');
     } finally {
       setPublishing(false);
     }
   };
 
+  const handleDeleteCourse = async () => {
+    toast('Delete this course permanently?', {
+      description: 'All lectures and enrollments will be lost.',
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          setDeletingCourse(true);
+          try {
+            const token = await getToken();
+            const res = await fetchApi(`/courses/${courseId}`, { method: 'DELETE', token });
+            if (res.success) {
+              toast.success('Course deleted.');
+              router.push('/admin');
+            } else {
+              toast.error(res.message || 'Failed to delete course.');
+            }
+          } catch {
+            toast.error('Failed to delete course.');
+          } finally {
+            setDeletingCourse(false);
+          }
+        },
+      },
+      cancel: { label: 'Cancel', onClick: () => {} },
+    });
+  };
+
   const handleAddLecture = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddingLecture(true);
-    setMessage(null);
-
     try {
       const token = await getToken();
-      const payload = {
-        ...lectureForm,
-        duration: parseInt(lectureForm.duration, 10) || 600,
-      };
-
+      const payload = { ...lectureForm, duration: parseInt(lectureForm.duration, 10) || 600 };
       const res = await fetchApi(`/lectures/course/${courseId}`, {
-        method: 'POST',
-        token,
-        body: JSON.stringify(payload),
+        method: 'POST', token, body: JSON.stringify(payload),
       });
-
       if (res.success) {
-        setMessage({ type: 'success', text: 'Lecture added successfully!' });
-        setLectureForm({
-          title: '',
-          description: '',
-          videoUrl: '',
-          pdfUrl: '',
-          duration: '600',
-          isFree: false,
-        });
+        toast.success('Lesson added to syllabus!');
+        setLectureForm({ title: '', description: '', videoUrl: '', pdfUrl: '', duration: '600', isFree: false });
         setShowAddForm(false);
         await loadCourse();
       } else {
-        setMessage({ type: 'error', text: res.message || 'Failed to add lecture' });
+        toast.error(res.message || 'Failed to add lesson.');
       }
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Error adding lecture' });
+    } catch {
+      toast.error('Error adding lesson.');
     } finally {
       setAddingLecture(false);
     }
   };
 
-  const handleDeleteLecture = async (lectureId: string) => {
-    if (!confirm('Are you sure you want to remove this lecture?')) return;
-
-    try {
-      const token = await getToken();
-      const res = await fetchApi(`/lectures/${lectureId}`, {
-        method: 'DELETE',
-        token,
-      });
-
-      if (res.success) {
-        await loadCourse();
-      } else {
-        alert(res.message || 'Failed to delete lecture');
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteLecture = async (lectureId: string, title: string) => {
+    toast(`Remove "${title}"?`, {
+      action: {
+        label: 'Remove',
+        onClick: async () => {
+          try {
+            const token = await getToken();
+            const res = await fetchApi(`/lectures/${lectureId}`, { method: 'DELETE', token });
+            if (res.success) {
+              toast.success('Lesson removed.');
+              await loadCourse();
+            } else {
+              toast.error(res.message || 'Failed to remove lesson.');
+            }
+          } catch {
+            toast.error('Error removing lesson.');
+          }
+        },
+      },
+      cancel: { label: 'Cancel', onClick: () => {} },
+    });
   };
 
   if (loading) {
@@ -168,9 +170,9 @@ export default function EditCourseLecturesPage({
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0d0d10] text-center p-8">
         <h2 className="text-xl font-bold text-white">Course Not Found</h2>
-        <Link href="/instructor" className="mt-4">
+        <Link href="/admin" className="mt-4">
           <button className="rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black">
-            Back to Studio
+            Back to Admin Panel
           </button>
         </Link>
       </div>
@@ -179,17 +181,17 @@ export default function EditCourseLecturesPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Course Management" />
+      <SkillUpHeader title="Admin — Course Management" />
 
       <div className="mx-auto w-full max-w-5xl p-6 lg:p-8 space-y-6">
         {/* Top Actions Bar */}
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <Link
-            href="/instructor"
+            href="/admin"
             className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Instructor Studio
+            Back to Admin Panel
           </Link>
 
           <div className="flex items-center gap-3">
@@ -215,21 +217,18 @@ export default function EditCourseLecturesPage({
                 ? 'Unpublish (Set to Draft)'
                 : 'Publish Course'}
             </button>
+
+            <button
+              onClick={handleDeleteCourse}
+              disabled={deletingCourse}
+              className="flex items-center gap-1.5 rounded-full border border-red-900/50 bg-red-950/20 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-950/50 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Course
+            </button>
           </div>
         </div>
 
-        {/* Message Banner */}
-        {message && (
-          <div
-            className={`rounded-2xl p-4 text-xs font-semibold ${
-              message.type === 'success'
-                ? 'border border-[#d4f76d]/30 bg-[#d4f76d]/10 text-[#d4f76d]'
-                : 'border border-red-800/40 bg-red-950/40 text-red-300'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         {/* Course Overview Card */}
         <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6">
@@ -253,30 +252,39 @@ export default function EditCourseLecturesPage({
             <div className="flex items-center gap-4 text-xs text-[#8e8e9c] shrink-0">
               <span>{course.lectures?.length || 0} Lessons</span>
               <span>•</span>
-              <span className="font-extrabold text-white">
-                {formatPrice(course.price)}
-              </span>
+              <span className="font-extrabold text-[#d4f76d]">Free</span>
             </div>
           </div>
         </div>
 
         {/* Curriculum Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-bold text-white">Curriculum & Video Lessons</h2>
               <p className="text-xs text-[#8e8e9c]">
-                Add sequential video lectures and supporting PDF reference notes.
+                Add sequential video lectures, supporting PDF notes, or import an entire YouTube playlist.
               </p>
             </div>
 
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-1.5 rounded-full bg-[#d4f76d] px-4 py-2 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {showAddForm ? 'Close Form' : 'Add Lesson'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPlaylistModal(true)}
+                className="flex items-center gap-1.5 rounded-full border border-[#23232a] bg-[#16161a] px-4 py-2 text-xs font-bold text-[#d4f76d] hover:border-[#d4f76d] transition-all"
+              >
+                <ListVideo className="h-3.5 w-3.5" />
+                Import YouTube Playlist
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-1.5 rounded-full bg-[#d4f76d] px-4 py-2 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {showAddForm ? 'Close Form' : 'Add Lesson'}
+              </button>
+            </div>
           </div>
 
           {/* Add Lecture Card */}
@@ -291,40 +299,33 @@ export default function EditCourseLecturesPage({
                   </label>
                   <input
                     required
-                    placeholder="e.g. 01. Introduction to Digital Typography"
+                    placeholder="e.g. 01. Introduction to Next.js Architecture"
                     value={lectureForm.title}
                     onChange={(e) => setLectureForm({ ...lectureForm, title: e.target.value })}
                     className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#8e8e9c]">
-                    Video Stream URL (YouTube Unlisted / Public) <span className="text-[#d4f76d]">*</span>
-                  </label>
-                  <input
-                    required
-                    type="url"
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    value={lectureForm.videoUrl}
-                    onChange={(e) => setLectureForm({ ...lectureForm, videoUrl: e.target.value })}
-                    className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
-                  />
-                </div>
+                {/* Video Media Upload / URL */}
+                <MediaUpload
+                  accept="video"
+                  label="Video Stream Asset (Upload MP4 or Paste YouTube/Vimeo Link)"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={lectureForm.videoUrl}
+                  onChange={(url) => setLectureForm({ ...lectureForm, videoUrl: url })}
+                  helperText="Upload an MP4/WebM video file directly, or paste a YouTube Unlisted / Public link."
+                />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[#8e8e9c]">
-                      PDF Resource / Notes URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://example.com/notes.pdf"
-                      value={lectureForm.pdfUrl}
-                      onChange={(e) => setLectureForm({ ...lectureForm, pdfUrl: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
-                    />
-                  </div>
+                  {/* PDF Document Upload */}
+                  <MediaUpload
+                    accept="pdf"
+                    label="Lesson Notes / PDF Resource (Optional)"
+                    placeholder="https://example.com/notes.pdf"
+                    value={lectureForm.pdfUrl}
+                    onChange={(url) => setLectureForm({ ...lectureForm, pdfUrl: url })}
+                    helperText="Upload a study PDF or cheatsheet for students."
+                  />
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-[#8e8e9c]">
@@ -347,7 +348,7 @@ export default function EditCourseLecturesPage({
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Summary of topics explained in this lesson..."
+                    placeholder="Summary of topics covered in this lesson..."
                     value={lectureForm.description}
                     onChange={(e) => setLectureForm({ ...lectureForm, description: e.target.value })}
                     className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
@@ -363,7 +364,7 @@ export default function EditCourseLecturesPage({
                     className="h-4 w-4 rounded accent-[#d4f76d]"
                   />
                   <label htmlFor="isFree" className="text-xs text-[#8e8e9c]">
-                    Free Preview (allow prospective students to watch before purchase)
+                    Free Preview (allow students to preview before enrolling/purchasing)
                   </label>
                 </div>
 
@@ -425,7 +426,7 @@ export default function EditCourseLecturesPage({
 
                   <div className="flex items-center gap-2 shrink-0 ml-4">
                     <button
-                      onClick={() => handleDeleteLecture(lecture.id)}
+                      onClick={() => handleDeleteLecture(lecture.id, lecture.title)}
                       className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#23232a] bg-[#1c1c22] text-[#8e8e9c] hover:border-red-800 hover:text-red-400 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -437,6 +438,17 @@ export default function EditCourseLecturesPage({
           )}
         </div>
       </div>
+
+      {/* 1-Click YouTube Playlist Importer Modal */}
+      <PlaylistImporterModal
+        courseId={courseId}
+        isOpen={showPlaylistModal}
+        onClose={() => setShowPlaylistModal(false)}
+        onSuccess={() => {
+          loadCourse();
+          toast.success('YouTube Playlist imported! All lessons added to syllabus.');
+        }}
+      />
     </div>
   );
 }

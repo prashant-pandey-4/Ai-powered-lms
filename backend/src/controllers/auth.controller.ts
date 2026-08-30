@@ -33,7 +33,10 @@ export const syncUser = async (req: Request, res: Response, next: NextFunction) 
           email,
           name,
           avatarUrl: image_url ?? null,
-          role: Role.STUDENT, // Default role
+          role:
+            email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase()
+              ? Role.ADMIN
+              : Role.STUDENT,
         },
       });
     } else if (evt.type === 'user.updated') {

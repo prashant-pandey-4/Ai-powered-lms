@@ -16,15 +16,19 @@ const envSchema = z.object({
   CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required'),
   CLERK_WEBHOOK_SECRET: z.string().min(1, 'CLERK_WEBHOOK_SECRET is required'),
 
-  // Razorpay (optional for now — required only when payment endpoints are used)
-  RAZORPAY_KEY_ID: z.string().default(''),
-  RAZORPAY_KEY_SECRET: z.string().default(''),
+  // Cloudinary (optional — falls back to local storage)
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 
   // Google Gemini AI
   GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
 
   // Frontend URL (for CORS)
   FRONTEND_URL: z.string().default('http://localhost:3000'),
+
+  // Admin Configuration
+  ADMIN_EMAIL: z.string().default('moneymaking24into7@gmail.com'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -2,17 +2,23 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, GraduationCap, BookOpen, Video } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { LayoutGrid, GraduationCap, Shield, Newspaper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutGrid },
   { label: 'My Courses', href: '/dashboard', icon: GraduationCap },
-  { label: 'Library', href: '/courses', icon: BookOpen },
+  { label: 'Articles', href: '/blog', icon: Newspaper },
 ];
 
 export function SkillUpSidebar() {
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
+
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'moneymaking24into7@gmail.com').toLowerCase();
+  const userEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
+  const isAdmin = isLoaded && userEmail === adminEmail;
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col justify-between border-r border-[#23232a] bg-[#0d0d10] p-6 lg:flex">
@@ -56,17 +62,28 @@ export function SkillUpSidebar() {
               </Link>
             );
           })}
-        </nav>
-      </div>
 
-      {/* Bottom Section */}
-      <div className="pt-6">
-        <Link href="/instructor" className="block">
-          <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-xs font-bold text-black transition-all hover:bg-slate-100">
-            <Video className="h-4 w-4" />
-            Instructor Studio
-          </button>
-        </Link>
+          {/* Exclusive Admin Panel Link for moneymaking24into7@gmail.com */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 mt-4 border border-[#23232a]',
+                pathname.startsWith('/admin')
+                  ? 'bg-[#d4f76d] font-bold text-black shadow-md border-transparent'
+                  : 'bg-[#16161a] text-white hover:border-[#d4f76d]'
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 shrink-0 text-[#d4f76d]" />
+                <span>Admin Panel</span>
+              </div>
+              <span className="rounded-full bg-[#d4f76d]/20 px-2 py-0.5 text-[9px] font-bold text-[#d4f76d]">
+                Admin
+              </span>
+            </Link>
+          )}
+        </nav>
       </div>
     </aside>
   );

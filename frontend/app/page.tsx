@@ -1,26 +1,32 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SkillUpHeader } from '@/components/skillup-header';
 import { BookOpen, ArrowRight, GraduationCap, Play } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export const dynamic = 'force-dynamic';
+export default function HomePage() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-async function getPublishedCourses() {
-  try {
-    const res = await fetchApi<any[]>('/courses');
-    if (res.success && Array.isArray(res.data)) {
-      return res.data;
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetchApi<any[]>('/courses');
+        if (res.success && Array.isArray(res.data)) {
+          setCourses(res.data.slice(0, 6));
+        }
+      } catch (_) {
+        // fail silently — empty state will show
+      } finally {
+        setLoading(false);
+      }
     }
-  } catch (err) {
-    // Server-side fetch failed — return empty, client will handle it
-  }
-  return [];
-}
-
-export default async function HomePage() {
-  const courses = await getPublishedCourses();
-  const recentCourses = courses.slice(0, 6);
+    load();
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d10]">
@@ -28,7 +34,7 @@ export default async function HomePage() {
 
       <div className="p-6 lg:p-8 space-y-10">
 
-        {/* Welcome Hero */}
+        {/* Welcome Hero — renders instantly, no API dependency */}
         <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
@@ -36,17 +42,11 @@ export default async function HomePage() {
                 Welcome to <span className="text-[#d4f76d]">SkillUP</span> 👋
               </h1>
               <p className="mt-2 max-w-lg text-sm text-[#8e8e9c]">
-                Explore our course library, enroll in what interests you, and track your progress — all in one place.
+                Explore our courses, enroll in what interests you, and track your progress — all in one place.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/courses">
-                  <button className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
-                    <BookOpen className="h-4 w-4" />
-                    Browse Library
-                  </button>
-                </Link>
                 <Link href="/dashboard">
-                  <button className="flex items-center gap-2 rounded-full border border-[#23232a] bg-[#1c1c22] px-6 py-2.5 text-xs font-bold text-white hover:border-[#d4f76d] transition-all">
+                  <button className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
                     <GraduationCap className="h-4 w-4" />
                     My Courses
                   </button>
@@ -54,10 +54,11 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4 shrink-0">
               <div className="rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-center">
-                <p className="text-2xl font-extrabold text-[#d4f76d]">{courses.length}</p>
+                <p className="text-2xl font-extrabold text-[#d4f76d]">
+                  {loading ? '—' : courses.length}
+                </p>
                 <p className="text-[11px] font-semibold text-[#8e8e9c] mt-0.5">Courses Available</p>
               </div>
               <div className="rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-center">
@@ -68,40 +69,46 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Recent Courses Section */}
+        {/* Available Courses */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-white">Available Courses</h2>
-            <Link href="/courses">
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors">
-                See all <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </Link>
           </div>
 
-          {recentCourses.length === 0 ? (
-            // Empty state — no courses published yet
+          {/* Loading skeletons — page doesn't blank out */}
+          {loading && (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="rounded-2xl border border-[#23232a] bg-[#16161a] p-3 space-y-3">
+                  <Skeleton className="aspect-[16/10] w-full rounded-xl bg-[#23232a]" />
+                  <Skeleton className="h-5 w-3/4 bg-[#23232a]" />
+                  <Skeleton className="h-4 w-1/2 bg-[#23232a]" />
+                  <Skeleton className="h-4 w-1/3 bg-[#23232a]" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && courses.length === 0 && (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#23232a] p-16 text-center">
               <BookOpen className="mb-4 h-10 w-10 text-[#3c3c46]" />
               <h3 className="text-base font-bold text-white">No courses yet</h3>
               <p className="mt-2 text-xs text-[#8e8e9c]">
                 No published courses available right now.
               </p>
-              <Link href="/instructor/courses/new" className="mt-5">
-                <button className="rounded-full bg-[#d4f76d] px-5 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
-                  Create First Course
-                </button>
-              </Link>
             </div>
-          ) : (
+          )}
+
+          {/* Course cards */}
+          {!loading && courses.length > 0 && (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {recentCourses.map((course: any) => (
+              {courses.map((course: any) => (
                 <Link
                   key={course.id}
                   href={`/courses/${course.id}`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-[#23232a] bg-[#16161a] p-3 transition-all duration-200 hover:-translate-y-1 hover:border-[#34343d]"
                 >
-                  {/* Thumbnail */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-[#23232a]">
                     {course.thumbnail ? (
                       <img
@@ -121,7 +128,6 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  {/* Info */}
                   <div className="flex flex-1 flex-col pt-3">
                     <h4 className="text-sm font-bold text-white group-hover:text-[#d4f76d] line-clamp-2 transition-colors">
                       {course.title}

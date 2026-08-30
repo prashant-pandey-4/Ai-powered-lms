@@ -7,8 +7,10 @@ import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
+import { MediaUpload } from '@/components/media-upload';
+import { toast } from 'sonner';
 
-export default function NewCoursePage() {
+export default function AdminNewCoursePage() {
   const router = useRouter();
   const { getToken } = useAuth();
 
@@ -16,7 +18,6 @@ export default function NewCoursePage() {
     title: '',
     description: '',
     category: 'Web Development',
-    price: '0',
     level: 'beginner',
     thumbnail: '',
     language: 'English',
@@ -34,7 +35,6 @@ export default function NewCoursePage() {
       const token = await getToken();
       const payload = {
         ...formData,
-        price: parseFloat(formData.price) || 0,
       };
 
       const res = await fetchApi<any>('/courses', {
@@ -44,12 +44,21 @@ export default function NewCoursePage() {
       });
 
       if (res.success && res.data) {
-        router.push(`/instructor/courses/${res.data.id}/edit`);
+        toast.success('Course created! Now you can add lectures.');
+        router.push(`/admin/courses/${res.data.id}/edit`);
       } else {
-        setErrorMessage(res.message || 'Failed to create course. Please verify fields.');
+        const errorDetail =
+          res.message ||
+          (res.errors
+            ? Object.values(res.errors).flat().join(', ')
+            : 'Failed to create course. Please check fields.');
+        setErrorMessage(errorDetail);
+        toast.error(errorDetail);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'An error occurred');
+      const msg = err.message || 'An error occurred';
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -57,22 +66,22 @@ export default function NewCoursePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Create New Course" />
+      <SkillUpHeader title="Admin — Create Course" />
 
       <div className="mx-auto w-full max-w-3xl p-6 lg:p-8">
         <Link
-          href="/instructor"
+          href="/admin"
           className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Instructor Studio
+          Back to Admin Panel
         </Link>
 
         <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 lg:p-8 space-y-6">
           <div>
             <h2 className="text-lg font-bold text-white">Course Overview & Metadata</h2>
             <p className="mt-1 text-xs text-[#8e8e9c]">
-              Provide the foundational details for your course before adding sequential video lectures and resource attachments.
+              Provide the foundational details for your course before adding sequential video lectures and resources.
             </p>
           </div>
 
@@ -90,7 +99,7 @@ export default function NewCoursePage() {
               </label>
               <input
                 required
-                placeholder="e.g. Master Modern Distributed Systems with Go"
+                placeholder="e.g. Data Structures & Algorithms with C++"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
@@ -105,7 +114,7 @@ export default function NewCoursePage() {
               <textarea
                 required
                 rows={3}
-                placeholder="Provide a comprehensive summary of the practical skills students will master in this curriculum..."
+                placeholder="Provide a comprehensive summary of the practical skills students will master..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
@@ -117,7 +126,7 @@ export default function NewCoursePage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-[#8e8e9c]">Category</label>
                 <input
-                  placeholder="e.g. Web Development, System Design"
+                  placeholder="e.g. DSA, Web Development, AI & ML"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
@@ -138,39 +147,19 @@ export default function NewCoursePage() {
               </div>
             </div>
 
-            {/* Price & Thumbnail */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">
-                  Price (INR) <span className="text-[#6c6c7a] font-normal">(0 = Free)</span>
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">
-                  Thumbnail Image URL
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formData.thumbnail}
-                  onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
-                />
-              </div>
-            </div>
+            {/* Course Thumbnail Upload */}
+            <MediaUpload
+              accept="image"
+              label="Course Poster / Thumbnail Image"
+              placeholder="https://images.unsplash.com/..."
+              value={formData.thumbnail}
+              onChange={(url) => setFormData({ ...formData, thumbnail: url })}
+              helperText="Upload JPG, PNG or WebP file directly from your computer, or paste an external image link."
+            />
 
             {/* Submit */}
             <div className="flex justify-end gap-3 pt-4 border-t border-[#23232a]">
-              <Link href="/instructor">
+              <Link href="/admin">
                 <button
                   type="button"
                   className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
