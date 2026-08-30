@@ -13,7 +13,7 @@ const lectureSchema = z.object({
 });
 
 /**
- * POST /api/lectures/course/:courseId — Add lecture to course
+ * POST /api/lectures/course/:courseId — Admin: Add lecture to course
  */
 export const addLecture = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,10 +21,6 @@ export const addLecture = async (req: Request, res: Response, next: NextFunction
 
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw new AppError('Course not found', 404);
-
-    if (course.instructorId !== req.dbUser!.id && req.dbUser!.role !== 'ADMIN') {
-      throw new AppError('Forbidden', 403);
-    }
 
     const validated = lectureSchema.parse(req.body);
 
@@ -49,7 +45,7 @@ export const addLecture = async (req: Request, res: Response, next: NextFunction
 };
 
 /**
- * PATCH /api/lectures/:id — Update lecture
+ * PATCH /api/lectures/:id — Admin: Update lecture
  */
 export const updateLecture = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -60,10 +56,6 @@ export const updateLecture = async (req: Request, res: Response, next: NextFunct
       include: { course: true },
     });
     if (!lecture) throw new AppError('Lecture not found', 404);
-
-    if (lecture.course.instructorId !== req.dbUser!.id && req.dbUser!.role !== 'ADMIN') {
-      throw new AppError('Forbidden', 403);
-    }
 
     const validated = lectureSchema.partial().parse(req.body);
 
@@ -82,7 +74,7 @@ export const updateLecture = async (req: Request, res: Response, next: NextFunct
 };
 
 /**
- * DELETE /api/lectures/:id — Delete lecture
+ * DELETE /api/lectures/:id — Admin: Delete lecture
  */
 export const deleteLecture = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -94,10 +86,6 @@ export const deleteLecture = async (req: Request, res: Response, next: NextFunct
     });
     if (!lecture) throw new AppError('Lecture not found', 404);
 
-    if (lecture.course.instructorId !== req.dbUser!.id && req.dbUser!.role !== 'ADMIN') {
-      throw new AppError('Forbidden', 403);
-    }
-
     await prisma.lecture.delete({ where: { id } });
 
     return res.json({ success: true, message: 'Lecture deleted' });
@@ -107,7 +95,7 @@ export const deleteLecture = async (req: Request, res: Response, next: NextFunct
 };
 
 /**
- * POST /api/lectures/course/:courseId/reorder
+ * POST /api/lectures/course/:courseId/reorder — Admin: Reorder lectures
  * Body: { orderedIds: string[] }
  */
 export const reorderLectures = async (req: Request, res: Response, next: NextFunction) => {
@@ -117,10 +105,6 @@ export const reorderLectures = async (req: Request, res: Response, next: NextFun
 
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw new AppError('Course not found', 404);
-
-    if (course.instructorId !== req.dbUser!.id && req.dbUser!.role !== 'ADMIN') {
-      throw new AppError('Forbidden', 403);
-    }
 
     await prisma.$transaction(
       orderedIds.map((lectureId, index) =>

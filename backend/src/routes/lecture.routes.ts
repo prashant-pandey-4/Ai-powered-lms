@@ -9,10 +9,10 @@ import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
 
-// All lecture management is instructor-only
-router.post('/course/:courseId', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), addLecture);
-router.patch('/:id', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), updateLecture);
-router.delete('/:id', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), deleteLecture);
-router.post('/course/:courseId/reorder', requireAuth, requireRole('INSTRUCTOR', 'ADMIN'), reorderLectures);
+// All lecture management is admin-only
+router.post('/course/:courseId', requireAuth, requireRole('ADMIN'), addLecture);
+router.patch('/:id', requireAuth, requireRole('ADMIN'), updateLecture);
+router.delete('/:id', requireAuth, requireRole('ADMIN'), deleteLecture);
+router.post('/course/:courseId/reorder', requireAuth, requireRole('ADMIN'), reorderLectures);
 
 export default router;
