@@ -1,31 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { ArrowLeft, Sparkles, Plus } from 'lucide-react';
+import { ArrowLeft, Sparkles, Plus, RotateCcw } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { MediaUpload } from '@/components/media-upload';
+import { toast } from 'sonner';
+
+const STORAGE_KEY = 'skillup_draft_new_blog';
+
+const initialForm = {
+  title: '',
+  summary: '',
+  content: '',
+  coverImage: '',
+  category: 'Web Development',
+  tagsInput: 'nextjs, react, typescript',
+  readTime: '5',
+  isPublished: true,
+};
 
 export default function AdminNewBlogPage() {
   const router = useRouter();
   const { getToken } = useAuth();
 
-  const [formData, setFormData] = useState({
-    title: '',
-    summary: '',
-    content: '',
-    coverImage: '',
-    category: 'Web Development',
-    tagsInput: 'nextjs, react, typescript',
-    readTime: '5',
-    isPublished: true,
-  });
-
+  const [formData, setFormData] = useState(initialForm);
+  const [hasDraft, setHasDraft] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // 1. Restore saved draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.title || parsed.summary || parsed.content) {
+          setFormData((prev) => ({ ...prev, ...parsed }));
+          setHasDraft(true);
+          toast.info('Restored your unsaved article draft!', {
+            description: 'You can continue editing or clear it to start over.',
+          });
+        }
+      }
+    } catch {}
+  }, []);
+
+  // 2. Auto-save form changes
+  const updateField = (field: string, value: any) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // 3. Clear draft
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setFormData(initialForm);
+    setHasDraft(false);
+    toast.success('Draft cleared. Form reset to fresh state.');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,12 +100,26 @@ export default function AdminNewBlogPage() {
       });
 
       if (res.success && res.data) {
+        // Clear saved draft on success
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+
+        toast.success('Article published successfully!');
         router.push('/admin/blogs');
       } else {
-        setErrorMessage(res.message || 'Failed to create article. Please verify fields.');
+        const errorDetail =
+          res.message ||
+          (res.errors
+            ? Object.values(res.errors).flat().join(', ')
+            : 'Failed to create article. Please verify fields.');
+        setErrorMessage(errorDetail);
+        toast.error(errorDetail);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'An error occurred');
+      const msg = err.message || 'An error occurred';
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -70,23 +127,43 @@ export default function AdminNewBlogPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin — Write Article" />
+      <SkillUpHeader title="Admin Studio — Write Article" />
 
       <div className="mx-auto w-full max-w-3xl p-6 lg:p-8">
-        <Link
-          href="/admin/blogs"
-          className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Articles Management
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/admin/blogs"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Articles Management
+          </Link>
+
+          {hasDraft && (
+            <button
+              type="button"
+              onClick={handleClearDraft}
+              className="inline-flex items-center gap-1.5 rounded-full border border-red-800/40 bg-red-950/20 px-3 py-1 text-[11px] font-semibold text-red-300 hover:bg-red-950/40 transition-colors"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Clear Restored Draft
+            </button>
+          )}
+        </div>
 
         <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 lg:p-8 space-y-6">
-          <div>
-            <h2 className="text-lg font-bold text-white">Create Knowledge Article</h2>
-            <p className="mt-1 text-xs text-[#8e8e9c]">
-              Publish tutorials, guides, and engineering insights for your community.
-            </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                Create Knowledge Article
+                <span className="rounded-full bg-[#d4f76d]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d]">
+                  Auto-Saved
+                </span>
+              </h2>
+              <p className="mt-1 text-xs text-[#8e8e9c]">
+                Publish tutorials, guides, and engineering insights for your community. Drafts are safely cached in browser.
+              </p>
+            </div>
           </div>
 
           {errorMessage && (
@@ -105,7 +182,7 @@ export default function AdminNewBlogPage() {
                 required
                 placeholder="e.g. Building High-Performance Microservices with Go & Kafka"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => updateField('title', e.target.value)}
                 className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
@@ -120,7 +197,7 @@ export default function AdminNewBlogPage() {
                 rows={2}
                 placeholder="Brief takeaway explaining what readers will learn..."
                 value={formData.summary}
-                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                onChange={(e) => updateField('summary', e.target.value)}
                 className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
@@ -131,8 +208,8 @@ export default function AdminNewBlogPage() {
               label="Article Banner / Cover Image"
               placeholder="https://images.unsplash.com/..."
               value={formData.coverImage}
-              onChange={(url) => setFormData({ ...formData, coverImage: url })}
-              helperText="Upload JPG/PNG cover image or paste an Unsplash link."
+              onChange={(url) => updateField('coverImage', url)}
+              helperText="Upload JPG/PNG cover image or paste an external image link."
             />
 
             {/* Category, Read Time, Tags */}
@@ -142,7 +219,7 @@ export default function AdminNewBlogPage() {
                 <input
                   placeholder="e.g. System Design, AI"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => updateField('category', e.target.value)}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
@@ -154,7 +231,7 @@ export default function AdminNewBlogPage() {
                   min="1"
                   placeholder="5"
                   value={formData.readTime}
-                  onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
+                  onChange={(e) => updateField('readTime', e.target.value)}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
@@ -164,7 +241,7 @@ export default function AdminNewBlogPage() {
                 <input
                   placeholder="react, api, scaling"
                   value={formData.tagsInput}
-                  onChange={(e) => setFormData({ ...formData, tagsInput: e.target.value })}
+                  onChange={(e) => updateField('tagsInput', e.target.value)}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
@@ -180,7 +257,7 @@ export default function AdminNewBlogPage() {
                 rows={12}
                 placeholder="Write your article content here..."
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={(e) => updateField('content', e.target.value)}
                 className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-xs font-mono text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
@@ -191,7 +268,7 @@ export default function AdminNewBlogPage() {
                 type="checkbox"
                 id="isPublished"
                 checked={formData.isPublished}
-                onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                onChange={(e) => updateField('isPublished', e.target.checked)}
                 className="h-4 w-4 rounded accent-[#d4f76d]"
               />
               <label htmlFor="isPublished" className="text-xs text-white font-medium">
@@ -200,23 +277,30 @@ export default function AdminNewBlogPage() {
             </div>
 
             {/* Submit */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-[#23232a]">
-              <Link href="/admin/blogs">
+            <div className="flex items-center justify-between pt-4 border-t border-[#23232a]">
+              <span className="text-[11px] text-[#8e8e9c] flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#d4f76d]" />
+                Auto-saved in browser
+              </span>
+
+              <div className="flex items-center gap-3">
+                <Link href="/admin/blogs">
+                  <button
+                    type="button"
+                    className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </Link>
                 <button
-                  type="button"
-                  className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                  type="submit"
+                  disabled={submitting}
+                  className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all disabled:opacity-50"
                 >
-                  Cancel
+                  <Plus className="h-4 w-4" />
+                  {submitting ? 'Publishing...' : 'Publish Article'}
                 </button>
-              </Link>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all disabled:opacity-50"
-              >
-                <Plus className="h-4 w-4" />
-                {submitting ? 'Publishing...' : 'Publish Article'}
-              </button>
+              </div>
             </div>
           </form>
         </div>

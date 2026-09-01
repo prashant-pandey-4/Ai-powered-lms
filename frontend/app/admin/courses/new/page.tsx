@@ -1,30 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Sparkles, RotateCcw } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { MediaUpload } from '@/components/media-upload';
 import { toast } from 'sonner';
+
+const STORAGE_KEY = 'skillup_draft_new_course';
+
+const initialForm = {
+  title: '',
+  description: '',
+  category: 'Web Development',
+  level: 'beginner',
+  thumbnail: '',
+  language: 'English',
+};
 
 export default function AdminNewCoursePage() {
   const router = useRouter();
   const { getToken } = useAuth();
 
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'Web Development',
-    level: 'beginner',
-    thumbnail: '',
-    language: 'English',
-  });
-
+  const [formData, setFormData] = useState(initialForm);
+  const [hasDraft, setHasDraft] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // 1. Restore saved draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.title || parsed.description || parsed.thumbnail) {
+          setFormData((prev) => ({ ...prev, ...parsed }));
+          setHasDraft(true);
+          toast.info('Restored your unsaved course draft!', {
+            description: 'You can continue editing or clear it to start over.',
+          });
+        }
+      }
+    } catch {
+      // ignore JSON parse error
+    }
+  }, []);
+
+  // 2. Auto-save form changes to localStorage
+  const updateField = (field: string, value: any) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // 3. Clear draft
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setFormData(initialForm);
+    setHasDraft(false);
+    toast.success('Draft cleared. Form reset to fresh state.');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +77,7 @@ export default function AdminNewCoursePage() {
 
     try {
       const token = await getToken();
-      const payload = {
-        ...formData,
-      };
+      const payload = { ...formData };
 
       const res = await fetchApi<any>('/courses', {
         method: 'POST',
@@ -44,6 +86,11 @@ export default function AdminNewCoursePage() {
       });
 
       if (res.success && res.data) {
+        // Clear saved draft on success
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+
         toast.success('Course created! Now you can add lectures.');
         router.push(`/admin/courses/${res.data.id}/edit`);
       } else {
@@ -66,23 +113,43 @@ export default function AdminNewCoursePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin — Create Course" />
+      <SkillUpHeader title="Admin Studio — Create Course" />
 
       <div className="mx-auto w-full max-w-3xl p-6 lg:p-8">
-        <Link
-          href="/admin"
-          className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Admin Panel
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Studio Overview
+          </Link>
+
+          {hasDraft && (
+            <button
+              type="button"
+              onClick={handleClearDraft}
+              className="inline-flex items-center gap-1.5 rounded-full border border-red-800/40 bg-red-950/20 px-3 py-1 text-[11px] font-semibold text-red-300 hover:bg-red-950/40 transition-colors"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Clear Restored Draft
+            </button>
+          )}
+        </div>
 
         <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 lg:p-8 space-y-6">
-          <div>
-            <h2 className="text-lg font-bold text-white">Course Overview & Metadata</h2>
-            <p className="mt-1 text-xs text-[#8e8e9c]">
-              Provide the foundational details for your course before adding sequential video lectures and resources.
-            </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                Course Overview & Metadata
+                <span className="rounded-full bg-[#d4f76d]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d]">
+                  Auto-Saved
+                </span>
+              </h2>
+              <p className="mt-1 text-xs text-[#8e8e9c]">
+                Fields auto-save locally so you won&apos;t lose progress if you refresh or close the tab.
+              </p>
+            </div>
           </div>
 
           {errorMessage && (
@@ -101,7 +168,7 @@ export default function AdminNewCoursePage() {
                 required
                 placeholder="e.g. Data Structures & Algorithms with C++"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => updateField('title', e.target.value)}
                 className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
@@ -116,7 +183,7 @@ export default function AdminNewCoursePage() {
                 rows={3}
                 placeholder="Provide a comprehensive summary of the practical skills students will master..."
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => updateField('description', e.target.value)}
                 className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
@@ -128,7 +195,7 @@ export default function AdminNewCoursePage() {
                 <input
                   placeholder="e.g. DSA, Web Development, AI & ML"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => updateField('category', e.target.value)}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
@@ -137,7 +204,7 @@ export default function AdminNewCoursePage() {
                 <label className="text-xs font-semibold text-[#8e8e9c]">Difficulty Level</label>
                 <select
                   value={formData.level}
-                  onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                  onChange={(e) => updateField('level', e.target.value)}
                   className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3 text-xs text-white focus:border-[#d4f76d] focus:outline-none"
                 >
                   <option value="beginner">Beginner</option>
@@ -153,28 +220,35 @@ export default function AdminNewCoursePage() {
               label="Course Poster / Thumbnail Image"
               placeholder="https://images.unsplash.com/..."
               value={formData.thumbnail}
-              onChange={(url) => setFormData({ ...formData, thumbnail: url })}
-              helperText="Upload JPG, PNG or WebP file directly from your computer, or paste an external image link."
+              onChange={(url) => updateField('thumbnail', url)}
+              helperText="Upload JPG, PNG or WebP file directly, paste a link, or leave blank to auto-use 1st YouTube video thumbnail."
             />
 
             {/* Submit */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-[#23232a]">
-              <Link href="/admin">
+            <div className="flex items-center justify-between pt-4 border-t border-[#23232a]">
+              <span className="text-[11px] text-[#8e8e9c] flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#d4f76d]" />
+                Auto-saved in browser
+              </span>
+
+              <div className="flex items-center gap-3">
+                <Link href="/admin">
+                  <button
+                    type="button"
+                    className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </Link>
                 <button
-                  type="button"
-                  className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                  type="submit"
+                  disabled={submitting}
+                  className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all disabled:opacity-50"
                 >
-                  Cancel
+                  <Plus className="h-4 w-4" />
+                  {submitting ? 'Creating Course...' : 'Continue to Add Lectures'}
                 </button>
-              </Link>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all disabled:opacity-50"
-              >
-                <Plus className="h-4 w-4" />
-                {submitting ? 'Creating Course...' : 'Continue to Add Lectures'}
-              </button>
+              </div>
             </div>
           </form>
         </div>
