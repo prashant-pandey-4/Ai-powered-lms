@@ -63,10 +63,12 @@ export function SkillUpSidebar() {
             );
           })}
 
-          {/* Exclusive Admin Panel Link for moneymaking24into7@gmail.com */}
+          {/* Exclusive Admin Panel Link for moneymaking24into7@gmail.com — Opens dedicated Admin Studio in new tab */}
           {isAdmin && (
             <Link
               href="/admin"
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
                 'flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 mt-4 border border-[#23232a]',
                 pathname.startsWith('/admin')
@@ -79,7 +81,7 @@ export function SkillUpSidebar() {
                 <span>Admin Panel</span>
               </div>
               <span className="rounded-full bg-[#d4f76d]/20 px-2 py-0.5 text-[9px] font-bold text-[#d4f76d]">
-                Admin
+                Studio ↗
               </span>
             </Link>
           )}

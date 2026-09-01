@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
-import { SkillUpSidebar } from '@/components/skillup-sidebar';
+import { AppShell } from '@/components/app-shell';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -18,13 +18,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark h-full">
         <body className="flex min-h-full bg-[#0d0d10] text-[#f4f4f5] antialiased">
-          {/* Left Fixed Sidebar */}
-          <SkillUpSidebar />
-
-          {/* Main App Content Area */}
-          <div className="flex flex-1 flex-col lg:pl-64">
-            <main className="flex-1 pb-16">{children}</main>
-          </div>
+          <AppShell>{children}</AppShell>
 
           {/* Global Toast Notifications */}
           <Toaster
