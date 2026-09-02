@@ -3,9 +3,21 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { BookOpen, ArrowRight, GraduationCap, Play } from 'lucide-react';
+import {
+  BookOpen,
+  ArrowRight,
+  GraduationCap,
+  Play,
+  Flame,
+  Sparkles,
+  Bot,
+  FileText,
+  CheckCircle2,
+  Star,
+  Users,
+  Code2,
+} from 'lucide-react';
 import { fetchApi } from '@/lib/api';
-import { formatPrice } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function HomePage() {
@@ -17,10 +29,9 @@ export default function HomePage() {
       try {
         const res = await fetchApi<any[]>('/courses');
         if (res.success && Array.isArray(res.data)) {
-          setCourses(res.data.slice(0, 6));
+          setCourses(res.data);
         }
       } catch (_) {
-        // fail silently — empty state will show
       } finally {
         setLoading(false);
       }
@@ -29,87 +40,161 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Dashboard" />
+    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+      <SkillUpHeader title="Explore Courses" />
 
-      <div className="p-6 lg:p-8 space-y-10">
-
-        {/* Welcome Hero — renders instantly, no API dependency */}
-        <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-extrabold text-white">
-                Welcome to <span className="text-[#d4f76d]">SkillUP</span> 👋
-              </h1>
-              <p className="mt-2 max-w-lg text-sm text-[#8e8e9c]">
-                Explore our courses, enroll in what interests you, and track your progress — all in one place.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/dashboard">
-                  <button className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
-                    <GraduationCap className="h-4 w-4" />
-                    My Courses
-                  </button>
-                </Link>
-              </div>
+      <div className="p-6 lg:p-10 space-y-12 max-w-7xl mx-auto w-full">
+        {/* NamasteDev Style Hero Section */}
+        <div className="relative overflow-hidden rounded-3xl border border-[#22232a] bg-[#111217]/80 p-8 lg:p-12 backdrop-blur-xl shadow-2xl">
+          <div className="relative z-10 max-w-3xl space-y-6">
+            {/* Top Pill Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-4 py-1.5 text-xs font-bold text-[#f97316]">
+              <Flame className="h-3.5 w-3.5 fill-current" />
+              <span>ZERO PAYWALLS · 100% FREE DEVELOPER ACADEMY</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 shrink-0">
-              <div className="rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-center">
-                <p className="text-2xl font-extrabold text-[#d4f76d]">
-                  {loading ? '—' : courses.length}
-                </p>
-                <p className="text-[11px] font-semibold text-[#8e8e9c] mt-0.5">Courses Available</p>
+            {/* Glowing Main Heading */}
+            <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.15]">
+              Learn. Build. Grow. <br />
+              <span className="gradient-text-orange">Master Tech With Top Content</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-[#9ca3af] leading-relaxed max-w-2xl font-medium">
+              Curated, battle-tested computer science curriculum from the world&apos;s best engineers.
+              Video syllabus, 24/7 video-grounded AI mentor, and study notes — completely free forever.
+            </p>
+
+            {/* Key Value Badges */}
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#d1d5db] pt-1">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> 1-Click Free Enrollment
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> Active Video AI Mentor
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> Open-Source Curriculum
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <Link href="/courses">
+                <button className="flex items-center gap-2 rounded-full glow-amber-btn px-6 py-3 text-xs sm:text-sm font-bold text-white transition-all">
+                  <Flame className="h-4 w-4 fill-current" />
+                  Explore All Courses
+                </button>
+              </Link>
+              <Link href="/dashboard">
+                <button className="flex items-center gap-2 rounded-full border border-[#22232a] bg-[#17181f] px-6 py-3 text-xs sm:text-sm font-bold text-white hover:border-[#f97316]/60 transition-colors">
+                  <GraduationCap className="h-4 w-4" />
+                  My Learning Room
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Background Ambient Glow */}
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-[#f97316]/10 blur-3xl pointer-events-none" />
+        </div>
+
+        {/* Bento Grid ("Why SkillUP") */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Core Features</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white">Why Learn on SkillUP?</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-3 hover:border-[#f97316]/40 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f97316]/15 text-[#f97316]">
+                <BookOpen className="h-5 w-5" />
               </div>
-              <div className="rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-center">
-                <p className="text-2xl font-extrabold text-[#bfe2ff]">Free</p>
-                <p className="text-[11px] font-semibold text-[#8e8e9c] mt-0.5">To Get Started</p>
+              <h3 className="text-sm font-bold text-white">Curated Syllabus</h3>
+              <p className="text-xs text-[#9ca3af] leading-relaxed">
+                Sequential lessons from Striver, Akshay Saini, and top engineering creators organized logically.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-3 hover:border-[#f97316]/40 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f59e0b]/15 text-[#f59e0b]">
+                <Bot className="h-5 w-5" />
               </div>
+              <h3 className="text-sm font-bold text-white">24/7 AI Mentor</h3>
+              <p className="text-xs text-[#9ca3af] leading-relaxed">
+                Powered by Gemini 3.6 Flash. Resolves code doubts in real-time grounded in the active video.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-3 hover:border-[#f97316]/40 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#38bdf8]/15 text-[#38bdf8]">
+                <FileText className="h-5 w-5" />
+              </div>
+              <h3 className="text-sm font-bold text-white">Study Notes & PDFs</h3>
+              <p className="text-xs text-[#9ca3af] leading-relaxed">
+                Downloadable cheatsheets, GitHub starter code, and interview revision guides per lesson.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-3 hover:border-[#f97316]/40 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#a855f7]/15 text-[#a855f7]">
+                <Code2 className="h-5 w-5" />
+              </div>
+              <h3 className="text-sm font-bold text-white">Open Source</h3>
+              <p className="text-xs text-[#9ca3af] leading-relaxed">
+                100% community-driven. Developers across the globe contribute new courses and roadmaps via PRs.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Available Courses */}
-        <div className="space-y-4">
+        {/* Featured Courses Grid */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-white">Available Courses</h2>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Featured Courses</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white">Explore Top Tracks</h2>
+            </div>
+            <Link
+              href="/courses"
+              className="text-xs font-bold text-[#f97316] hover:underline flex items-center gap-1"
+            >
+              View All <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
 
-          {/* Loading skeletons — page doesn't blank out */}
           {loading && (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="rounded-2xl border border-[#23232a] bg-[#16161a] p-3 space-y-3">
-                  <Skeleton className="aspect-[16/10] w-full rounded-xl bg-[#23232a]" />
-                  <Skeleton className="h-5 w-3/4 bg-[#23232a]" />
-                  <Skeleton className="h-4 w-1/2 bg-[#23232a]" />
-                  <Skeleton className="h-4 w-1/3 bg-[#23232a]" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-[#22232a] bg-[#111217] p-4 space-y-3">
+                  <Skeleton className="aspect-video w-full rounded-xl bg-[#17181f]" />
+                  <Skeleton className="h-5 w-3/4 bg-[#17181f]" />
+                  <Skeleton className="h-4 w-1/2 bg-[#17181f]" />
                 </div>
               ))}
             </div>
           )}
 
-          {/* Empty state */}
           {!loading && courses.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#23232a] p-16 text-center">
-              <BookOpen className="mb-4 h-10 w-10 text-[#3c3c46]" />
-              <h3 className="text-base font-bold text-white">No courses yet</h3>
-              <p className="mt-2 text-xs text-[#8e8e9c]">
-                No published courses available right now.
-              </p>
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#22232a] p-16 text-center bg-[#111217]">
+              <BookOpen className="mb-4 h-10 w-10 text-[#6b7280]" />
+              <h3 className="text-base font-bold text-white">No courses published yet</h3>
+              <p className="mt-2 text-xs text-[#9ca3af]">Check back soon or create one in Admin Studio.</p>
             </div>
           )}
 
-          {/* Course cards */}
           {!loading && courses.length > 0 && (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {courses.map((course: any) => (
                 <Link
                   key={course.id}
                   href={`/courses/${course.id}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-[#23232a] bg-[#16161a] p-3 transition-all duration-200 hover:-translate-y-1 hover:border-[#34343d]"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-[#22232a] bg-[#111217] p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-[#f97316]/50 hover:shadow-xl hover:shadow-[#f97316]/5"
                 >
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-[#23232a]">
+                  {/* 16:9 Thumbnail */}
+                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-[#22232a]">
                     {course.thumbnail ? (
                       <img
                         src={course.thumbnail}
@@ -117,41 +202,53 @@ export default function HomePage() {
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <BookOpen className="h-8 w-8 text-[#3c3c46]" />
+                      <div className="flex h-full w-full items-center justify-center bg-[#17181f]">
+                        <BookOpen className="h-8 w-8 text-[#6b7280]" />
                       </div>
                     )}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4f76d] text-black shadow-md">
-                        <Play className="h-4 w-4 fill-current ml-0.5" />
+
+                    {/* Play Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f97316] text-white shadow-lg shadow-[#f97316]/40">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
                       </div>
+                    </div>
+
+                    {/* Badges Overlay */}
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                      <span className="rounded-md bg-black/80 px-2 py-0.5 text-[10px] font-bold text-[#f97316] backdrop-blur-md border border-[#f97316]/20">
+                        {course.category || 'Engineering'}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-1 flex-col pt-3">
-                    <h4 className="text-sm font-bold text-white group-hover:text-[#d4f76d] line-clamp-2 transition-colors">
+                  {/* Card Content */}
+                  <div className="flex flex-1 flex-col pt-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-[#9ca3af]">
+                      <span className="flex items-center gap-1 text-[#f59e0b] font-bold">
+                        <Star className="h-3 w-3 fill-current" /> 4.9
+                      </span>
+                      <span>{course._count?.lectures || 0} Lessons</span>
+                      <span className="rounded bg-[#17181f] px-1.5 py-0.5 text-[10px] text-[#9ca3af]">
+                        English / Hindi
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#f97316] line-clamp-2 transition-colors">
                       {course.title}
                     </h4>
 
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {course.level && (
-                        <span className="rounded-full bg-[#23232a] px-2.5 py-0.5 text-[10px] font-bold text-[#d4f76d]">
-                          {course.level}
-                        </span>
-                      )}
-                      {course.category && (
-                        <span className="rounded-full bg-[#1c1c22] px-2.5 py-0.5 text-[10px] font-semibold text-[#8e8e9c]">
-                          {course.category}
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed">
+                      {course.description || 'Master fundamental concepts through high-quality structured video lessons.'}
+                    </p>
 
-                    <div className="mt-auto pt-3 flex items-center justify-between border-t border-[#23232a] mt-4">
-                      <span className="text-sm font-extrabold text-white">
-                        {course.price === 0 ? 'Free' : formatPrice(course.price)}
+                    {/* Bottom CTA & Free Badge */}
+                    <div className="mt-auto pt-3 flex items-center justify-between border-t border-[#22232a]">
+                      <span className="rounded-full bg-[#f97316]/10 px-2.5 py-0.5 text-xs font-extrabold text-[#f97316]">
+                        100% Free
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-[#8e8e9c] group-hover:text-[#d4f76d] transition-colors">
-                        View <ArrowRight className="h-3 w-3" />
+                      <span className="flex items-center gap-1 text-xs font-bold text-white group-hover:text-[#f97316] transition-colors">
+                        View Details <ArrowRight className="h-3 w-3" />
                       </span>
                     </div>
                   </div>
@@ -160,7 +257,6 @@ export default function HomePage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ import {
   Bot,
   Copy,
   Check,
+  Flame,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -100,7 +101,7 @@ export default function LecturePlayerPage({
         const sampleLectures = [
           {
             id: 'lec-1',
-            title: '01. Typography & Readability Rules',
+            title: 'Episode 01: Typography & Readability Rules',
             videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             description: 'Understanding type scale, font pairings, line-height and rhythm.',
             pdfUrl: 'https://example.com/notes.pdf',
@@ -212,8 +213,8 @@ export default function LecturePlayerPage({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#0d0d10] p-8 space-y-6">
-        <Skeleton className="h-96 w-full rounded-2xl bg-[#16161a]" />
+      <div className="flex min-h-screen flex-col bg-[#060709] p-8 space-y-6">
+        <Skeleton className="h-96 w-full rounded-2xl bg-[#111217]" />
       </div>
     );
   }
@@ -225,13 +226,13 @@ export default function LecturePlayerPage({
   const isCompleted = completedLectureIds.includes(currentLecture?.id);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
+    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
       <SkillUpHeader title={course?.title || 'Learning Studio'} />
 
-      <div className="p-6 lg:p-8">
+      <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-6">
         <Link
           href={`/courses/${courseId}`}
-          className="mb-4 inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Syllabus
         </Link>
@@ -254,7 +255,7 @@ export default function LecturePlayerPage({
               }
               // YouTube / Vimeo
               return (
-                <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#23232a] bg-black shadow-xl">
+                <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[#22232a] bg-black shadow-2xl">
                   <iframe
                     key={currentLecture.id}
                     src={embedUrl}
@@ -266,17 +267,17 @@ export default function LecturePlayerPage({
                 </div>
               );
             })() : (
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#23232a] bg-black shadow-xl flex items-center justify-center">
-                <p className="text-xs text-[#8e8e9c]">No video stream URL provided for this lesson</p>
+              <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-[#22232a] bg-black shadow-2xl flex items-center justify-center">
+                <p className="text-xs text-[#9ca3af]">No video stream URL provided for this lesson</p>
               </div>
             )}
 
             {/* Action Bar (Prev / Complete / Next) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#23232a] pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#22232a] pb-5">
               {prevLecture ? (
                 <button
                   onClick={() => handleSelectLecture(prevLecture)}
-                  className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d] transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-[#111217] border border-[#22232a] px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Previous
                 </button>
@@ -286,20 +287,20 @@ export default function LecturePlayerPage({
 
               <button
                 onClick={handleMarkComplete}
-                className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold transition-all ${
                   isCompleted
-                    ? 'bg-[#d4f76d] text-black'
-                    : 'bg-[#23232a] text-white hover:bg-[#d4f76d] hover:text-black'
+                    ? 'bg-[#f97316] text-white shadow-lg shadow-[#f97316]/25'
+                    : 'bg-[#17181f] border border-[#22232a] text-white hover:bg-[#f97316] hover:text-white'
                 }`}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                {isCompleted ? 'Completed' : 'Mark as Complete'}
+                {isCompleted ? 'Lesson Completed' : 'Mark as Complete'}
               </button>
 
               {nextLecture ? (
                 <button
                   onClick={() => handleSelectLecture(nextLecture)}
-                  className="flex items-center gap-1.5 rounded-full bg-[#16161a] border border-[#23232a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d] transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-[#111217] border border-[#22232a] px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
                 >
                   Next <ArrowRight className="h-3.5 w-3.5" />
                 </button>
@@ -310,29 +311,29 @@ export default function LecturePlayerPage({
 
             {/* Title & Notes */}
             <div className="space-y-3">
-              <span className="text-[11px] font-bold text-[#d4f76d] uppercase tracking-wider">
-                Lesson {currentIndex >= 0 ? currentIndex + 1 : 1} of {lectures.length}
+              <span className="text-[11px] font-bold text-[#f97316] uppercase tracking-wider">
+                Episode {currentIndex >= 0 ? currentIndex + 1 : 1} of {lectures.length}
               </span>
-              <h2 className="text-xl font-bold text-white">{currentLecture?.title}</h2>
+              <h2 className="text-xl sm:text-2xl font-black text-white">{currentLecture?.title}</h2>
               {currentLecture?.description && (
-                <p className="text-xs leading-relaxed text-[#8e8e9c]">
+                <p className="text-xs sm:text-sm leading-relaxed text-[#9ca3af]">
                   {currentLecture.description}
                 </p>
               )}
 
               {currentLecture?.pdfUrl && (
-                <div className="mt-4 flex items-center justify-between rounded-xl border border-[#23232a] bg-[#16161a] p-4">
+                <div className="mt-4 flex items-center justify-between rounded-2xl border border-[#22232a] bg-[#111217] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#d4f76d]/15 text-[#d4f76d]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f97316]/15 text-[#f97316]">
                       <FileText className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Lesson Notes PDF</p>
-                      <p className="text-[10px] text-[#8e8e9c]">Downloadable cheatsheet & resource</p>
+                      <p className="text-xs font-bold text-white">Lesson Notes & Cheatsheet PDF</p>
+                      <p className="text-[10px] text-[#9ca3af]">Downloadable code & interview notes</p>
                     </div>
                   </div>
                   <a href={currentLecture.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    <button className="flex items-center gap-1 rounded-full bg-[#23232a] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#d4f76d] hover:text-black transition-colors">
+                    <button className="flex items-center gap-1 rounded-full bg-[#17181f] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#f97316] hover:text-white transition-colors border border-[#22232a]">
                       <span>View PDF</span>
                       <ExternalLink className="h-3 w-3" />
                     </button>
@@ -343,30 +344,30 @@ export default function LecturePlayerPage({
           </div>
 
           {/* Right 4 Cols: Playlist & AI Doubt Assistant */}
-          <div className="flex flex-col h-162.5 rounded-2xl border border-[#23232a] bg-[#16161a] overflow-hidden lg:col-span-4 shadow-2xl">
+          <div className="flex flex-col h-162.5 rounded-3xl border border-[#22232a] bg-[#111217] overflow-hidden lg:col-span-4 shadow-2xl">
             {/* Tab Switcher */}
-            <div className="grid grid-cols-2 border-b border-[#23232a]">
+            <div className="grid grid-cols-2 border-b border-[#22232a]">
               <button
                 onClick={() => setActiveTab('playlist')}
                 className={`flex items-center justify-center gap-2 py-3.5 text-xs font-bold transition-colors ${
                   activeTab === 'playlist'
-                    ? 'bg-[#23232a] text-[#d4f76d]'
-                    : 'text-[#8e8e9c] hover:text-white'
+                    ? 'bg-[#17181f] text-[#f97316] border-b-2 border-[#f97316]'
+                    : 'text-[#9ca3af] hover:text-white'
                 }`}
               >
                 <ListVideo className="h-4 w-4" />
-                Playlist ({lectures.length})
+                Syllabus ({lectures.length})
               </button>
               <button
                 onClick={() => setActiveTab('ai-tutor')}
                 className={`flex items-center justify-center gap-2 py-3.5 text-xs font-bold transition-colors ${
                   activeTab === 'ai-tutor'
-                    ? 'bg-[#23232a] text-[#d4f76d]'
-                    : 'text-[#8e8e9c] hover:text-white'
+                    ? 'bg-[#17181f] text-[#f97316] border-b-2 border-[#f97316]'
+                    : 'text-[#9ca3af] hover:text-white'
                 }`}
               >
-                <BrainCircuit className="h-4 w-4 text-[#d4f76d]" />
-                AI Tutor
+                <BrainCircuit className="h-4 w-4 text-[#f97316]" />
+                AI Mentor
               </button>
             </div>
 
@@ -384,17 +385,17 @@ export default function LecturePlayerPage({
                       onClick={() => handleSelectLecture(lec)}
                       className={`flex w-full items-center justify-between rounded-xl p-3 text-left text-xs transition-all ${
                         isActive
-                          ? 'bg-[#d4f76d] font-bold text-black shadow-md'
-                          : 'text-[#8e8e9c] hover:bg-[#1c1c22] hover:text-white'
+                          ? 'bg-gradient-to-r from-[#f97316] to-[#ea580c] font-bold text-white shadow-lg shadow-[#f97316]/25'
+                          : 'text-[#9ca3af] hover:bg-[#17181f] hover:text-white'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0 pr-2">
                         {isDone ? (
                           <CheckCircle2
-                            className={`h-4 w-4 shrink-0 ${isActive ? 'text-black' : 'text-[#d4f76d]'}`}
+                            className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-[#f97316]'}`}
                           />
                         ) : (
-                          <Circle className="h-4 w-4 shrink-0 text-[#6c6c7a]" />
+                          <Circle className="h-4 w-4 shrink-0 text-[#6b7280]" />
                         )}
                         <span className="truncate">
                           {idx + 1}. {lec.title}
@@ -402,7 +403,7 @@ export default function LecturePlayerPage({
                       </div>
 
                       {isActive && (
-                        <span className="rounded-full bg-black px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d] shrink-0">
+                        <span className="rounded-full bg-black/40 px-2 py-0.5 text-[9px] font-extrabold text-white shrink-0">
                           Playing
                         </span>
                       )}
@@ -418,14 +419,14 @@ export default function LecturePlayerPage({
                 {/* Chat Log Area */}
                 <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                   {chatLogs.length === 0 && !aiLoading && (
-                    <div className="py-10 text-center text-xs text-[#8e8e9c] space-y-3">
-                      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d4f76d]/15 text-[#d4f76d]">
+                    <div className="py-10 text-center text-xs text-[#9ca3af] space-y-3">
+                      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f97316]/15 text-[#f97316]">
                         <BrainCircuit className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-white text-sm">Ask any doubt</p>
-                        <p className="text-[11px] text-[#8e8e9c] mt-0.5">
-                          Instant explanation and code help for this video.
+                        <p className="font-bold text-white text-sm">Ask any coding doubt</p>
+                        <p className="text-[11px] text-[#9ca3af] mt-0.5">
+                          Instant explanation & code help for this video.
                         </p>
                       </div>
 
@@ -436,7 +437,7 @@ export default function LecturePlayerPage({
                             key={i}
                             type="button"
                             onClick={() => askAi(prompt)}
-                            className="rounded-xl border border-[#23232a] bg-[#16161a] px-3 py-2 text-left text-[11px] text-[#f4f4f5] hover:border-[#d4f76d] hover:text-[#d4f76d] transition-colors"
+                            className="rounded-xl border border-[#22232a] bg-[#17181f] px-3 py-2 text-left text-[11px] text-[#f4f4f5] hover:border-[#f97316] hover:text-[#f97316] transition-colors"
                           >
                             {prompt}
                           </button>
@@ -449,17 +450,17 @@ export default function LecturePlayerPage({
                     <div key={idx} className="space-y-2 text-xs">
                       {/* User Query */}
                       <div className="flex items-start justify-end gap-2">
-                        <div className="rounded-2xl bg-[#23232a] px-4 py-2.5 text-white max-w-[85%] font-medium">
+                        <div className="rounded-2xl bg-[#22232a] px-4 py-2.5 text-white max-w-[85%] font-medium">
                           {log.question}
                         </div>
                       </div>
 
                       {/* AI Mentor Answer */}
                       <div className="flex items-start gap-2.5">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#d4f76d] text-black shadow-md">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-white shadow-md">
                           <Bot className="h-4 w-4" />
                         </div>
-                        <div className="group relative flex-1 rounded-2xl border border-[#23232a] bg-[#1c1c22] p-4 text-xs text-[#f4f4f5] leading-relaxed shadow-lg">
+                        <div className="group relative flex-1 rounded-2xl border border-[#22232a] bg-[#17181f] p-4 text-xs text-[#f4f4f5] leading-relaxed shadow-lg">
                           <div className="whitespace-pre-wrap font-sans">
                             {log.answer}
                           </div>
@@ -468,11 +469,11 @@ export default function LecturePlayerPage({
                           {log.answer && (
                             <button
                               onClick={() => copyToClipboard(log.answer, idx)}
-                              className="absolute top-3 right-3 rounded-lg border border-[#23232a] bg-[#16161a] p-1.5 text-[#8e8e9c] opacity-0 group-hover:opacity-100 hover:text-white transition-all"
+                              className="absolute top-3 right-3 rounded-lg border border-[#22232a] bg-[#111217] p-1.5 text-[#9ca3af] opacity-0 group-hover:opacity-100 hover:text-white transition-all"
                               title="Copy answer"
                             >
                               {copiedIndex === idx ? (
-                                <Check className="h-3 w-3 text-[#d4f76d]" />
+                                <Check className="h-3 w-3 text-[#f97316]" />
                               ) : (
                                 <Copy className="h-3 w-3" />
                               )}
@@ -486,26 +487,26 @@ export default function LecturePlayerPage({
                   {/* Thinking Indicator */}
                   {aiLoading && (
                     <div className="flex items-start gap-2.5">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#d4f76d] text-black animate-pulse shadow-md">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-white animate-pulse shadow-md">
                         <Bot className="h-4 w-4" />
                       </div>
-                      <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-3 text-xs text-[#d4f76d] flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-[#d4f76d] animate-ping" />
+                      <div className="rounded-2xl border border-[#22232a] bg-[#17181f] p-3 text-xs text-[#f97316] flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-[#f97316] animate-ping" />
                         <span>Thinking...</span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Quick Prompts Bar (When chat is active) */}
+                {/* Quick Prompts Bar */}
                 {chatLogs.length > 0 && !aiLoading && (
-                  <div className="px-3 py-1.5 border-t border-[#23232a] flex gap-1.5 overflow-x-auto no-scrollbar bg-[#121216]">
+                  <div className="px-3 py-1.5 border-t border-[#22232a] flex gap-1.5 overflow-x-auto no-scrollbar bg-[#0f1014]">
                     {quickPrompts.map((p, i) => (
                       <button
                         key={i}
                         type="button"
                         onClick={() => askAi(p)}
-                        className="shrink-0 rounded-full border border-[#23232a] bg-[#16161a] px-2.5 py-1 text-[10px] text-[#8e8e9c] hover:border-[#d4f76d] hover:text-white transition-colors"
+                        className="shrink-0 rounded-full border border-[#22232a] bg-[#17181f] px-2.5 py-1 text-[10px] text-[#9ca3af] hover:border-[#f97316] hover:text-white transition-colors"
                       >
                         {p}
                       </button>
@@ -514,19 +515,19 @@ export default function LecturePlayerPage({
                 )}
 
                 {/* Input Form */}
-                <form onSubmit={handleAskQuestion} className="border-t border-[#23232a] p-3 flex gap-2 bg-[#16161a]">
+                <form onSubmit={handleAskQuestion} className="border-t border-[#22232a] p-3 flex gap-2 bg-[#111217]">
                   <input
                     type="text"
                     placeholder="Ask a doubt about this lesson..."
                     value={userQuestion}
                     onChange={(e) => setUserQuestion(e.target.value)}
                     disabled={aiLoading}
-                    className="flex-1 rounded-full border border-[#23232a] bg-[#0d0d10] px-4 py-2 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                    className="flex-1 rounded-full border border-[#22232a] bg-[#060709] px-4 py-2 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
                   />
                   <button
                     type="submit"
                     disabled={aiLoading || !userQuestion.trim()}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4f76d] text-black hover:bg-[#c4ea5c] transition-all disabled:opacity-40"
+                    className="flex h-9 w-9 items-center justify-center rounded-full glow-amber-btn text-white hover:scale-105 transition-all disabled:opacity-40"
                   >
                     <Send className="h-3.5 w-3.5" />
                   </button>
