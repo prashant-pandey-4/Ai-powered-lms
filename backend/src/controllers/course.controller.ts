@@ -27,29 +27,47 @@ export const getCourses = async (req: Request, res: Response, next: NextFunction
   try {
     const { category, level, search } = req.query;
 
-    const courses = await prisma.course.findMany({
-      where: {
-        isPublished: true,
-        ...(category && { category: String(category) }),
-        ...(level && { level: String(level) }),
-        ...(search && {
-          OR: [
-            { title: { contains: String(search), mode: 'insensitive' } },
-            { description: { contains: String(search), mode: 'insensitive' } },
-          ],
-        }),
-      },
-      include: {
-        instructor: { select: { id: true, name: true, avatarUrl: true } },
-        lectures: {
-          take: 1,
-          orderBy: { order: 'asc' },
-          select: { videoUrl: true },
+    const searchTerm = search ? String(search).trim() : '';
+
+    const executeFindCourses = async () => {
+      return prisma.course.findMany({
+        where: {
+          isPublished: true,
+          ...(category && { category: String(category) }),
+          ...(level && { level: String(level) }),
+          ...(searchTerm && {
+            OR: [
+              { title: { contains: searchTerm, mode: 'insensitive' } },
+              { description: { contains: searchTerm, mode: 'insensitive' } },
+              { category: { contains: searchTerm, mode: 'insensitive' } },
+            ],
+          }),
         },
-        _count: { select: { lectures: true, enrollments: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        include: {
+          instructor: { select: { id: true, name: true, avatarUrl: true } },
+          lectures: {
+            take: 1,
+            orderBy: { order: 'asc' },
+            select: { videoUrl: true },
+          },
+          _count: { select: { lectures: true, enrollments: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    };
+
+    // Resilient Neon cold-start retry
+    let courses;
+    try {
+      courses = await executeFindCourses();
+    } catch (err: any) {
+      if (err?.message?.includes('database server') || err?.code === 'P1001') {
+        await new Promise((r) => setTimeout(r, 800));
+        courses = await executeFindCourses();
+      } else {
+        throw err;
+      }
+    }
 
     const formatted = courses.map((c) => ({
       ...c,
