@@ -179,7 +179,7 @@ export default function AdminBlogsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {b.isPublished && (
                     <Link href={`/blog/${b.slug}`} target="_blank">
-                      <button className="flex items-center gap-1.5 rounded-full border border-app bg-card-2 px-3.5 py-1.5 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
+                      <button className="flex items-center gap-1.5 rounded-full border border-app bg-card-2 px-3.5 py-1.5 text-xs font-bold text-app hover:border-[#f97316] transition-colors">
                         <Eye className="h-3.5 w-3.5" /> View
                       </button>
                     </Link>
@@ -189,7 +189,7 @@ export default function AdminBlogsPage() {
                     onClick={() => handleTogglePublish(b.id, b.isPublished)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors ${
                       b.isPublished
-                        ? 'border border-app bg-card-2 text-muted hover:text-white'
+                        ? 'border border-app bg-card-2 text-muted hover:text-app'
                         : 'glow-amber-btn text-white'
                     }`}
                   >

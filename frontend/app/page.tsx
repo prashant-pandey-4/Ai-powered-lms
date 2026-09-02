@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -9,12 +9,10 @@ import {
   GraduationCap,
   Play,
   Flame,
-  Sparkles,
   Bot,
   FileText,
   CheckCircle2,
   Star,
-  Users,
   Code2,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
@@ -44,16 +42,16 @@ export default function HomePage() {
       <SkillUpHeader title="Explore Courses" />
 
       <div className="p-6 lg:p-10 space-y-12 max-w-7xl mx-auto w-full">
-        {/* NamasteDev Style Hero Section */}
-        <div className="relative overflow-hidden rounded-3xl border border-app bg-card/80 p-8 lg:p-12 backdrop-blur-xl shadow-2xl">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-3xl border border-app bg-card p-8 lg:p-12 shadow-2xl">
           <div className="relative z-10 max-w-3xl space-y-6">
-            {/* Top Pill Badge */}
+            {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-4 py-1.5 text-xs font-bold text-[#f97316]">
               <Flame className="h-3.5 w-3.5 fill-current" />
-              <span>ZERO PAYWALLS Â· 100% FREE DEVELOPER ACADEMY</span>
+              <span>ZERO PAYWALLS &middot; 100% FREE DEVELOPER ACADEMY</span>
             </div>
 
-            {/* Glowing Main Heading */}
+            {/* Heading */}
             <h1 className="text-3xl font-black tracking-tight text-app sm:text-5xl lg:text-6xl leading-[1.15]">
               Learn. Build. Grow. <br />
               <span className="gradient-text-orange">Master Tech With Top Content</span>
@@ -61,11 +59,11 @@ export default function HomePage() {
 
             <p className="text-sm sm:text-base text-muted leading-relaxed max-w-2xl font-medium">
               Curated, battle-tested computer science curriculum from the world&apos;s best engineers.
-              Video syllabus, 24/7 video-grounded AI mentor, and study notes â€” completely free forever.
+              Video syllabus, 24/7 video-grounded AI mentor, and study notes &mdash; completely free forever.
             </p>
 
             {/* Key Value Badges */}
-            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#d1d5db] pt-1">
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-muted pt-1">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> 1-Click Free Enrollment
               </span>
@@ -86,7 +84,7 @@ export default function HomePage() {
                 </button>
               </Link>
               <Link href="/dashboard">
-                <button className="flex items-center gap-2 rounded-full border border-app bg-card-2 px-6 py-3 text-xs sm:text-sm font-bold text-white hover:border-[#f97316]/60 transition-colors">
+                <button className="flex items-center gap-2 rounded-full border border-app bg-card-2 px-6 py-3 text-xs sm:text-sm font-bold text-app hover:border-[#f97316]/60 transition-colors">
                   <GraduationCap className="h-4 w-4" />
                   My Learning Room
                 </button>
@@ -94,17 +92,15 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Background Ambient Glow */}
+          {/* Ambient Glow */}
           <div className="absolute top-0 right-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-[#f97316]/10 blur-3xl pointer-events-none" />
         </div>
 
-        {/* Bento Grid ("Why SkillUP") */}
+        {/* Bento Grid */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Core Features</p>
-              <h2 className="text-xl sm:text-2xl font-black text-app">Why Learn on SkillUP?</h2>
-            </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Core Features</p>
+            <h2 className="text-xl sm:text-2xl font-black text-app">Why Learn on SkillUP?</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -124,7 +120,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-sm font-bold text-app">24/7 AI Mentor</h3>
               <p className="text-xs text-muted leading-relaxed">
-                Powered by Gemini 3.6 Flash. Resolves code doubts in real-time grounded in the active video.
+                Powered by Gemini Flash. Resolves code doubts in real-time grounded in the active video.
               </p>
             </div>
 
@@ -157,10 +153,7 @@ export default function HomePage() {
               <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Featured Courses</p>
               <h2 className="text-xl sm:text-2xl font-black text-app">Explore Top Tracks</h2>
             </div>
-            <Link
-              href="/courses"
-              className="text-xs font-bold text-[#f97316] hover:underline flex items-center gap-1"
-            >
+            <Link href="/courses" className="text-xs font-bold text-[#f97316] hover:underline flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -214,8 +207,8 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Badges Overlay */}
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                    {/* Category Badge */}
+                    <div className="absolute top-2.5 left-2.5">
                       <span className="rounded-md bg-black/80 px-2 py-0.5 text-[10px] font-bold text-[#f97316] backdrop-blur-md border border-[#f97316]/20">
                         {course.category || 'Engineering'}
                       </span>
@@ -242,12 +235,12 @@ export default function HomePage() {
                       {course.description || 'Master fundamental concepts through high-quality structured video lessons.'}
                     </p>
 
-                    {/* Bottom CTA & Free Badge */}
+                    {/* Bottom CTA */}
                     <div className="mt-auto pt-3 flex items-center justify-between border-t border-app">
                       <span className="rounded-full bg-[#f97316]/10 px-2.5 py-0.5 text-xs font-extrabold text-[#f97316]">
                         100% Free
                       </span>
-                      <span className="flex items-center gap-1 text-xs font-bold text-white group-hover:text-[#f97316] transition-colors">
+                      <span className="flex items-center gap-1 text-xs font-bold text-app group-hover:text-[#f97316] transition-colors">
                         View Details <ArrowRight className="h-3 w-3" />
                       </span>
                     </div>

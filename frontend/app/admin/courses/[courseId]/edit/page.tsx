@@ -217,7 +217,7 @@ export default function AdminEditCourseLecturesPage({
 
           <div className="flex flex-wrap items-center gap-2.5">
             <Link href={`/courses/${courseId}`} target="_blank">
-              <button className="flex items-center gap-1.5 rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
+              <button className="flex items-center gap-1.5 rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors">
                 <Eye className="h-3.5 w-3.5" />
                 Preview Student View
               </button>
@@ -228,7 +228,7 @@ export default function AdminEditCourseLecturesPage({
               disabled={publishing}
               className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                 course.isPublished
-                  ? 'border border-app bg-card-2 text-white hover:border-[#f97316]'
+                  ? 'border border-app bg-card-2 text-app hover:border-[#f97316]'
                   : 'glow-amber-btn text-white'
               }`}
             >
@@ -322,7 +322,7 @@ export default function AdminEditCourseLecturesPage({
                     placeholder="e.g. Episode 01: Introduction to Next.js Architecture"
                     value={lectureForm.title}
                     onChange={(e) => setLectureForm({ ...lectureForm, title: e.target.value })}
-                    className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                    className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
@@ -356,7 +356,7 @@ export default function AdminEditCourseLecturesPage({
                       placeholder="600"
                       value={lectureForm.duration}
                       onChange={(e) => setLectureForm({ ...lectureForm, duration: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                      className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -370,7 +370,7 @@ export default function AdminEditCourseLecturesPage({
                     placeholder="Summary of topics covered in this lesson..."
                     value={lectureForm.description}
                     onChange={(e) => setLectureForm({ ...lectureForm, description: e.target.value })}
-                    className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                    className="w-full rounded-xl border border-app bg-app p-3 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
@@ -378,7 +378,7 @@ export default function AdminEditCourseLecturesPage({
                   <button
                     type="button"
                     onClick={() => setShowAddForm(false)}
-                    className="rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-white hover:bg-[#22232a]"
+                    className="rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-app hover:bg-[#22232a]"
                   >
                     Cancel
                   </button>

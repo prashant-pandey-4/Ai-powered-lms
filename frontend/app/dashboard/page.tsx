@@ -94,7 +94,7 @@ export default function StudentDashboardPage() {
             <p className="text-sm font-semibold text-red-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
             >
               Try Again
             </button>

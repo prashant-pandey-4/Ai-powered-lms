@@ -277,7 +277,7 @@ export default function LecturePlayerPage({
               {prevLecture ? (
                 <button
                   onClick={() => handleSelectLecture(prevLecture)}
-                  className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Previous
                 </button>
@@ -300,7 +300,7 @@ export default function LecturePlayerPage({
               {nextLecture ? (
                 <button
                   onClick={() => handleSelectLecture(nextLecture)}
-                  className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
                 >
                   Next <ArrowRight className="h-3.5 w-3.5" />
                 </button>
@@ -328,12 +328,12 @@ export default function LecturePlayerPage({
                       <FileText className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Lesson Notes & Cheatsheet PDF</p>
+                      <p className="text-xs font-bold text-app">Lesson Notes & Cheatsheet PDF</p>
                       <p className="text-[10px] text-muted">Downloadable code & interview notes</p>
                     </div>
                   </div>
                   <a href={currentLecture.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    <button className="flex items-center gap-1 rounded-full bg-card-2 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#f97316] hover:text-white transition-colors border border-app">
+                    <button className="flex items-center gap-1 rounded-full bg-card-2 px-3.5 py-1.5 text-xs font-bold text-app hover:bg-[#f97316] hover:text-app transition-colors border border-app">
                       <span>View PDF</span>
                       <ExternalLink className="h-3 w-3" />
                     </button>
@@ -352,7 +352,7 @@ export default function LecturePlayerPage({
                 className={`flex items-center justify-center gap-2 py-3.5 text-xs font-bold transition-colors ${
                   activeTab === 'playlist'
                     ? 'bg-card-2 text-[#f97316] border-b-2 border-[#f97316]'
-                    : 'text-muted hover:text-white'
+                    : 'text-muted hover:text-app'
                 }`}
               >
                 <ListVideo className="h-4 w-4" />
@@ -363,7 +363,7 @@ export default function LecturePlayerPage({
                 className={`flex items-center justify-center gap-2 py-3.5 text-xs font-bold transition-colors ${
                   activeTab === 'ai-tutor'
                     ? 'bg-card-2 text-[#f97316] border-b-2 border-[#f97316]'
-                    : 'text-muted hover:text-white'
+                    : 'text-muted hover:text-app'
                 }`}
               >
                 <BrainCircuit className="h-4 w-4 text-[#f97316]" />
@@ -386,7 +386,7 @@ export default function LecturePlayerPage({
                       className={`flex w-full items-center justify-between rounded-xl p-3 text-left text-xs transition-all ${
                         isActive
                           ? 'bg-gradient-to-r from-[#f97316] to-[#ea580c] font-bold text-white shadow-lg shadow-[#f97316]/25'
-                          : 'text-muted hover:bg-card-2 hover:text-white'
+                          : 'text-muted hover:bg-card-2 hover:text-app'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -424,7 +424,7 @@ export default function LecturePlayerPage({
                         <BrainCircuit className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-white text-sm">Ask any coding doubt</p>
+                        <p className="font-bold text-app text-sm">Ask any coding doubt</p>
                         <p className="text-[11px] text-muted mt-0.5">
                           Instant explanation & code help for this video.
                         </p>
@@ -506,7 +506,7 @@ export default function LecturePlayerPage({
                         key={i}
                         type="button"
                         onClick={() => askAi(p)}
-                        className="shrink-0 rounded-full border border-app bg-card-2 px-2.5 py-1 text-[10px] text-muted hover:border-[#f97316] hover:text-white transition-colors"
+                        className="shrink-0 rounded-full border border-app bg-card-2 px-2.5 py-1 text-[10px] text-muted hover:border-[#f97316] hover:text-app transition-colors"
                       >
                         {p}
                       </button>
@@ -522,7 +522,7 @@ export default function LecturePlayerPage({
                     value={userQuestion}
                     onChange={(e) => setUserQuestion(e.target.value)}
                     disabled={aiLoading}
-                    className="flex-1 rounded-full border border-app bg-app px-4 py-2 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                    className="flex-1 rounded-full border border-app bg-app px-4 py-2 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                   />
                   <button
                     type="submit"

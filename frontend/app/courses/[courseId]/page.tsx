@@ -157,13 +157,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
               {/* Stats Bar */}
               <div className="flex flex-wrap items-center gap-6 border-t border-app pt-4 text-xs font-semibold text-muted">
-                <span className="flex items-center gap-1.5 text-white">
+                <span className="flex items-center gap-1.5 text-app">
                   <Globe className="h-4 w-4 text-[#f97316]" /> {course.language || 'English / Hindi'}
                 </span>
-                <span className="flex items-center gap-1.5 text-white">
+                <span className="flex items-center gap-1.5 text-app">
                   <BookOpen className="h-4 w-4 text-[#f97316]" /> {course.lectures?.length || 0} Lessons
                 </span>
-                <span className="flex items-center gap-1.5 text-white">
+                <span className="flex items-center gap-1.5 text-app">
                   <Users className="h-4 w-4 text-[#f97316]" /> Verified Open Curriculum
                 </span>
               </div>
@@ -220,7 +220,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-card-2 text-xs font-black text-[#f97316]">
                             {idx + 1}
                           </div>
-                          <span className="text-xs sm:text-sm font-bold text-white truncate">
+                          <span className="text-xs sm:text-sm font-bold text-app truncate">
                             {lec.title.startsWith('Episode') ? lec.title : `Episode ${idx + 1}: ${lec.title}`}
                           </span>
                         </div>
@@ -278,7 +278,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               {/* Price & Guarantee */}
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-3xl font-black text-white">Free</span>
+                  <span className="text-3xl font-black text-app">Free</span>
                   <span className="rounded-full bg-[#f97316]/15 px-2.5 py-0.5 text-xs font-bold text-[#f97316]">
                     100% Free Access
                   </span>

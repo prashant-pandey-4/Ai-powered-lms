@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="mt-6 flex gap-2">
               <Link href="/admin/blogs">
-                <button className="flex items-center gap-2 rounded-full border border-app bg-card-2 px-4 py-2.5 text-xs font-bold text-white hover:border-[#38bdf8] transition-all">
+                <button className="flex items-center gap-2 rounded-full border border-app bg-card-2 px-4 py-2.5 text-xs font-bold text-app hover:border-[#38bdf8] transition-all">
                   Manage Articles
                 </button>
               </Link>
@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
 
                 <div className="flex items-center gap-2">
                   <Link href={`/courses/${c.id}`}>
-                    <button className="flex items-center gap-1.5 rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
+                    <button className="flex items-center gap-1.5 rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors">
                       <Eye className="h-3.5 w-3.5" /> View
                     </button>
                   </Link>

@@ -95,11 +95,11 @@ export default function CoursesCatalogPage() {
               className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-xs font-bold transition-all ${
                 showFilters || hasActiveFilter
                   ? 'border-[#f97316] bg-[#f97316]/10 text-[#f97316]'
-                  : 'border-app bg-card text-muted hover:text-white'
+                  : 'border-app bg-card text-muted hover:text-app'
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filters{hasActiveFilter ? ' â€¢ Active' : ''}
+              Filters{hasActiveFilter ? ' • Active' : ''}
             </button>
           </div>
 
@@ -111,12 +111,12 @@ export default function CoursesCatalogPage() {
               placeholder="Search courses by topic (e.g. DSA, React, System Design, Node.js)..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-app bg-card pl-11 pr-10 text-xs sm:text-sm text-white placeholder:text-subtle focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
+              className="h-12 w-full rounded-2xl border border-app bg-card pl-11 pr-10 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
             />
             {search && (
               <button
                 onClick={clearSearch}
-                className="absolute right-3.5 top-3.5 text-muted hover:text-white transition-colors"
+                className="absolute right-3.5 top-3.5 text-muted hover:text-app transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -139,7 +139,7 @@ export default function CoursesCatalogPage() {
                       className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all ${
                         level === lvl
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
-                          : 'border border-app bg-card-2 text-muted hover:text-white'
+                          : 'border border-app bg-card-2 text-muted hover:text-app'
                       }`}
                     >
                       {lvl === 'All Levels' ? 'All' : lvl}
@@ -159,7 +159,7 @@ export default function CoursesCatalogPage() {
                       className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
                         category === cat
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
-                          : 'border border-app bg-card-2 text-muted hover:text-white'
+                          : 'border border-app bg-card-2 text-muted hover:text-app'
                       }`}
                     >
                       {cat === 'All Categories' ? 'All' : cat}
@@ -183,7 +183,7 @@ export default function CoursesCatalogPage() {
         {/* Result Count */}
         {!loading && !error && (
           <p className="text-xs text-muted font-medium">
-            Showing <span className="text-white font-bold">{filteredCourses.length}</span> curated course{filteredCourses.length !== 1 ? 's' : ''}
+            Showing <span className="text-app font-bold">{filteredCourses.length}</span> curated course{filteredCourses.length !== 1 ? 's' : ''}
             {search && <span className="text-[#f97316]"> for &ldquo;{search}&rdquo;</span>}
           </p>
         )}
@@ -207,7 +207,7 @@ export default function CoursesCatalogPage() {
             <p className="text-sm font-semibold text-red-400">{error}</p>
             <button
               onClick={() => loadCourses(search, level)}
-              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
             >
               Retry
             </button>
@@ -229,7 +229,7 @@ export default function CoursesCatalogPage() {
             {hasActiveFilter && (
               <button
                 onClick={clearSearch}
-                className="mt-5 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+                className="mt-5 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
               >
                 Clear Filters
               </button>
@@ -300,7 +300,7 @@ export default function CoursesCatalogPage() {
                     <span className="rounded-full bg-[#f97316]/10 px-2.5 py-0.5 text-xs font-extrabold text-[#f97316]">
                       100% Free
                     </span>
-                    <span className="flex items-center gap-1 text-xs font-bold text-white group-hover:text-[#f97316] transition-colors">
+                    <span className="flex items-center gap-1 text-xs font-bold text-app group-hover:text-[#f97316] transition-colors">
                       View Details <ArrowRight className="h-3 w-3" />
                     </span>
                   </div>

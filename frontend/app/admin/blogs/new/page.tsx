@@ -154,7 +154,7 @@ export default function AdminNewBlogPage() {
         <div className="rounded-2xl border border-app bg-card p-6 lg:p-8 space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-app flex items-center gap-2">
                 Create Knowledge Article
                 <span className="rounded-full bg-[#d4f76d]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d]">
                   Auto-Saved
@@ -183,7 +183,7 @@ export default function AdminNewBlogPage() {
                 placeholder="e.g. Building High-Performance Microservices with Go & Kafka"
                 value={formData.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -198,7 +198,7 @@ export default function AdminNewBlogPage() {
                 placeholder="Brief takeaway explaining what readers will learn..."
                 value={formData.summary}
                 onChange={(e) => updateField('summary', e.target.value)}
-                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -220,7 +220,7 @@ export default function AdminNewBlogPage() {
                   placeholder="e.g. System Design, AI"
                   value={formData.category}
                   onChange={(e) => updateField('category', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
@@ -232,7 +232,7 @@ export default function AdminNewBlogPage() {
                   placeholder="5"
                   value={formData.readTime}
                   onChange={(e) => updateField('readTime', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
@@ -242,7 +242,7 @@ export default function AdminNewBlogPage() {
                   placeholder="react, api, scaling"
                   value={formData.tagsInput}
                   onChange={(e) => updateField('tagsInput', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function AdminNewBlogPage() {
                 placeholder="Write your article content here..."
                 value={formData.content}
                 onChange={(e) => updateField('content', e.target.value)}
-                className="w-full rounded-xl border border-app bg-app p-4 text-xs font-mono text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-4 text-xs font-mono text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -271,7 +271,7 @@ export default function AdminNewBlogPage() {
                 onChange={(e) => updateField('isPublished', e.target.checked)}
                 className="h-4 w-4 rounded accent-[#d4f76d]"
               />
-              <label htmlFor="isPublished" className="text-xs text-white font-medium">
+              <label htmlFor="isPublished" className="text-xs text-app font-medium">
                 Publish immediately to Community Knowledge Hub
               </label>
             </div>
@@ -287,7 +287,7 @@ export default function AdminNewBlogPage() {
                 <Link href="/admin/blogs">
                   <button
                     type="button"
-                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-white hover:bg-card-2 transition-colors"
+                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-app hover:bg-card-2 transition-colors"
                   >
                     Cancel
                   </button>

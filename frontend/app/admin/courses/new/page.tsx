@@ -140,7 +140,7 @@ export default function AdminNewCoursePage() {
         <div className="rounded-2xl border border-app bg-card p-6 lg:p-8 space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-app flex items-center gap-2">
                 Course Overview & Metadata
                 <span className="rounded-full bg-[#d4f76d]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#d4f76d]">
                   Auto-Saved
@@ -169,7 +169,7 @@ export default function AdminNewCoursePage() {
                 placeholder="e.g. Data Structures & Algorithms with C++"
                 value={formData.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -184,7 +184,7 @@ export default function AdminNewCoursePage() {
                 placeholder="Provide a comprehensive summary of the practical skills students will master..."
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
-                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -196,7 +196,7 @@ export default function AdminNewCoursePage() {
                   placeholder="e.g. DSA, Web Development, AI & ML"
                   value={formData.category}
                   onChange={(e) => updateField('category', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export default function AdminNewCoursePage() {
                 <select
                   value={formData.level}
                   onChange={(e) => updateField('level', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-app bg-app px-3 text-xs text-white focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3 text-xs text-app focus:border-[#d4f76d] focus:outline-none"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -235,7 +235,7 @@ export default function AdminNewCoursePage() {
                 <Link href="/admin">
                   <button
                     type="button"
-                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-white hover:bg-card-2 transition-colors"
+                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-app hover:bg-card-2 transition-colors"
                   >
                     Cancel
                   </button>

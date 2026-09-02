@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -31,7 +31,7 @@ export default function AdminLayout({
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-800/40 bg-red-950/20 text-red-400 mb-5">
           <ShieldAlert className="h-8 w-8" />
         </div>
-        <h2 className="text-xl font-extrabold text-white">403 — Access Restricted</h2>
+        <h2 className="text-xl font-extrabold text-app">403 — Access Restricted</h2>
         <p className="mt-2 max-w-sm text-xs text-[#8e8e9c]">
           This section is exclusively reserved for the platform administrator ({adminEmail}).
         </p>

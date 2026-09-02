@@ -82,7 +82,7 @@ export default function SingleBlogReaderPage({
 
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 rounded-full border border-app bg-card px-3.5 py-1.5 text-xs font-semibold text-muted hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-full border border-app bg-card px-3.5 py-1.5 text-xs font-semibold text-muted hover:text-app transition-colors"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-[#f97316]" /> : <Share2 className="h-3.5 w-3.5" />}
             {copied ? 'Link Copied' : 'Share'}
@@ -118,7 +118,7 @@ export default function SingleBlogReaderPage({
               {(post.author?.name || 'S').charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-xs font-bold text-white leading-none">
+              <p className="text-xs font-bold text-app leading-none">
                 {post.author?.name || 'SkillUP Contributor'}
               </p>
               <p className="text-[10px] text-muted mt-0.5">Author & Engineer</p>

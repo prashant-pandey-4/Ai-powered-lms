@@ -68,7 +68,7 @@ export default function PublicBlogPage() {
                 placeholder="Search articles by title or keyword..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
               />
             </div>
 
@@ -80,7 +80,7 @@ export default function PublicBlogPage() {
                   className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
                     selectedCategory === cat
                       ? 'bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white shadow-md shadow-[#f97316]/20'
-                      : 'border border-app bg-card-2 text-muted hover:text-white'
+                      : 'border border-app bg-card-2 text-muted hover:text-app'
                   }`}
                 >
                   {cat}
@@ -161,7 +161,7 @@ export default function PublicBlogPage() {
                     <span className="text-[11px] text-muted">
                       By {post.author?.name || 'SkillUP Author'}
                     </span>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:text-[#f97316] transition-colors">
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-app group-hover:text-[#f97316] transition-colors">
                       Read Article <ArrowRight className="h-3 w-3" />
                     </span>
                   </div>
