@@ -179,9 +179,11 @@ model BlogPost {
   coverImage  String?
   category    String   @default("General")
   tags        String[] @default([])
-  readTime    Int      @default(5)     // in minutes
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  readTime     Int      @default(5)     // in minutes
+  isPublished  Boolean  @default(false)
+  resourceType String   @default("article") // "article" | "external_reference"
+  externalUrl  String?                  // External docs / interactive book URL
+  createdAt    DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   authorId String

@@ -13,14 +13,16 @@ function slugify(text: string): string {
 }
 
 const createBlogSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters'),
-  summary: z.string().min(10, 'Summary must be at least 10 characters'),
-  content: z.string().min(20, 'Content must be at least 20 characters'),
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  summary: z.string().min(5, 'Summary must be at least 5 characters'),
+  content: z.string().default(''),
   coverImage: z.string().url().optional().or(z.literal('')),
   category: z.string().default('General'),
   tags: z.array(z.string()).default([]),
   readTime: z.number().int().positive().default(5),
   isPublished: z.boolean().default(false),
+  resourceType: z.enum(['article', 'external_reference']).default('article'),
+  externalUrl: z.string().url().optional().or(z.literal('')),
 });
 
 /**
@@ -28,12 +30,13 @@ const createBlogSchema = z.object({
  */
 export const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { category, tag, search, all } = req.query;
+    const { category, tag, search, type, all } = req.query;
     const isAdminQuery = all === 'true' && req.dbUser?.role === 'ADMIN';
 
     const posts = await prisma.blogPost.findMany({
       where: {
         ...(isAdminQuery ? {} : { isPublished: true }),
+        ...(type && { resourceType: String(type) }),
         ...(category && { category: String(category) }),
         ...(tag && { tags: { has: String(tag) } }),
         ...(search && {
