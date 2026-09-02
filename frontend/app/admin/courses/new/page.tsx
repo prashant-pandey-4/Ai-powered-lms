@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -112,14 +112,14 @@ export default function AdminNewCoursePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin Studio — Create Course" />
+    <div className="flex min-h-screen flex-col bg-app">
+      <SkillUpHeader title="Admin Studio â€” Create Course" />
 
       <div className="mx-auto w-full max-w-3xl p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-[#d4f76d] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Studio Overview
@@ -137,7 +137,7 @@ export default function AdminNewCoursePage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 lg:p-8 space-y-6">
+        <div className="rounded-2xl border border-app bg-card p-6 lg:p-8 space-y-6">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function AdminNewCoursePage() {
                   Auto-Saved
                 </span>
               </h2>
-              <p className="mt-1 text-xs text-[#8e8e9c]">
+              <p className="mt-1 text-xs text-muted">
                 Fields auto-save locally so you won&apos;t lose progress if you refresh or close the tab.
               </p>
             </div>
@@ -161,7 +161,7 @@ export default function AdminNewCoursePage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8e8e9c]">
+              <label className="text-xs font-semibold text-muted">
                 Course Title <span className="text-[#d4f76d]">*</span>
               </label>
               <input
@@ -169,13 +169,13 @@ export default function AdminNewCoursePage() {
                 placeholder="e.g. Data Structures & Algorithms with C++"
                 value={formData.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
             {/* Description */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8e8e9c]">
+              <label className="text-xs font-semibold text-muted">
                 Description <span className="text-[#d4f76d]">*</span>
               </label>
               <textarea
@@ -184,28 +184,28 @@ export default function AdminNewCoursePage() {
                 placeholder="Provide a comprehensive summary of the practical skills students will master..."
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
-                className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
             {/* Category & Level */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">Category</label>
+                <label className="text-xs font-semibold text-muted">Category</label>
                 <input
                   placeholder="e.g. DSA, Web Development, AI & ML"
                   value={formData.category}
                   onChange={(e) => updateField('category', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">Difficulty Level</label>
+                <label className="text-xs font-semibold text-muted">Difficulty Level</label>
                 <select
                   value={formData.level}
                   onChange={(e) => updateField('level', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3 text-xs text-white focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3 text-xs text-white focus:border-[#d4f76d] focus:outline-none"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -225,8 +225,8 @@ export default function AdminNewCoursePage() {
             />
 
             {/* Submit */}
-            <div className="flex items-center justify-between pt-4 border-t border-[#23232a]">
-              <span className="text-[11px] text-[#8e8e9c] flex items-center gap-1.5">
+            <div className="flex items-center justify-between pt-4 border-t border-app">
+              <span className="text-[11px] text-muted flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-[#d4f76d]" />
                 Auto-saved in browser
               </span>
@@ -235,7 +235,7 @@ export default function AdminNewCoursePage() {
                 <Link href="/admin">
                   <button
                     type="button"
-                    className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-white hover:bg-card-2 transition-colors"
                   >
                     Cancel
                   </button>

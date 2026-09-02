@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -39,23 +39,23 @@ export default function StudentDashboardPage() {
   const inProgressCount = enrollments.filter((e) => e.progress > 0 && e.progress < 100).length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
       <SkillUpHeader title="My Learning Room" />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         {/* Stats Row */}
         {!loading && !error && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
-              <p className="text-xs font-bold text-[#9ca3af]">Total Tracks Enrolled</p>
-              <h3 className="text-3xl font-black text-white">{enrollments.length}</h3>
+            <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
+              <p className="text-xs font-bold text-muted">Total Tracks Enrolled</p>
+              <h3 className="text-3xl font-black text-app">{enrollments.length}</h3>
             </div>
-            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
-              <p className="text-xs font-bold text-[#9ca3af]">In Progress</p>
+            <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
+              <p className="text-xs font-bold text-muted">In Progress</p>
               <h3 className="text-3xl font-black text-[#f97316]">{inProgressCount}</h3>
             </div>
-            <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
-              <p className="text-xs font-bold text-[#9ca3af]">Completed Tracks</p>
+            <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
+              <p className="text-xs font-bold text-muted">Completed Tracks</p>
               <h3 className="text-3xl font-black text-[#f59e0b]">{completedCount}</h3>
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function StudentDashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Active Tracks</p>
-            <h2 className="text-xl sm:text-2xl font-black text-white">Your Enrolled Courses</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-app">Your Enrolled Courses</h2>
           </div>
           <Link href="/courses">
             <button className="flex items-center gap-1.5 text-xs font-bold text-[#f97316] hover:underline">
@@ -79,10 +79,10 @@ export default function StudentDashboardPage() {
         {loading && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-2xl border border-[#22232a] bg-[#111217] p-4 space-y-3">
-                <Skeleton className="aspect-video w-full rounded-xl bg-[#17181f]" />
-                <Skeleton className="h-5 w-3/4 bg-[#17181f]" />
-                <Skeleton className="h-3 w-full bg-[#17181f]" />
+              <div key={i} className="rounded-2xl border border-app bg-card p-4 space-y-3">
+                <Skeleton className="aspect-video w-full rounded-xl bg-card-2" />
+                <Skeleton className="h-5 w-3/4 bg-card-2" />
+                <Skeleton className="h-3 w-full bg-card-2" />
               </div>
             ))}
           </div>
@@ -94,7 +94,7 @@ export default function StudentDashboardPage() {
             <p className="text-sm font-semibold text-red-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 rounded-full bg-[#17181f] border border-[#22232a] px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
             >
               Try Again
             </button>
@@ -103,10 +103,10 @@ export default function StudentDashboardPage() {
 
         {/* Empty State */}
         {!loading && !error && enrollments.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#22232a] p-16 text-center bg-[#111217]">
-            <GraduationCap className="mb-4 h-10 w-10 text-[#6b7280]" />
-            <h3 className="text-base font-bold text-white">No courses enrolled yet</h3>
-            <p className="mt-2 max-w-xs text-xs text-[#9ca3af]">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-16 text-center bg-card">
+            <GraduationCap className="mb-4 h-10 w-10 text-subtle" />
+            <h3 className="text-base font-bold text-app">No courses enrolled yet</h3>
+            <p className="mt-2 max-w-xs text-xs text-muted">
               Join any of our 100% free computer science tracks and start learning today.
             </p>
             <Link href="/courses" className="mt-6">
@@ -127,10 +127,10 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col overflow-hidden rounded-2xl border border-[#22232a] bg-[#111217] p-4 transition-all hover:border-[#f97316]/40 shadow-xl"
+                  className="flex flex-col overflow-hidden rounded-2xl border border-app bg-card p-4 transition-all hover:border-[#f97316]/40 shadow-xl"
                 >
                   {/* Thumbnail */}
-                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-[#22232a]">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-app">
                     {course.thumbnail ? (
                       <img
                         src={course.thumbnail}
@@ -138,8 +138,8 @@ export default function StudentDashboardPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#17181f]">
-                        <BookOpen className="h-8 w-8 text-[#6b7280]" />
+                      <div className="flex h-full w-full items-center justify-center bg-card-2">
+                        <BookOpen className="h-8 w-8 text-subtle" />
                       </div>
                     )}
                     {item.progress === 100 && (
@@ -153,20 +153,20 @@ export default function StudentDashboardPage() {
 
                   {/* Info */}
                   <div className="flex flex-1 flex-col pt-4">
-                    <h3 className="text-sm sm:text-base font-bold text-white line-clamp-2">
+                    <h3 className="text-sm sm:text-base font-bold text-app line-clamp-2">
                       {course.title}
                     </h3>
-                    <p className="mt-1 text-xs text-[#9ca3af]">
-                      {course._count?.lectures || 0} Lessons • Lifetime Free
+                    <p className="mt-1 text-xs text-muted">
+                      {course._count?.lectures || 0} Lessons â€¢ Lifetime Free
                     </p>
 
                     {/* Progress Bar */}
                     <div className="mt-auto pt-4 space-y-1.5">
-                      <div className="flex justify-between text-xs font-bold text-[#9ca3af]">
+                      <div className="flex justify-between text-xs font-bold text-muted">
                         <span>Progress</span>
                         <span className="text-[#f97316]">{item.progress ?? 0}%</span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#17181f] border border-[#22232a]">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-card-2 border border-app">
                         <div
                           className="h-full bg-gradient-to-r from-[#f97316] to-[#ea580c] transition-all duration-300 rounded-full"
                           style={{ width: `${item.progress ?? 0}%` }}
@@ -175,7 +175,7 @@ export default function StudentDashboardPage() {
                     </div>
 
                     {/* CTA Button */}
-                    <div className="mt-4 pt-3 border-t border-[#22232a]">
+                    <div className="mt-4 pt-3 border-t border-app">
                       <Link href={`/courses/${course.id}`} className="block">
                         <button className="flex w-full items-center justify-center gap-2 rounded-xl glow-amber-btn py-2.5 text-xs font-bold text-white transition-all">
                           <Play className="h-3.5 w-3.5 fill-current" />

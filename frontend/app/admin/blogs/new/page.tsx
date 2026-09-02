@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -126,14 +126,14 @@ export default function AdminNewBlogPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin Studio — Write Article" />
+    <div className="flex min-h-screen flex-col bg-app">
+      <SkillUpHeader title="Admin Studio â€” Write Article" />
 
       <div className="mx-auto w-full max-w-3xl p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/admin/blogs"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-[#d4f76d] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Articles Management
@@ -151,7 +151,7 @@ export default function AdminNewBlogPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 lg:p-8 space-y-6">
+        <div className="rounded-2xl border border-app bg-card p-6 lg:p-8 space-y-6">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function AdminNewBlogPage() {
                   Auto-Saved
                 </span>
               </h2>
-              <p className="mt-1 text-xs text-[#8e8e9c]">
+              <p className="mt-1 text-xs text-muted">
                 Publish tutorials, guides, and engineering insights for your community. Drafts are safely cached in browser.
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function AdminNewBlogPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8e8e9c]">
+              <label className="text-xs font-semibold text-muted">
                 Article Title <span className="text-[#d4f76d]">*</span>
               </label>
               <input
@@ -183,13 +183,13 @@ export default function AdminNewBlogPage() {
                 placeholder="e.g. Building High-Performance Microservices with Go & Kafka"
                 value={formData.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
             {/* Summary */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8e8e9c]">
+              <label className="text-xs font-semibold text-muted">
                 Short Summary (1-2 sentences) <span className="text-[#d4f76d]">*</span>
               </label>
               <textarea
@@ -198,7 +198,7 @@ export default function AdminNewBlogPage() {
                 placeholder="Brief takeaway explaining what readers will learn..."
                 value={formData.summary}
                 onChange={(e) => updateField('summary', e.target.value)}
-                className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -215,41 +215,41 @@ export default function AdminNewBlogPage() {
             {/* Category, Read Time, Tags */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">Category</label>
+                <label className="text-xs font-semibold text-muted">Category</label>
                 <input
                   placeholder="e.g. System Design, AI"
                   value={formData.category}
                   onChange={(e) => updateField('category', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">Reading Time (Mins)</label>
+                <label className="text-xs font-semibold text-muted">Reading Time (Mins)</label>
                 <input
                   type="number"
                   min="1"
                   placeholder="5"
                   value={formData.readTime}
                   onChange={(e) => updateField('readTime', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#8e8e9c]">Tags (comma separated)</label>
+                <label className="text-xs font-semibold text-muted">Tags (comma separated)</label>
                 <input
                   placeholder="react, api, scaling"
                   value={formData.tagsInput}
                   onChange={(e) => updateField('tagsInput', e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                  className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Content Body */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8e8e9c]">
+              <label className="text-xs font-semibold text-muted">
                 Article Content (Supports Markdown & paragraphs) <span className="text-[#d4f76d]">*</span>
               </label>
               <textarea
@@ -258,7 +258,7 @@ export default function AdminNewBlogPage() {
                 placeholder="Write your article content here..."
                 value={formData.content}
                 onChange={(e) => updateField('content', e.target.value)}
-                className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-4 text-xs font-mono text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                className="w-full rounded-xl border border-app bg-app p-4 text-xs font-mono text-white placeholder:text-subtle focus:border-[#d4f76d] focus:outline-none"
               />
             </div>
 
@@ -277,8 +277,8 @@ export default function AdminNewBlogPage() {
             </div>
 
             {/* Submit */}
-            <div className="flex items-center justify-between pt-4 border-t border-[#23232a]">
-              <span className="text-[11px] text-[#8e8e9c] flex items-center gap-1.5">
+            <div className="flex items-center justify-between pt-4 border-t border-app">
+              <span className="text-[11px] text-muted flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-[#d4f76d]" />
                 Auto-saved in browser
               </span>
@@ -287,7 +287,7 @@ export default function AdminNewBlogPage() {
                 <Link href="/admin/blogs">
                   <button
                     type="button"
-                    className="rounded-full border border-[#23232a] bg-[#1c1c22] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#23232a] transition-colors"
+                    className="rounded-full border border-app bg-card-2 px-5 py-2.5 text-xs font-bold text-white hover:bg-card-2 transition-colors"
                   >
                     Cancel
                   </button>

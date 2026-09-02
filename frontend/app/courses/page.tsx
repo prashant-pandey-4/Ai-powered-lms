@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
@@ -77,7 +77,7 @@ export default function CoursesCatalogPage() {
   const hasActiveFilter = search.trim() || level !== 'All Levels' || category !== 'All Categories';
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
       <SkillUpHeader title="Course Library" />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
@@ -86,7 +86,7 @@ export default function CoursesCatalogPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Catalog</p>
-              <h1 className="text-2xl sm:text-3xl font-black text-white">All Engineering Courses</h1>
+              <h1 className="text-2xl sm:text-3xl font-black text-app">All Engineering Courses</h1>
             </div>
 
             {/* Filter Toggle Button */}
@@ -95,28 +95,28 @@ export default function CoursesCatalogPage() {
               className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-xs font-bold transition-all ${
                 showFilters || hasActiveFilter
                   ? 'border-[#f97316] bg-[#f97316]/10 text-[#f97316]'
-                  : 'border-[#22232a] bg-[#111217] text-[#9ca3af] hover:text-white'
+                  : 'border-app bg-card text-muted hover:text-white'
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filters{hasActiveFilter ? ' • Active' : ''}
+              Filters{hasActiveFilter ? ' â€¢ Active' : ''}
             </button>
           </div>
 
           {/* Search Input */}
           <div className="relative w-full max-w-2xl">
-            <Search className="absolute left-4 top-3.5 h-4 w-4 text-[#9ca3af]" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4 text-muted" />
             <input
               type="text"
               placeholder="Search courses by topic (e.g. DSA, React, System Design, Node.js)..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-[#22232a] bg-[#111217] pl-11 pr-10 text-xs sm:text-sm text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
+              className="h-12 w-full rounded-2xl border border-app bg-card pl-11 pr-10 text-xs sm:text-sm text-white placeholder:text-subtle focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
             />
             {search && (
               <button
                 onClick={clearSearch}
-                className="absolute right-3.5 top-3.5 text-[#9ca3af] hover:text-white transition-colors"
+                className="absolute right-3.5 top-3.5 text-muted hover:text-white transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -126,11 +126,11 @@ export default function CoursesCatalogPage() {
 
         {/* Filter Drawer */}
         {showFilters && (
-          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-6 space-y-5 animate-in fade-in-50 duration-200">
+          <div className="rounded-2xl border border-app bg-card p-6 space-y-5 animate-in fade-in-50 duration-200">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {/* Level Filter */}
               <div className="space-y-2.5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Difficulty Level</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Difficulty Level</p>
                 <div className="flex flex-wrap gap-2">
                   {LEVELS.map((lvl) => (
                     <button
@@ -139,7 +139,7 @@ export default function CoursesCatalogPage() {
                       className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all ${
                         level === lvl
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
-                          : 'border border-[#22232a] bg-[#17181f] text-[#9ca3af] hover:text-white'
+                          : 'border border-app bg-card-2 text-muted hover:text-white'
                       }`}
                     >
                       {lvl === 'All Levels' ? 'All' : lvl}
@@ -150,7 +150,7 @@ export default function CoursesCatalogPage() {
 
               {/* Category Filter */}
               <div className="space-y-2.5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9ca3af]">Category</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Category</p>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
                     <button
@@ -159,7 +159,7 @@ export default function CoursesCatalogPage() {
                       className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
                         category === cat
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
-                          : 'border border-[#22232a] bg-[#17181f] text-[#9ca3af] hover:text-white'
+                          : 'border border-app bg-card-2 text-muted hover:text-white'
                       }`}
                     >
                       {cat === 'All Categories' ? 'All' : cat}
@@ -172,7 +172,7 @@ export default function CoursesCatalogPage() {
             {hasActiveFilter && (
               <button
                 onClick={clearSearch}
-                className="flex items-center gap-1.5 text-xs font-bold text-red-400 hover:text-red-300 transition-colors pt-2 border-t border-[#22232a]"
+                className="flex items-center gap-1.5 text-xs font-bold text-red-400 hover:text-red-300 transition-colors pt-2 border-t border-app"
               >
                 <X className="h-3.5 w-3.5" /> Clear All Active Filters
               </button>
@@ -182,7 +182,7 @@ export default function CoursesCatalogPage() {
 
         {/* Result Count */}
         {!loading && !error && (
-          <p className="text-xs text-[#9ca3af] font-medium">
+          <p className="text-xs text-muted font-medium">
             Showing <span className="text-white font-bold">{filteredCourses.length}</span> curated course{filteredCourses.length !== 1 ? 's' : ''}
             {search && <span className="text-[#f97316]"> for &ldquo;{search}&rdquo;</span>}
           </p>
@@ -192,10 +192,10 @@ export default function CoursesCatalogPage() {
         {loading && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="rounded-2xl border border-[#22232a] bg-[#111217] p-3.5 space-y-3">
-                <Skeleton className="aspect-video w-full rounded-xl bg-[#17181f]" />
-                <Skeleton className="h-5 w-3/4 bg-[#17181f]" />
-                <Skeleton className="h-4 w-1/2 bg-[#17181f]" />
+              <div key={i} className="rounded-2xl border border-app bg-card p-3.5 space-y-3">
+                <Skeleton className="aspect-video w-full rounded-xl bg-card-2" />
+                <Skeleton className="h-5 w-3/4 bg-card-2" />
+                <Skeleton className="h-4 w-1/2 bg-card-2" />
               </div>
             ))}
           </div>
@@ -207,7 +207,7 @@ export default function CoursesCatalogPage() {
             <p className="text-sm font-semibold text-red-400">{error}</p>
             <button
               onClick={() => loadCourses(search, level)}
-              className="mt-4 rounded-full bg-[#17181f] border border-[#22232a] px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+              className="mt-4 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
             >
               Retry
             </button>
@@ -216,12 +216,12 @@ export default function CoursesCatalogPage() {
 
         {/* Empty State */}
         {!loading && !error && filteredCourses.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#22232a] p-16 text-center bg-[#111217]">
-            <BookOpen className="mb-4 h-10 w-10 text-[#6b7280]" />
-            <h3 className="text-base font-bold text-white">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-16 text-center bg-card">
+            <BookOpen className="mb-4 h-10 w-10 text-subtle" />
+            <h3 className="text-base font-bold text-app">
               {hasActiveFilter ? 'No courses match your filters' : 'No courses yet'}
             </h3>
-            <p className="mt-2 text-xs text-[#9ca3af]">
+            <p className="mt-2 text-xs text-muted">
               {hasActiveFilter
                 ? 'Try adjusting your search or clearing the filters.'
                 : 'Check back soon for newly published courses.'}
@@ -229,7 +229,7 @@ export default function CoursesCatalogPage() {
             {hasActiveFilter && (
               <button
                 onClick={clearSearch}
-                className="mt-5 rounded-full bg-[#17181f] border border-[#22232a] px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
+                className="mt-5 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors"
               >
                 Clear Filters
               </button>
@@ -244,10 +244,10 @@ export default function CoursesCatalogPage() {
               <Link
                 key={course.id}
                 href={`/courses/${course.id}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-[#22232a] bg-[#111217] p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-[#f97316]/50 hover:shadow-xl hover:shadow-[#f97316]/5"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-app bg-card p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-[#f97316]/50 hover:shadow-xl hover:shadow-[#f97316]/5"
               >
                 {/* 16:9 Thumbnail */}
-                <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-[#22232a]">
+                <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-app">
                   {course.thumbnail ? (
                     <img
                       src={course.thumbnail}
@@ -255,8 +255,8 @@ export default function CoursesCatalogPage() {
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-[#17181f]">
-                      <BookOpen className="h-8 w-8 text-[#6b7280]" />
+                    <div className="flex h-full w-full items-center justify-center bg-card-2">
+                      <BookOpen className="h-8 w-8 text-subtle" />
                     </div>
                   )}
 
@@ -277,26 +277,26 @@ export default function CoursesCatalogPage() {
 
                 {/* Card Content */}
                 <div className="flex flex-1 flex-col pt-3.5 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] text-[#9ca3af]">
+                  <div className="flex items-center justify-between text-[11px] text-muted">
                     <span className="flex items-center gap-1 text-[#f59e0b] font-bold">
                       <Star className="h-3 w-3 fill-current" /> 4.9
                     </span>
                     <span>{course._count?.lectures || 0} Lessons</span>
-                    <span className="rounded bg-[#17181f] px-1.5 py-0.5 text-[10px] text-[#9ca3af]">
+                    <span className="rounded bg-card-2 px-1.5 py-0.5 text-[10px] text-muted">
                       English / Hindi
                     </span>
                   </div>
 
-                  <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#f97316] line-clamp-2 transition-colors">
+                  <h4 className="text-sm sm:text-base font-bold text-app group-hover:text-[#f97316] line-clamp-2 transition-colors">
                     {course.title}
                   </h4>
 
-                  <p className="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-muted line-clamp-2 leading-relaxed">
                     {course.description || 'Master fundamental concepts through high-quality structured video lessons.'}
                   </p>
 
                   {/* Bottom CTA & Free Badge */}
-                  <div className="mt-auto pt-3 flex items-center justify-between border-t border-[#22232a]">
+                  <div className="mt-auto pt-3 flex items-center justify-between border-t border-app">
                     <span className="rounded-full bg-[#f97316]/10 px-2.5 py-0.5 text-xs font-extrabold text-[#f97316]">
                       100% Free
                     </span>

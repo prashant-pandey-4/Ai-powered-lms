@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
@@ -180,17 +180,17 @@ export default function AdminEditCourseLecturesPage({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#060709] p-8 space-y-6">
-        <Skeleton className="h-10 w-48 bg-[#111217]" />
-        <Skeleton className="h-64 w-full rounded-2xl bg-[#111217]" />
+      <div className="flex min-h-screen flex-col bg-app p-8 space-y-6">
+        <Skeleton className="h-10 w-48 bg-card" />
+        <Skeleton className="h-64 w-full rounded-2xl bg-card" />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#060709] p-8 text-center">
-        <h2 className="text-xl font-bold text-white">Course Not Found</h2>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-app p-8 text-center">
+        <h2 className="text-xl font-bold text-app">Course Not Found</h2>
         <Link href="/admin" className="mt-4">
           <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white">
             Return to Studio
@@ -201,7 +201,7 @@ export default function AdminEditCourseLecturesPage({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
       <SkillUpHeader title="Admin Studio — Manage Course" />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
@@ -209,7 +209,7 @@ export default function AdminEditCourseLecturesPage({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-[#f97316] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Studio Overview
@@ -217,7 +217,7 @@ export default function AdminEditCourseLecturesPage({
 
           <div className="flex flex-wrap items-center gap-2.5">
             <Link href={`/courses/${courseId}`} target="_blank">
-              <button className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#111217] px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
+              <button className="flex items-center gap-1.5 rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
                 <Eye className="h-3.5 w-3.5" />
                 Preview Student View
               </button>
@@ -228,7 +228,7 @@ export default function AdminEditCourseLecturesPage({
               disabled={publishing}
               className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                 course.isPublished
-                  ? 'border border-[#22232a] bg-[#17181f] text-white hover:border-[#f97316]'
+                  ? 'border border-app bg-card-2 text-white hover:border-[#f97316]'
                   : 'glow-amber-btn text-white'
               }`}
             >
@@ -251,25 +251,25 @@ export default function AdminEditCourseLecturesPage({
         </div>
 
         {/* Course Overview Card */}
-        <div className="rounded-3xl border border-[#22232a] bg-[#111217] p-6 shadow-2xl">
+        <div className="rounded-3xl border border-app bg-card p-6 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5 mb-1.5">
-                <h1 className="text-xl sm:text-2xl font-black text-white">{course.title}</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-app">{course.title}</h1>
                 <span
                   className={`rounded-md px-2.5 py-0.5 text-[10px] font-bold ${
                     course.isPublished
                       ? 'bg-[#f97316]/15 text-[#f97316]'
-                      : 'bg-[#17181f] text-[#9ca3af]'
+                      : 'bg-card-2 text-muted'
                   }`}
                 >
                   {course.isPublished ? 'Published' : 'Draft'}
                 </span>
               </div>
-              <p className="text-xs text-[#9ca3af] line-clamp-1">{course.description}</p>
+              <p className="text-xs text-muted line-clamp-1">{course.description}</p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-[#9ca3af] shrink-0 font-semibold">
+            <div className="flex items-center gap-4 text-xs text-muted shrink-0 font-semibold">
               <span>{course.lectures?.length || 0} Lessons</span>
               <span>•</span>
               <span className="font-extrabold text-[#f97316]">100% Free</span>
@@ -281,8 +281,8 @@ export default function AdminEditCourseLecturesPage({
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-black text-white">Curriculum & Video Lessons</h2>
-              <p className="text-xs text-[#9ca3af]">
+              <h2 className="text-lg font-black text-app">Curriculum & Video Lessons</h2>
+              <p className="text-xs text-muted">
                 Add sequential video lectures, supporting PDF notes, or 1-click import a full YouTube playlist.
               </p>
             </div>
@@ -291,7 +291,7 @@ export default function AdminEditCourseLecturesPage({
               <button
                 type="button"
                 onClick={() => setShowPlaylistModal(true)}
-                className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#111217] px-4 py-2 text-xs font-bold text-[#f97316] hover:border-[#f97316] transition-all"
+                className="flex items-center gap-1.5 rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-[#f97316] hover:border-[#f97316] transition-all"
               >
                 <ListVideo className="h-3.5 w-3.5" />
                 Import YouTube Playlist
@@ -309,12 +309,12 @@ export default function AdminEditCourseLecturesPage({
 
           {/* Add Lecture Card */}
           {showAddForm && (
-            <div className="rounded-3xl border border-[#22232a] bg-[#111217] p-6 space-y-4 shadow-2xl">
-              <h3 className="text-sm font-bold text-white">New Lesson Details</h3>
+            <div className="rounded-3xl border border-app bg-card p-6 space-y-4 shadow-2xl">
+              <h3 className="text-sm font-bold text-app">New Lesson Details</h3>
 
               <form onSubmit={handleAddLecture} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#9ca3af]">
+                  <label className="text-xs font-semibold text-muted">
                     Lesson Title <span className="text-[#f97316]">*</span>
                   </label>
                   <input
@@ -322,7 +322,7 @@ export default function AdminEditCourseLecturesPage({
                     placeholder="e.g. Episode 01: Introduction to Next.js Architecture"
                     value={lectureForm.title}
                     onChange={(e) => setLectureForm({ ...lectureForm, title: e.target.value })}
-                    className="h-10 w-full rounded-xl border border-[#22232a] bg-[#060709] px-3.5 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
+                    className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
@@ -347,7 +347,7 @@ export default function AdminEditCourseLecturesPage({
                   />
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[#9ca3af]">
+                    <label className="text-xs font-semibold text-muted">
                       Duration (Seconds)
                     </label>
                     <input
@@ -356,13 +356,13 @@ export default function AdminEditCourseLecturesPage({
                       placeholder="600"
                       value={lectureForm.duration}
                       onChange={(e) => setLectureForm({ ...lectureForm, duration: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-[#22232a] bg-[#060709] px-3.5 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
+                      className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#9ca3af]">
+                  <label className="text-xs font-semibold text-muted">
                     Description & Key Concepts
                   </label>
                   <textarea
@@ -370,15 +370,15 @@ export default function AdminEditCourseLecturesPage({
                     placeholder="Summary of topics covered in this lesson..."
                     value={lectureForm.description}
                     onChange={(e) => setLectureForm({ ...lectureForm, description: e.target.value })}
-                    className="w-full rounded-xl border border-[#22232a] bg-[#060709] p-3 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
+                    className="w-full rounded-xl border border-app bg-app p-3 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-3 border-t border-[#22232a]">
+                <div className="flex justify-end gap-2 pt-3 border-t border-app">
                   <button
                     type="button"
                     onClick={() => setShowAddForm(false)}
-                    className="rounded-full border border-[#22232a] bg-[#17181f] px-4 py-2 text-xs font-bold text-white hover:bg-[#22232a]"
+                    className="rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-white hover:bg-[#22232a]"
                   >
                     Cancel
                   </button>
@@ -396,7 +396,7 @@ export default function AdminEditCourseLecturesPage({
 
           {/* Existing Lectures List */}
           {course.lectures?.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-[#22232a] p-12 text-center text-xs text-[#9ca3af] bg-[#111217]">
+            <div className="rounded-3xl border border-dashed border-app p-12 text-center text-xs text-muted bg-card">
               No lessons added yet. Click &ldquo;Add Lesson&rdquo; or &ldquo;Import YouTube Playlist&rdquo; above.
             </div>
           ) : (
@@ -404,16 +404,16 @@ export default function AdminEditCourseLecturesPage({
               {course.lectures?.map((lecture: any, index: number) => (
                 <div
                   key={lecture.id}
-                  className="flex items-center justify-between rounded-2xl border border-[#22232a] bg-[#111217] p-4 transition-colors hover:border-[#f97316]/30 shadow-lg"
+                  className="flex items-center justify-between rounded-2xl border border-app bg-card p-4 transition-colors hover:border-[#f97316]/30 shadow-lg"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17181f] text-xs font-black text-[#f97316]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-card-2 text-xs font-black text-[#f97316]">
                       {index + 1}
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                        <h4 className="text-xs sm:text-sm font-bold text-app truncate">
                           {lecture.title}
                         </h4>
                         {lecture.isFree && (
@@ -423,7 +423,7 @@ export default function AdminEditCourseLecturesPage({
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-[11px] text-[#9ca3af] mt-0.5">
+                      <div className="flex items-center gap-3 text-[11px] text-muted mt-0.5">
                         <span>{formatDuration(lecture.duration)}</span>
                         {lecture.pdfUrl && <span>• PDF Notes Attached</span>}
                       </div>

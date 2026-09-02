@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -73,15 +73,15 @@ export default function AdminBlogsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
-      <SkillUpHeader title="Admin — Knowledge Hub Articles" />
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
+      <SkillUpHeader title="Admin â€” Knowledge Hub Articles" />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-[#f97316] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Studio Overview
@@ -96,21 +96,21 @@ export default function AdminBlogsPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
-            <h4 className="text-3xl font-black text-white">{blogs.length}</h4>
-            <p className="text-xs font-bold text-[#9ca3af]">Total Articles</p>
+          <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
+            <h4 className="text-3xl font-black text-app">{blogs.length}</h4>
+            <p className="text-xs font-bold text-muted">Total Articles</p>
           </div>
-          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
+          <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
             <h4 className="text-3xl font-black text-[#f97316]">
               {blogs.filter((b) => b.isPublished).length}
             </h4>
-            <p className="text-xs font-bold text-[#9ca3af]">Published Live</p>
+            <p className="text-xs font-bold text-muted">Published Live</p>
           </div>
-          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
+          <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
             <h4 className="text-3xl font-black text-[#f59e0b]">
               {blogs.filter((b) => !b.isPublished).length}
             </h4>
-            <p className="text-xs font-bold text-[#9ca3af]">Drafts</p>
+            <p className="text-xs font-bold text-muted">Drafts</p>
           </div>
         </div>
 
@@ -118,14 +118,14 @@ export default function AdminBlogsPage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-2xl bg-[#111217]" />
+              <Skeleton key={i} className="h-20 w-full rounded-2xl bg-card" />
             ))}
           </div>
         ) : blogs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#22232a] p-16 text-center bg-[#111217]">
-            <Newspaper className="mb-4 h-10 w-10 text-[#6b7280]" />
-            <h3 className="text-base font-bold text-white">No articles created yet</h3>
-            <p className="mt-2 text-xs text-[#9ca3af]">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-16 text-center bg-card">
+            <Newspaper className="mb-4 h-10 w-10 text-subtle" />
+            <h3 className="text-base font-bold text-app">No articles created yet</h3>
+            <p className="mt-2 text-xs text-muted">
               Share knowledge, case studies, and tutorials with your community.
             </p>
             <Link href="/admin/blogs/new" className="mt-5">
@@ -139,10 +139,10 @@ export default function AdminBlogsPage() {
             {blogs.map((b) => (
               <div
                 key={b.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-[#22232a] bg-[#111217] p-4 transition-colors hover:border-[#f97316]/40 shadow-lg"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-app bg-card p-4 transition-colors hover:border-[#f97316]/40 shadow-lg"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-black border border-[#22232a]">
+                  <div className="h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-black border border-app">
                     {b.coverImage ? (
                       <img
                         src={b.coverImage}
@@ -150,28 +150,28 @@ export default function AdminBlogsPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#17181f]">
-                        <Newspaper className="h-5 w-5 text-[#9ca3af]" />
+                      <div className="flex h-full w-full items-center justify-center bg-card-2">
+                        <Newspaper className="h-5 w-5 text-muted" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-white truncate max-w-md">
+                      <h4 className="text-sm font-bold text-app truncate max-w-md">
                         {b.title}
                       </h4>
                       <span
                         className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
                           b.isPublished
                             ? 'bg-[#f97316]/15 text-[#f97316]'
-                            : 'bg-[#17181f] text-[#9ca3af]'
+                            : 'bg-card-2 text-muted'
                         }`}
                       >
                         {b.isPublished ? 'Published' : 'Draft'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#9ca3af] mt-0.5">
-                      {b.category} • {b.readTime || 5} min read • Created {new Date(b.createdAt).toLocaleDateString()}
+                    <p className="text-[11px] text-muted mt-0.5">
+                      {b.category} â€¢ {b.readTime || 5} min read â€¢ Created {new Date(b.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export default function AdminBlogsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {b.isPublished && (
                     <Link href={`/blog/${b.slug}`} target="_blank">
-                      <button className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#17181f] px-3.5 py-1.5 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
+                      <button className="flex items-center gap-1.5 rounded-full border border-app bg-card-2 px-3.5 py-1.5 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
                         <Eye className="h-3.5 w-3.5" /> View
                       </button>
                     </Link>
@@ -189,7 +189,7 @@ export default function AdminBlogsPage() {
                     onClick={() => handleTogglePublish(b.id, b.isPublished)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors ${
                       b.isPublished
-                        ? 'border border-[#22232a] bg-[#17181f] text-[#9ca3af] hover:text-white'
+                        ? 'border border-app bg-card-2 text-muted hover:text-white'
                         : 'glow-amber-btn text-white'
                     }`}
                   >

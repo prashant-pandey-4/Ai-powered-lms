@@ -10,21 +10,40 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
   const { user } = useUser();
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-[#22232a] bg-[#060709]/90 px-6 backdrop-blur-xl lg:px-8">
+    <header
+      className="sticky top-0 z-30 flex h-20 w-full items-center justify-between px-6 backdrop-blur-xl lg:px-8"
+      style={{
+        borderBottom: '1px solid var(--border)',
+        backgroundColor: 'color-mix(in srgb, var(--bg) 90%, transparent)',
+      }}
+    >
       {/* Title */}
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl flex items-center gap-2">
+        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color: 'var(--text)' }}>
           {title}
         </h1>
       </div>
 
       {/* Capsule Search Bar */}
       <div className="hidden md:flex relative w-80 lg:w-96 items-center">
-        <Search className="absolute left-4 h-4 w-4 text-[#9ca3af]" />
+        <Search className="absolute left-4 h-4 w-4" style={{ color: 'var(--text-subtle)' }} />
         <input
           type="text"
           placeholder="Search DSA, React, System Design..."
-          className="h-11 w-full rounded-full border border-[#22232a] bg-[#111217] pl-11 pr-4 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
+          style={{
+            height: '2.75rem',
+            width: '100%',
+            borderRadius: '9999px',
+            border: '1px solid var(--border)',
+            backgroundColor: 'var(--bg-card)',
+            paddingLeft: '2.75rem',
+            paddingRight: '1rem',
+            fontSize: '0.75rem',
+            color: 'var(--text)',
+            outline: 'none',
+          }}
+          onFocus={(e) => (e.target.style.borderColor = 'var(--primary)')}
+          onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
         />
       </div>
 
@@ -34,27 +53,29 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
         <ThemeToggle />
 
         {!isLoaded ? (
-          <div className="h-10 w-28 animate-pulse rounded-full bg-[#111217]" />
+          <div className="h-10 w-28 animate-pulse rounded-full" style={{ backgroundColor: 'var(--bg-card)' }} />
         ) : isSignedIn ? (
           <div className="flex items-center gap-3">
             {/* User Profile Pill */}
-            <div className="flex items-center gap-2.5 rounded-full bg-[#111217] p-1.5 pr-4 border border-[#22232a]">
+            <div
+              className="flex items-center gap-2.5 rounded-full p-1.5 pr-4"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
               <img
                 src={user?.imageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'}
                 alt={user?.fullName || 'User'}
                 className="h-7 w-7 rounded-full object-cover"
               />
               <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-white leading-none">
+                <p className="text-xs font-bold leading-none" style={{ color: 'var(--text)' }}>
                   {user?.fullName || 'Student'}
                 </p>
-                <p className="text-[10px] text-[#f97316] leading-none mt-1 font-semibold">
+                <p className="text-[10px] leading-none mt-1 font-semibold" style={{ color: 'var(--primary)' }}>
                   Free Student
                 </p>
               </div>
             </div>
 
-            {/* Clerk User Button */}
             <div className="ml-1">
               <UserButton />
             </div>
@@ -62,7 +83,7 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
         ) : (
           <div className="flex items-center gap-2">
             <SignInButton mode="modal">
-              <button className="rounded-full px-4 py-2 text-xs font-semibold text-[#9ca3af] hover:text-white transition-colors">
+              <button className="rounded-full px-4 py-2 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
                 Sign In
               </button>
             </SignInButton>

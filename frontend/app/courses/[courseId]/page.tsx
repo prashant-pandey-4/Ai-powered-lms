@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
@@ -104,9 +104,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#060709] p-8 space-y-6">
-        <Skeleton className="h-10 w-48 bg-[#111217]" />
-        <Skeleton className="h-64 w-full rounded-2xl bg-[#111217]" />
+      <div className="flex min-h-screen flex-col bg-app p-8 space-y-6">
+        <Skeleton className="h-10 w-48 bg-card" />
+        <Skeleton className="h-64 w-full rounded-2xl bg-card" />
       </div>
     );
   }
@@ -114,13 +114,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const firstLectureId = course?.lectures?.[0]?.id || 'lec-1';
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
       <SkillUpHeader title="Course Curriculum" />
 
       <div className="p-6 lg:p-10 space-y-10 max-w-7xl mx-auto w-full">
         <Link
           href="/courses"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-[#f97316] transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to All Courses
         </Link>
@@ -138,25 +138,25 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 <span className="inline-flex items-center gap-1 rounded-md bg-[#f59e0b]/15 px-2.5 py-1 text-xs font-bold text-[#f59e0b] border border-[#f59e0b]/30">
                   <Star className="h-3 w-3 fill-current" /> 4.9 Rating
                 </span>
-                <span className="rounded-md bg-[#17181f] px-2.5 py-1 text-xs font-medium text-[#9ca3af]">
+                <span className="rounded-md bg-card-2 px-2.5 py-1 text-xs font-medium text-muted">
                   {course.category || 'Engineering'}
                 </span>
-                <span className="rounded-md bg-[#17181f] px-2.5 py-1 text-xs font-medium text-[#9ca3af]">
+                <span className="rounded-md bg-card-2 px-2.5 py-1 text-xs font-medium text-muted">
                   {course.level || 'Beginner to Pro'}
                 </span>
               </div>
 
               {/* Title & Description */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-app leading-tight">
                 {course.title}
               </h1>
 
-              <p className="text-sm sm:text-base leading-relaxed text-[#9ca3af] font-normal">
+              <p className="text-sm sm:text-base leading-relaxed text-muted font-normal">
                 {course.description || 'Master fundamental concepts through high-quality structured video lessons.'}
               </p>
 
               {/* Stats Bar */}
-              <div className="flex flex-wrap items-center gap-6 border-t border-[#22232a] pt-4 text-xs font-semibold text-[#9ca3af]">
+              <div className="flex flex-wrap items-center gap-6 border-t border-app pt-4 text-xs font-semibold text-muted">
                 <span className="flex items-center gap-1.5 text-white">
                   <Globe className="h-4 w-4 text-[#f97316]" /> {course.language || 'English / Hindi'}
                 </span>
@@ -171,7 +171,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
             {/* NamasteDev Numbered Feature Pills Grid (01 to 06) */}
             <div className="space-y-4">
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
+              <h2 className="text-lg font-black text-app flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#f97316]" /> What You Will Get
               </h2>
 
@@ -179,14 +179,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 {featureHighlights.map((feat) => (
                   <div
                     key={feat.num}
-                    className="flex items-start gap-3.5 rounded-2xl border border-[#22232a] bg-[#111217] p-4 hover:border-[#f97316]/40 transition-colors"
+                    className="flex items-start gap-3.5 rounded-2xl border border-app bg-card p-4 hover:border-[#f97316]/40 transition-colors"
                   >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#f97316]/10 text-xs font-black text-[#f97316] border border-[#f97316]/20">
                       {feat.num}
                     </span>
                     <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-white">{feat.title}</h4>
-                      <p className="text-[11px] text-[#9ca3af] mt-0.5">{feat.desc}</p>
+                      <h4 className="text-xs sm:text-sm font-bold text-app">{feat.title}</h4>
+                      <p className="text-[11px] text-muted mt-0.5">{feat.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -197,8 +197,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-black text-white">Curriculum & Syllabus</h2>
-                  <p className="text-xs text-[#9ca3af] mt-0.5">
+                  <h2 className="text-xl font-black text-app">Curriculum & Syllabus</h2>
+                  <p className="text-xs text-muted mt-0.5">
                     {course.lectures?.length || 0} sequential video episodes with AI doubt assistance.
                   </p>
                 </div>
@@ -210,14 +210,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   return (
                     <div
                       key={lec.id || idx}
-                      className="overflow-hidden rounded-2xl border border-[#22232a] bg-[#111217] transition-colors hover:border-[#f97316]/30"
+                      className="overflow-hidden rounded-2xl border border-app bg-card transition-colors hover:border-[#f97316]/30"
                     >
                       <div
                         onClick={() => setExpandedEpisode(isExpanded ? null : (lec.id || String(idx)))}
                         className="flex items-center justify-between p-4 cursor-pointer"
                       >
                         <div className="flex items-center gap-3.5 min-w-0 pr-4">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17181f] text-xs font-black text-[#f97316]">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-card-2 text-xs font-black text-[#f97316]">
                             {idx + 1}
                           </div>
                           <span className="text-xs sm:text-sm font-bold text-white truncate">
@@ -235,16 +235,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                             </button>
                           </Link>
                           {isExpanded ? (
-                            <ChevronUp className="h-4 w-4 text-[#9ca3af]" />
+                            <ChevronUp className="h-4 w-4 text-muted" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 text-[#9ca3af]" />
+                            <ChevronDown className="h-4 w-4 text-muted" />
                           )}
                         </div>
                       </div>
 
                       {/* Accordion Expanded Notes */}
                       {isExpanded && lec.description && (
-                        <div className="border-t border-[#22232a] bg-[#0c0d11] p-4 text-xs text-[#9ca3af] leading-relaxed">
+                        <div className="border-t border-app bg-[#0c0d11] p-4 text-xs text-muted leading-relaxed">
                           {lec.description}
                         </div>
                       )}
@@ -257,9 +257,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
           {/* Right 4 Cols: Sticky Enroll & Preview Card */}
           <div className="lg:col-span-4">
-            <div className="sticky top-28 rounded-3xl border border-[#22232a] bg-[#111217] p-5 space-y-6 shadow-2xl">
+            <div className="sticky top-28 rounded-3xl border border-app bg-card p-5 space-y-6 shadow-2xl">
               {/* Thumbnail with Play Overlay */}
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black border border-[#22232a]">
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black border border-app">
                 <img
                   src={course.thumbnail || 'https://images.unsplash.com/photo-1516116211227-bbc159755490?w=800&auto=format&fit=crop&q=80'}
                   alt={course.title}
@@ -283,7 +283,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                     100% Free Access
                   </span>
                 </div>
-                <p className="text-xs text-[#9ca3af] mt-1 font-medium">
+                <p className="text-xs text-muted mt-1 font-medium">
                   Zero hidden fees • Lifetime open access
                 </p>
               </div>
@@ -310,7 +310,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                     {enrolling ? 'Joining...' : 'Start Learning Now (Free)'}
                   </button>
                   <Link href={`/courses/${courseId}/learn/${firstLectureId}`} className="block text-center">
-                    <span className="text-xs text-[#9ca3af] hover:text-[#f97316] underline">
+                    <span className="text-xs text-muted hover:text-[#f97316] underline">
                       Or preview 1st lesson directly
                     </span>
                   </Link>
@@ -318,7 +318,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               )}
 
               {/* Course Benefits List */}
-              <div className="border-t border-[#22232a] pt-4 space-y-2.5 text-xs text-[#9ca3af]">
+              <div className="border-t border-app pt-4 space-y-2.5 text-xs text-muted">
                 <p className="flex items-center gap-2.5 text-[#d1d5db] font-semibold">
                   <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> {course.lectures?.length || 0} Sequential Video Lectures
                 </p>
