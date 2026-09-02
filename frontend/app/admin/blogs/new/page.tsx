@@ -20,6 +20,11 @@ import {
   Link2,
   CheckCircle2,
   FileText,
+  Globe,
+  Loader2,
+  X,
+  Zap,
+  ExternalLink,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { MediaUpload } from '@/components/media-upload';
@@ -56,6 +61,13 @@ export default function AdminNewBlogPage() {
   const [hasDraft, setHasDraft] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Scraper state
+  const [showScrapeModal, setShowScrapeModal] = useState(false);
+  const [scrapeUrl, setScrapeUrl] = useState('');
+  const [scraping, setScraping] = useState(false);
+  const [scrapeResult, setScrapeResult] = useState<any>(null);
+  const [scrapeError, setScrapeError] = useState('');
 
   // 1. Restore saved draft on mount
   useEffect(() => {
@@ -111,7 +123,76 @@ export default function AdminNewBlogPage() {
     }, 50);
   };
 
-  // 4. Clear draft
+  // 4. Scrape article from URL
+  const handleScrape = async () => {
+    if (!scrapeUrl.trim()) {
+      setScrapeError('Please paste a valid article URL.');
+      return;
+    }
+
+    setScraping(true);
+    setScrapeError('');
+    setScrapeResult(null);
+
+    try {
+      const token = await getToken();
+      const res = await fetchApi<any>('/scrape', {
+        method: 'POST',
+        token,
+        body: JSON.stringify({ url: scrapeUrl.trim() }),
+      });
+
+      if (res.success && res.data) {
+        setScrapeResult(res.data);
+        toast.success(`Scraped ${res.data.wordCount} words from the article!`);
+      } else {
+        setScrapeError(res.message || 'Failed to scrape the URL.');
+        toast.error(res.message || 'Scraping failed.');
+      }
+    } catch (err: any) {
+      setScrapeError(err.message || 'Network error during scraping.');
+      toast.error('Could not reach the scraping API.');
+    } finally {
+      setScraping(false);
+    }
+  };
+
+  // 5. Apply scraped data to form
+  const applyScrapeToForm = () => {
+    if (!scrapeResult) return;
+
+    const updates: Record<string, any> = {};
+
+    if (scrapeResult.title) updates.title = scrapeResult.title;
+    if (scrapeResult.summary) updates.summary = scrapeResult.summary;
+    if (scrapeResult.content) updates.content = scrapeResult.content;
+    if (scrapeResult.coverImage) updates.coverImage = scrapeResult.coverImage;
+    if (scrapeResult.tags) updates.tagsInput = scrapeResult.tags;
+    if (scrapeResult.readTime) updates.readTime = String(scrapeResult.readTime);
+
+    // Try to match category
+    if (scrapeResult.category) {
+      const match = CATEGORIES.find(
+        (c) => c.toLowerCase().includes(scrapeResult.category.toLowerCase())
+      );
+      if (match) updates.category = match;
+    }
+
+    setFormData((prev) => {
+      const next = { ...prev, ...updates };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    setShowScrapeModal(false);
+    setScrapeResult(null);
+    setScrapeUrl('');
+    toast.success('Article data applied to the form! Review and publish.');
+  };
+
+  // 6. Clear draft
   const handleClearDraft = () => {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -196,6 +277,15 @@ export default function AdminNewBlogPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowScrapeModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#f97316]/40 bg-[#f97316]/10 px-4 py-1.5 text-xs font-bold text-[#f97316] hover:bg-[#f97316]/20 transition-colors"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Scrape from URL
+            </button>
+
             {hasDraft && (
               <button
                 type="button"
@@ -213,6 +303,159 @@ export default function AdminNewBlogPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Scrape from URL Modal ────────────────────────────────── */}
+        {showScrapeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-app bg-card shadow-2xl flex flex-col max-h-[85vh]">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-app p-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f97316]/15 text-[#f97316]">
+                    <Globe className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-app flex items-center gap-2">
+                      Scrape Article from URL
+                      <span className="rounded-full bg-[#f97316]/20 px-2 py-0.5 text-[10px] font-bold text-[#f97316]">
+                        Auto-Import
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-muted">
+                      Paste any published blog/article link to auto-extract title, body, cover image, and tags
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setShowScrapeModal(false); setScrapeResult(null); setScrapeError(''); }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-card-2 hover:text-app transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-5 overflow-y-auto flex-1">
+                {/* URL Input */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-app">Article / Blog URL</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="https://medium.com/@author/amazing-article-... or any blog URL"
+                      value={scrapeUrl}
+                      onChange={(e) => setScrapeUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleScrape())}
+                      className="h-10 flex-1 rounded-xl border border-app bg-app px-3.5 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleScrape}
+                      disabled={scraping || !scrapeUrl.trim()}
+                      className="flex items-center gap-1.5 rounded-xl glow-amber-btn px-4 py-2 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
+                    >
+                      {scraping ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Zap className="h-4 w-4" />
+                      )}
+                      {scraping ? 'Scraping...' : 'Scrape'}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted">
+                    Works with Medium, Dev.to, Hashnode, personal blogs, WordPress, and most public article pages.
+                  </p>
+                </div>
+
+                {scrapeError && (
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-medium text-red-400">
+                    {scrapeError}
+                  </div>
+                )}
+
+                {/* Scrape Result Preview */}
+                {scrapeResult && (
+                  <div className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+                    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-bold text-emerald-400 flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Successfully scraped {scrapeResult.wordCount} words from the article!
+                    </div>
+
+                    {/* Preview Card */}
+                    <div className="rounded-2xl border border-app bg-card-2 p-4 space-y-3">
+                      {scrapeResult.coverImage && (
+                        <img
+                          src={scrapeResult.coverImage}
+                          alt="Cover"
+                          className="w-full aspect-video rounded-xl object-cover border border-app"
+                        />
+                      )}
+
+                      <div className="space-y-1.5">
+                        <h4 className="text-sm font-bold text-app line-clamp-2">
+                          {scrapeResult.title || 'No title found'}
+                        </h4>
+                        <p className="text-xs text-muted line-clamp-3 leading-relaxed">
+                          {scrapeResult.summary || 'No summary extracted'}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted">
+                        {scrapeResult.author && (
+                          <span className="rounded-full bg-card px-2 py-0.5 border border-app">
+                            By {scrapeResult.author}
+                          </span>
+                        )}
+                        <span className="rounded-full bg-card px-2 py-0.5 border border-app">
+                          ~{scrapeResult.readTime} min read
+                        </span>
+                        <span className="rounded-full bg-card px-2 py-0.5 border border-app">
+                          {scrapeResult.wordCount} words
+                        </span>
+                        {scrapeResult.tags && (
+                          <span className="rounded-full bg-card px-2 py-0.5 border border-app">
+                            Tags: {scrapeResult.tags}
+                          </span>
+                        )}
+                      </div>
+
+                      {scrapeResult.content && (
+                        <details className="mt-2">
+                          <summary className="text-xs font-bold text-[#f97316] cursor-pointer hover:underline">
+                            Preview extracted body ({scrapeResult.content.length} chars)
+                          </summary>
+                          <pre className="mt-2 max-h-48 overflow-auto rounded-xl border border-app bg-app p-3 text-[11px] text-muted whitespace-pre-wrap font-mono leading-relaxed">
+                            {scrapeResult.content.substring(0, 2000)}
+                            {scrapeResult.content.length > 2000 ? '\n\n... (truncated in preview)' : ''}
+                          </pre>
+                        </details>
+                      )}
+
+                      <a
+                        href={scrapeResult.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-[#f97316] hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" /> Open original article
+                      </a>
+                    </div>
+
+                    {/* Apply Button */}
+                    <button
+                      type="button"
+                      onClick={applyScrapeToForm}
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl glow-amber-btn py-3 text-xs sm:text-sm font-bold text-white transition-all"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Apply to Article Form
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {errorMessage && (
           <div className="rounded-2xl border border-red-800/50 bg-red-950/40 p-4 text-xs font-medium text-red-300">
