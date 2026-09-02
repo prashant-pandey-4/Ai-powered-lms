@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ export default function AdminLayout({
           This section is exclusively reserved for the platform administrator ({adminEmail}).
         </p>
         <Link href="/" className="mt-6">
-          <button className="rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
+          <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white transition-all">
             Return to Home
           </button>
         </Link>

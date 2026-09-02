@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import {
@@ -199,7 +199,7 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
       {/* Loading Spinner */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
-          <Loader2 className="h-10 w-10 animate-spin text-[#d4f76d]" />
+          <Loader2 className="h-10 w-10 animate-spin text-[#f97316]" />
         </div>
       )}
 
@@ -238,12 +238,12 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
             />
             {/* Played */}
             <div
-              className="absolute h-full rounded-full bg-[#d4f76d]"
+              className="absolute h-full rounded-full bg-[#f97316]"
               style={{ width: `${progress}%` }}
             />
             {/* Thumb */}
             <div
-              className="absolute top-1/2 -translate-y-1/2 h-3.5 w-3.5 rounded-full bg-[#d4f76d] shadow-md opacity-0 group-hover/bar:opacity-100 transition-opacity"
+              className="absolute top-1/2 -translate-y-1/2 h-3.5 w-3.5 rounded-full bg-[#f97316] shadow-md opacity-0 group-hover/bar:opacity-100 transition-opacity"
               style={{ left: `calc(${progress}% - 7px)` }}
             />
           </div>
@@ -263,7 +263,7 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4f76d] text-black hover:bg-[#c4ea5c] transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f97316] text-black hover:bg-[#ea580c] transition-colors"
               >
                 {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
               </button>
@@ -291,7 +291,7 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
                   setVolume(Number(e.target.value));
                   setMuted(Number(e.target.value) === 0);
                 }}
-                className="w-20 accent-[#d4f76d] cursor-pointer h-1"
+                className="w-20 accent-[#f97316] cursor-pointer h-1"
               />
 
               {/* Time */}
@@ -302,7 +302,7 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
 
             <div className="flex items-center gap-1">
               {/* Speed badge */}
-              <span className="text-[10px] font-bold text-[#d4f76d]">{speed}×</span>
+              <span className="text-[10px] font-bold text-[#f97316]">{speed}×</span>
 
               {/* Settings */}
               <div className="relative">
@@ -320,13 +320,13 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
                     <div className="grid grid-cols-2 border-b border-[#23232a]">
                       <button
                         onClick={() => setSettingsTab('speed')}
-                        className={`py-2 text-[11px] font-bold transition-colors ${settingsTab === 'speed' ? 'bg-[#d4f76d]/10 text-[#d4f76d]' : 'text-[#8e8e9c] hover:text-white'}`}
+                        className={`py-2 text-[11px] font-bold transition-colors ${settingsTab === 'speed' ? 'bg-[#f97316]/10 text-[#f97316]' : 'text-[#8e8e9c] hover:text-white'}`}
                       >
                         Speed
                       </button>
                       <button
                         onClick={() => setSettingsTab('quality')}
-                        className={`py-2 text-[11px] font-bold transition-colors ${settingsTab === 'quality' ? 'bg-[#d4f76d]/10 text-[#d4f76d]' : 'text-[#8e8e9c] hover:text-white'}`}
+                        className={`py-2 text-[11px] font-bold transition-colors ${settingsTab === 'quality' ? 'bg-[#f97316]/10 text-[#f97316]' : 'text-[#8e8e9c] hover:text-white'}`}
                       >
                         Quality
                       </button>
@@ -339,10 +339,10 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
                           <button
                             key={s}
                             onClick={() => { setSpeed(s); setShowSettings(false); }}
-                            className={`flex w-full items-center justify-between px-4 py-2 text-xs transition-colors ${speed === s ? 'text-[#d4f76d] font-bold' : 'text-white hover:bg-[#23232a]'}`}
+                            className={`flex w-full items-center justify-between px-4 py-2 text-xs transition-colors ${speed === s ? 'text-[#f97316] font-bold' : 'text-white hover:bg-[#23232a]'}`}
                           >
                             <span>{s === 1 ? 'Normal' : `${s}×`}</span>
-                            {speed === s && <span className="h-1.5 w-1.5 rounded-full bg-[#d4f76d]" />}
+                            {speed === s && <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />}
                           </button>
                         ))}
                       </div>
@@ -355,10 +355,10 @@ export function VideoPlayer({ src, title, onEnded }: VideoPlayerProps) {
                           <button
                             key={q.label}
                             onClick={() => changeQuality(q.label)}
-                            className={`flex w-full items-center justify-between px-4 py-2 text-xs transition-colors ${selectedQuality === q.label ? 'text-[#d4f76d] font-bold' : 'text-white hover:bg-[#23232a]'}`}
+                            className={`flex w-full items-center justify-between px-4 py-2 text-xs transition-colors ${selectedQuality === q.label ? 'text-[#f97316] font-bold' : 'text-white hover:bg-[#23232a]'}`}
                           >
                             <span>{q.label}</span>
-                            {selectedQuality === q.label && <span className="h-1.5 w-1.5 rounded-full bg-[#d4f76d]" />}
+                            {selectedQuality === q.label && <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />}
                           </button>
                         ))}
                         {!src.includes('cloudinary.com') && (
