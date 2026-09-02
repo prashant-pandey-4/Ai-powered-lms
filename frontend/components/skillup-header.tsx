@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useAuth, useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { Search, Bell, Sparkles } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -27,8 +28,11 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
         />
       </div>
 
-      {/* Right User Area */}
+      {/* Right User Area & Theme Toggle */}
       <div className="flex items-center gap-3">
+        {/* Dark/Light Theme Toggle */}
+        <ThemeToggle />
+
         {!isLoaded ? (
           <div className="h-10 w-28 animate-pulse rounded-full bg-[#111217]" />
         ) : isSignedIn ? (

@@ -11,6 +11,7 @@ import {
   Trash2,
   Eye,
   ListVideo,
+  Flame,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { formatDuration } from '@/lib/utils';
@@ -45,8 +46,6 @@ export default function AdminEditCourseLecturesPage({
     duration: '600',
     isFree: false,
   });
-
-
 
   const loadCourse = async () => {
     try {
@@ -100,7 +99,7 @@ export default function AdminEditCourseLecturesPage({
               toast.error(res.message || 'Failed to delete course.');
             }
           } catch {
-            toast.error('Failed to delete course.');
+            toast.error('Network error deleting course.');
           } finally {
             setDeletingCourse(false);
           }
@@ -113,43 +112,65 @@ export default function AdminEditCourseLecturesPage({
   const handleAddLecture = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddingLecture(true);
+
     try {
       const token = await getToken();
-      const payload = { ...lectureForm, duration: parseInt(lectureForm.duration, 10) || 600 };
-      const res = await fetchApi(`/lectures/course/${courseId}`, {
-        method: 'POST', token, body: JSON.stringify(payload),
+      const payload = {
+        title: lectureForm.title,
+        description: lectureForm.description,
+        videoUrl: lectureForm.videoUrl,
+        pdfUrl: lectureForm.pdfUrl || undefined,
+        duration: parseInt(lectureForm.duration, 10) || 600,
+        isFree: lectureForm.isFree,
+      };
+
+      const res = await fetchApi(`/courses/${courseId}/lectures`, {
+        method: 'POST',
+        token,
+        body: JSON.stringify(payload),
       });
+
       if (res.success) {
         toast.success('Lesson added to syllabus!');
-        setLectureForm({ title: '', description: '', videoUrl: '', pdfUrl: '', duration: '600', isFree: false });
+        setLectureForm({
+          title: '',
+          description: '',
+          videoUrl: '',
+          pdfUrl: '',
+          duration: '600',
+          isFree: false,
+        });
         setShowAddForm(false);
-        await loadCourse();
+        loadCourse();
       } else {
         toast.error(res.message || 'Failed to add lesson.');
       }
-    } catch {
-      toast.error('Error adding lesson.');
+    } catch (err: any) {
+      toast.error(err.message || 'Network error.');
     } finally {
       setAddingLecture(false);
     }
   };
 
   const handleDeleteLecture = async (lectureId: string, title: string) => {
-    toast(`Remove "${title}"?`, {
+    toast(`Delete "${title}"?`, {
       action: {
-        label: 'Remove',
+        label: 'Delete',
         onClick: async () => {
           try {
             const token = await getToken();
-            const res = await fetchApi(`/lectures/${lectureId}`, { method: 'DELETE', token });
+            const res = await fetchApi(`/courses/${courseId}/lectures/${lectureId}`, {
+              method: 'DELETE',
+              token,
+            });
             if (res.success) {
               toast.success('Lesson removed.');
-              await loadCourse();
+              loadCourse();
             } else {
-              toast.error(res.message || 'Failed to remove lesson.');
+              toast.error(res.message || 'Failed to delete lecture.');
             }
           } catch {
-            toast.error('Error removing lesson.');
+            toast.error('Network error.');
           }
         },
       },
@@ -159,20 +180,20 @@ export default function AdminEditCourseLecturesPage({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#0d0d10] p-8 space-y-6">
-        <Skeleton className="h-10 w-48 bg-[#16161a]" />
-        <Skeleton className="h-64 w-full rounded-2xl bg-[#16161a]" />
+      <div className="flex min-h-screen flex-col bg-[#060709] p-8 space-y-6">
+        <Skeleton className="h-10 w-48 bg-[#111217]" />
+        <Skeleton className="h-64 w-full rounded-2xl bg-[#111217]" />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0d0d10] text-center p-8">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#060709] p-8 text-center">
         <h2 className="text-xl font-bold text-white">Course Not Found</h2>
         <Link href="/admin" className="mt-4">
-          <button className="rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black">
-            Back to Admin Panel
+          <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white">
+            Return to Studio
           </button>
         </Link>
       </div>
@@ -180,23 +201,23 @@ export default function AdminEditCourseLecturesPage({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin — Course Management" />
+    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+      <SkillUpHeader title="Admin Studio — Manage Course" />
 
-      <div className="mx-auto w-full max-w-5xl p-6 lg:p-8 space-y-6">
-        {/* Top Actions Bar */}
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
+        {/* Top bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Admin Panel
+            Back to Studio Overview
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link href={`/courses/${courseId}`} target="_blank">
-              <button className="flex items-center gap-1.5 rounded-full border border-[#23232a] bg-[#16161a] px-4 py-2 text-xs font-bold text-white hover:border-[#d4f76d] transition-colors">
+              <button className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#111217] px-4 py-2 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
                 <Eye className="h-3.5 w-3.5" />
                 Preview Student View
               </button>
@@ -207,15 +228,15 @@ export default function AdminEditCourseLecturesPage({
               disabled={publishing}
               className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                 course.isPublished
-                  ? 'border border-[#23232a] bg-[#1c1c22] text-white hover:bg-[#23232a]'
-                  : 'bg-[#d4f76d] text-black hover:bg-[#c4ea5c]'
+                  ? 'border border-[#22232a] bg-[#17181f] text-white hover:border-[#f97316]'
+                  : 'glow-amber-btn text-white'
               }`}
             >
               {publishing
                 ? 'Updating...'
                 : course.isPublished
                 ? 'Unpublish (Set to Draft)'
-                : 'Publish Course'}
+                : 'Publish Course Live'}
             </button>
 
             <button
@@ -229,30 +250,29 @@ export default function AdminEditCourseLecturesPage({
           </div>
         </div>
 
-
         {/* Course Overview Card */}
-        <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6">
+        <div className="rounded-3xl border border-[#22232a] bg-[#111217] p-6 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5 mb-1.5">
-                <h1 className="text-xl font-bold text-white">{course.title}</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-white">{course.title}</h1>
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                  className={`rounded-md px-2.5 py-0.5 text-[10px] font-bold ${
                     course.isPublished
-                      ? 'bg-[#d4f76d] text-black'
-                      : 'bg-[#23232a] text-[#8e8e9c]'
+                      ? 'bg-[#f97316]/15 text-[#f97316]'
+                      : 'bg-[#17181f] text-[#9ca3af]'
                   }`}
                 >
                   {course.isPublished ? 'Published' : 'Draft'}
                 </span>
               </div>
-              <p className="text-xs text-[#8e8e9c] line-clamp-1">{course.description}</p>
+              <p className="text-xs text-[#9ca3af] line-clamp-1">{course.description}</p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-[#8e8e9c] shrink-0">
+            <div className="flex items-center gap-4 text-xs text-[#9ca3af] shrink-0 font-semibold">
               <span>{course.lectures?.length || 0} Lessons</span>
               <span>•</span>
-              <span className="font-extrabold text-[#d4f76d]">Free</span>
+              <span className="font-extrabold text-[#f97316]">100% Free</span>
             </div>
           </div>
         </div>
@@ -261,9 +281,9 @@ export default function AdminEditCourseLecturesPage({
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-bold text-white">Curriculum & Video Lessons</h2>
-              <p className="text-xs text-[#8e8e9c]">
-                Add sequential video lectures, supporting PDF notes, or import an entire YouTube playlist.
+              <h2 className="text-lg font-black text-white">Curriculum & Video Lessons</h2>
+              <p className="text-xs text-[#9ca3af]">
+                Add sequential video lectures, supporting PDF notes, or 1-click import a full YouTube playlist.
               </p>
             </div>
 
@@ -271,7 +291,7 @@ export default function AdminEditCourseLecturesPage({
               <button
                 type="button"
                 onClick={() => setShowPlaylistModal(true)}
-                className="flex items-center gap-1.5 rounded-full border border-[#23232a] bg-[#16161a] px-4 py-2 text-xs font-bold text-[#d4f76d] hover:border-[#d4f76d] transition-all"
+                className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#111217] px-4 py-2 text-xs font-bold text-[#f97316] hover:border-[#f97316] transition-all"
               >
                 <ListVideo className="h-3.5 w-3.5" />
                 Import YouTube Playlist
@@ -279,7 +299,7 @@ export default function AdminEditCourseLecturesPage({
               <button
                 type="button"
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="flex items-center gap-1.5 rounded-full bg-[#d4f76d] px-4 py-2 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all"
+                className="flex items-center gap-1.5 rounded-full glow-amber-btn px-4 py-2 text-xs font-bold text-white transition-all"
               >
                 <Plus className="h-3.5 w-3.5" />
                 {showAddForm ? 'Close Form' : 'Add Lesson'}
@@ -289,20 +309,20 @@ export default function AdminEditCourseLecturesPage({
 
           {/* Add Lecture Card */}
           {showAddForm && (
-            <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-6 space-y-4">
+            <div className="rounded-3xl border border-[#22232a] bg-[#111217] p-6 space-y-4 shadow-2xl">
               <h3 className="text-sm font-bold text-white">New Lesson Details</h3>
 
               <form onSubmit={handleAddLecture} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#8e8e9c]">
-                    Lesson Title <span className="text-[#d4f76d]">*</span>
+                  <label className="text-xs font-semibold text-[#9ca3af]">
+                    Lesson Title <span className="text-[#f97316]">*</span>
                   </label>
                   <input
                     required
-                    placeholder="e.g. 01. Introduction to Next.js Architecture"
+                    placeholder="e.g. Episode 01: Introduction to Next.js Architecture"
                     value={lectureForm.title}
                     onChange={(e) => setLectureForm({ ...lectureForm, title: e.target.value })}
-                    className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                    className="h-10 w-full rounded-xl border border-[#22232a] bg-[#060709] px-3.5 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
@@ -313,11 +333,10 @@ export default function AdminEditCourseLecturesPage({
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={lectureForm.videoUrl}
                   onChange={(url) => setLectureForm({ ...lectureForm, videoUrl: url })}
-                  helperText="Upload an MP4/WebM video file directly, or paste a YouTube Unlisted / Public link."
+                  helperText="Upload an MP4/WebM video file directly, or paste a YouTube link."
                 />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {/* PDF Document Upload */}
                   <MediaUpload
                     accept="pdf"
                     label="Lesson Notes / PDF Resource (Optional)"
@@ -328,7 +347,7 @@ export default function AdminEditCourseLecturesPage({
                   />
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[#8e8e9c]">
+                    <label className="text-xs font-semibold text-[#9ca3af]">
                       Duration (Seconds)
                     </label>
                     <input
@@ -337,13 +356,13 @@ export default function AdminEditCourseLecturesPage({
                       placeholder="600"
                       value={lectureForm.duration}
                       onChange={(e) => setLectureForm({ ...lectureForm, duration: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                      className="h-10 w-full rounded-xl border border-[#22232a] bg-[#060709] px-3.5 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#8e8e9c]">
+                  <label className="text-xs font-semibold text-[#9ca3af]">
                     Description & Key Concepts
                   </label>
                   <textarea
@@ -351,35 +370,22 @@ export default function AdminEditCourseLecturesPage({
                     placeholder="Summary of topics covered in this lesson..."
                     value={lectureForm.description}
                     onChange={(e) => setLectureForm({ ...lectureForm, description: e.target.value })}
-                    className="w-full rounded-xl border border-[#23232a] bg-[#0d0d10] p-3 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+                    className="w-full rounded-xl border border-[#22232a] bg-[#060709] p-3 text-xs text-white placeholder:text-[#6b7280] focus:border-[#f97316] focus:outline-none"
                   />
                 </div>
 
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="isFree"
-                    checked={lectureForm.isFree}
-                    onChange={(e) => setLectureForm({ ...lectureForm, isFree: e.target.checked })}
-                    className="h-4 w-4 rounded accent-[#d4f76d]"
-                  />
-                  <label htmlFor="isFree" className="text-xs text-[#8e8e9c]">
-                    Free Preview (allow students to preview before enrolling/purchasing)
-                  </label>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-3 border-t border-[#23232a]">
+                <div className="flex justify-end gap-2 pt-3 border-t border-[#22232a]">
                   <button
                     type="button"
                     onClick={() => setShowAddForm(false)}
-                    className="rounded-full border border-[#23232a] bg-[#1c1c22] px-4 py-2 text-xs font-bold text-white hover:bg-[#23232a]"
+                    className="rounded-full border border-[#22232a] bg-[#17181f] px-4 py-2 text-xs font-bold text-white hover:bg-[#22232a]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={addingLecture}
-                    className="rounded-full bg-[#d4f76d] px-5 py-2 text-xs font-bold text-black hover:bg-[#c4ea5c] disabled:opacity-50"
+                    className="rounded-full glow-amber-btn px-5 py-2 text-xs font-bold text-white disabled:opacity-50"
                   >
                     {addingLecture ? 'Saving...' : 'Save Lesson'}
                   </button>
@@ -390,36 +396,36 @@ export default function AdminEditCourseLecturesPage({
 
           {/* Existing Lectures List */}
           {course.lectures?.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#23232a] p-8 text-center text-xs text-[#8e8e9c]">
-              No lessons added yet. Click &ldquo;Add Lesson&rdquo; above to build your course syllabus.
+            <div className="rounded-3xl border border-dashed border-[#22232a] p-12 text-center text-xs text-[#9ca3af] bg-[#111217]">
+              No lessons added yet. Click &ldquo;Add Lesson&rdquo; or &ldquo;Import YouTube Playlist&rdquo; above.
             </div>
           ) : (
             <div className="space-y-2">
               {course.lectures?.map((lecture: any, index: number) => (
                 <div
                   key={lecture.id}
-                  className="flex items-center justify-between rounded-xl border border-[#23232a] bg-[#16161a] p-4 transition-colors hover:border-[#34343d]"
+                  className="flex items-center justify-between rounded-2xl border border-[#22232a] bg-[#111217] p-4 transition-colors hover:border-[#f97316]/30 shadow-lg"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#23232a] text-xs font-bold text-white">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17181f] text-xs font-black text-[#f97316]">
                       {index + 1}
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-bold text-white truncate">
+                        <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                           {lecture.title}
                         </h4>
                         {lecture.isFree && (
-                          <span className="rounded-full bg-[#d4f76d]/15 px-2 py-0.5 text-[9px] font-bold text-[#d4f76d]">
+                          <span className="rounded-md bg-[#f97316]/15 px-2 py-0.5 text-[9px] font-bold text-[#f97316]">
                             Free Preview
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-[11px] text-[#8e8e9c] mt-0.5">
+                      <div className="flex items-center gap-3 text-[11px] text-[#9ca3af] mt-0.5">
                         <span>{formatDuration(lecture.duration)}</span>
-                        {lecture.pdfUrl && <span>• PDF Attached</span>}
+                        {lecture.pdfUrl && <span>• PDF Notes Attached</span>}
                       </div>
                     </div>
                   </div>
@@ -427,7 +433,7 @@ export default function AdminEditCourseLecturesPage({
                   <div className="flex items-center gap-2 shrink-0 ml-4">
                     <button
                       onClick={() => handleDeleteLecture(lecture.id, lecture.title)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#23232a] bg-[#1c1c22] text-[#8e8e9c] hover:border-red-800 hover:text-red-400 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-950/40 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

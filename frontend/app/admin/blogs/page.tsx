@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { Plus, Newspaper, Eye, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Newspaper, Eye, Trash2, ArrowLeft, Flame } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -38,7 +38,7 @@ export default function AdminBlogsPage() {
       const token = await getToken();
       const res = await fetchApi(`/blogs/${blogId}/publish`, { method: 'POST', token });
       if (res.success) {
-        toast.success(currentlyPublished ? 'Article moved to drafts.' : 'Article published successfully!');
+        toast.success(currentlyPublished ? 'Article moved to drafts.' : 'Article published live!');
         loadBlogs();
       } else {
         toast.error(res.message || 'Failed to update publish status.');
@@ -64,7 +64,7 @@ export default function AdminBlogsPage() {
               toast.error(res.message || 'Failed to delete article.');
             }
           } catch {
-            toast.error('Network error. Please try again.');
+            toast.error('Network error.');
           }
         },
       },
@@ -73,22 +73,22 @@ export default function AdminBlogsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
-      <SkillUpHeader title="Admin — Articles & Blog Engine" />
+    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
+      <SkillUpHeader title="Admin — Knowledge Hub Articles" />
 
-      <div className="p-6 lg:p-8 space-y-8">
+      <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Admin Panel
+            Back to Studio Overview
           </Link>
 
           <Link href="/admin/blogs/new">
-            <button className="flex items-center gap-2 rounded-full bg-[#d4f76d] px-5 py-2.5 text-xs font-bold text-black transition-all hover:bg-[#c4ea5c]">
+            <button className="flex items-center gap-2 rounded-full glow-amber-btn px-5 py-2.5 text-xs font-bold text-white transition-all">
               <Plus className="h-4 w-4" /> Write New Article
             </button>
           </Link>
@@ -96,21 +96,21 @@ export default function AdminBlogsPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-5">
-            <h4 className="text-2xl font-extrabold text-white">{blogs.length}</h4>
-            <p className="text-xs font-semibold text-[#8e8e9c] mt-1">Total Articles</p>
+          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
+            <h4 className="text-3xl font-black text-white">{blogs.length}</h4>
+            <p className="text-xs font-bold text-[#9ca3af]">Total Articles</p>
           </div>
-          <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-5">
-            <h4 className="text-2xl font-extrabold text-[#d4f76d]">
+          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
+            <h4 className="text-3xl font-black text-[#f97316]">
               {blogs.filter((b) => b.isPublished).length}
             </h4>
-            <p className="text-xs font-semibold text-[#8e8e9c] mt-1">Published Live</p>
+            <p className="text-xs font-bold text-[#9ca3af]">Published Live</p>
           </div>
-          <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-5">
-            <h4 className="text-2xl font-extrabold text-[#f9d8b9]">
+          <div className="rounded-2xl border border-[#22232a] bg-[#111217] p-5 space-y-1">
+            <h4 className="text-3xl font-black text-[#f59e0b]">
               {blogs.filter((b) => !b.isPublished).length}
             </h4>
-            <p className="text-xs font-semibold text-[#8e8e9c] mt-1">Drafts</p>
+            <p className="text-xs font-bold text-[#9ca3af]">Drafts</p>
           </div>
         </div>
 
@@ -118,18 +118,18 @@ export default function AdminBlogsPage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-2xl bg-[#16161a]" />
+              <Skeleton key={i} className="h-20 w-full rounded-2xl bg-[#111217]" />
             ))}
           </div>
         ) : blogs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#23232a] p-16 text-center">
-            <Newspaper className="mb-4 h-10 w-10 text-[#3c3c46]" />
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#22232a] p-16 text-center bg-[#111217]">
+            <Newspaper className="mb-4 h-10 w-10 text-[#6b7280]" />
             <h3 className="text-base font-bold text-white">No articles created yet</h3>
-            <p className="mt-2 text-xs text-[#8e8e9c]">
+            <p className="mt-2 text-xs text-[#9ca3af]">
               Share knowledge, case studies, and tutorials with your community.
             </p>
             <Link href="/admin/blogs/new" className="mt-5">
-              <button className="rounded-full bg-[#d4f76d] px-5 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c]">
+              <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white">
                 Write First Article
               </button>
             </Link>
@@ -139,10 +139,10 @@ export default function AdminBlogsPage() {
             {blogs.map((b) => (
               <div
                 key={b.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-[#23232a] bg-[#16161a] p-5 transition-colors hover:border-[#34343d]"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-[#22232a] bg-[#111217] p-4 transition-colors hover:border-[#f97316]/40 shadow-lg"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-12 w-20 shrink-0 overflow-hidden rounded-xl bg-black">
+                  <div className="h-14 w-24 shrink-0 overflow-hidden rounded-xl bg-black border border-[#22232a]">
                     {b.coverImage ? (
                       <img
                         src={b.coverImage}
@@ -150,8 +150,8 @@ export default function AdminBlogsPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#23232a]">
-                        <Newspaper className="h-5 w-5 text-[#8e8e9c]" />
+                      <div className="flex h-full w-full items-center justify-center bg-[#17181f]">
+                        <Newspaper className="h-5 w-5 text-[#9ca3af]" />
                       </div>
                     )}
                   </div>
@@ -161,16 +161,16 @@ export default function AdminBlogsPage() {
                         {b.title}
                       </h4>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
                           b.isPublished
-                            ? 'bg-[#d4f76d]/15 text-[#d4f76d]'
-                            : 'bg-[#23232a] text-[#8e8e9c]'
+                            ? 'bg-[#f97316]/15 text-[#f97316]'
+                            : 'bg-[#17181f] text-[#9ca3af]'
                         }`}
                       >
                         {b.isPublished ? 'Published' : 'Draft'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#8e8e9c] mt-0.5">
+                    <p className="text-[11px] text-[#9ca3af] mt-0.5">
                       {b.category} • {b.readTime || 5} min read • Created {new Date(b.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export default function AdminBlogsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {b.isPublished && (
                     <Link href={`/blog/${b.slug}`} target="_blank">
-                      <button className="flex items-center gap-1.5 rounded-full border border-[#23232a] bg-[#1c1c22] px-3.5 py-1.5 text-xs font-bold text-white hover:border-[#d4f76d]">
+                      <button className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#17181f] px-3.5 py-1.5 text-xs font-bold text-white hover:border-[#f97316] transition-colors">
                         <Eye className="h-3.5 w-3.5" /> View
                       </button>
                     </Link>
@@ -189,8 +189,8 @@ export default function AdminBlogsPage() {
                     onClick={() => handleTogglePublish(b.id, b.isPublished)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors ${
                       b.isPublished
-                        ? 'border border-[#23232a] bg-[#1c1c22] text-[#8e8e9c] hover:text-white'
-                        : 'bg-[#d4f76d] text-black hover:bg-[#c4ea5c]'
+                        ? 'border border-[#22232a] bg-[#17181f] text-[#9ca3af] hover:text-white'
+                        : 'glow-amber-btn text-white'
                     }`}
                   >
                     {b.isPublished ? 'Set to Draft' : 'Publish'}
@@ -198,7 +198,7 @@ export default function AdminBlogsPage() {
 
                   <button
                     onClick={() => handleDelete(b.id, b.title)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-950/40"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-950/40 transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { ArrowLeft, Clock, Calendar, User, BookOpen, Share2, Check } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, User, BookOpen, Share2, Check, Flame } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -44,21 +44,21 @@ export default function SingleBlogReaderPage({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#0d0d10] p-8 space-y-6 max-w-4xl mx-auto">
-        <Skeleton className="h-8 w-32 bg-[#16161a]" />
-        <Skeleton className="h-12 w-full bg-[#16161a]" />
-        <Skeleton className="aspect-video w-full rounded-2xl bg-[#16161a]" />
+      <div className="flex min-h-screen flex-col bg-[#060709] p-8 space-y-6 max-w-4xl mx-auto">
+        <Skeleton className="h-8 w-32 bg-[#111217]" />
+        <Skeleton className="h-12 w-full bg-[#111217]" />
+        <Skeleton className="aspect-video w-full rounded-2xl bg-[#111217]" />
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0d0d10] text-center p-8">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#060709] text-center p-8">
         <h2 className="text-xl font-bold text-white">Article Not Found</h2>
         <Link href="/blog" className="mt-4">
-          <button className="rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black">
-            Back to Articles
+          <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white">
+            Back to Knowledge Hub
           </button>
         </Link>
       </div>
@@ -66,15 +66,15 @@ export default function SingleBlogReaderPage({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0d0d10]">
+    <div className="flex min-h-screen flex-col bg-[#060709] bg-grid-pattern">
       <SkillUpHeader title="Knowledge Hub" />
 
-      <article className="mx-auto w-full max-w-3xl p-6 lg:p-8 space-y-8">
+      <article className="mx-auto w-full max-w-3xl p-6 lg:p-10 space-y-8">
         {/* Back Link */}
         <div className="flex items-center justify-between">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e8e9c] hover:text-[#d4f76d] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#9ca3af] hover:text-[#f97316] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to All Articles
@@ -82,9 +82,9 @@ export default function SingleBlogReaderPage({
 
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 rounded-full border border-[#23232a] bg-[#16161a] px-3.5 py-1.5 text-xs font-semibold text-[#8e8e9c] hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-full border border-[#22232a] bg-[#111217] px-3.5 py-1.5 text-xs font-semibold text-[#9ca3af] hover:text-white transition-colors"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-[#d4f76d]" /> : <Share2 className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3.5 w-3.5 text-[#f97316]" /> : <Share2 className="h-3.5 w-3.5" />}
             {copied ? 'Link Copied' : 'Share'}
           </button>
         </div>
@@ -92,51 +92,43 @@ export default function SingleBlogReaderPage({
         {/* Header Metadata */}
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#d4f76d]/15 px-3 py-1 text-xs font-bold text-[#d4f76d]">
+            <span className="rounded-md bg-[#f97316]/15 px-3 py-1 text-xs font-bold text-[#f97316]">
               {post.category || 'Engineering'}
             </span>
-            <span className="flex items-center gap-1 text-xs text-[#8e8e9c]">
+            <span className="flex items-center gap-1 text-xs text-[#9ca3af]">
               <Clock className="h-3.5 w-3.5" /> {post.readTime || 5} min read
             </span>
-            <span className="text-[#8e8e9c]">•</span>
-            <span className="flex items-center gap-1 text-xs text-[#8e8e9c]">
+            <span className="text-[#6b7280]">•</span>
+            <span className="flex items-center gap-1 text-xs text-[#9ca3af]">
               <Calendar className="h-3.5 w-3.5" /> {new Date(post.createdAt).toLocaleDateString()}
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
             {post.title}
           </h1>
 
-          <p className="text-sm sm:text-base text-[#8e8e9c] leading-relaxed border-l-2 border-[#d4f76d] pl-4 italic">
+          <p className="text-sm sm:text-base text-[#9ca3af] leading-relaxed border-l-2 border-[#f97316] pl-4 italic">
             {post.summary}
           </p>
 
           {/* Author Card */}
           <div className="flex items-center gap-3 pt-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#16161a] border border-[#23232a]">
-              {post.author?.avatarUrl ? (
-                <img
-                  src={post.author.avatarUrl}
-                  alt={post.author.name}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <User className="h-4 w-4 text-[#8e8e9c]" />
-              )}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111217] border border-[#22232a] text-[#f97316] font-bold">
+              {(post.author?.name || 'S').charAt(0).toUpperCase()}
             </div>
             <div>
               <p className="text-xs font-bold text-white leading-none">
-                {post.author?.name || 'SkillUP Editorial'}
+                {post.author?.name || 'SkillUP Contributor'}
               </p>
-              <p className="text-[10px] text-[#8e8e9c] mt-0.5">Author & Contributor</p>
+              <p className="text-[10px] text-[#9ca3af] mt-0.5">Author & Engineer</p>
             </div>
           </div>
         </div>
 
         {/* Cover Image */}
         {post.coverImage && (
-          <div className="overflow-hidden rounded-2xl border border-[#23232a] bg-[#16161a]">
+          <div className="overflow-hidden rounded-3xl border border-[#22232a] bg-black">
             <img
               src={post.coverImage}
               alt={post.title}
@@ -146,18 +138,18 @@ export default function SingleBlogReaderPage({
         )}
 
         {/* Article Content */}
-        <div className="prose prose-invert max-w-none text-xs sm:text-sm text-[#f4f4f5] leading-relaxed space-y-4 whitespace-pre-line border-t border-[#23232a] pt-6">
+        <div className="prose prose-invert max-w-none text-xs sm:text-sm text-[#d1d5db] leading-relaxed space-y-4 whitespace-pre-line border-t border-[#22232a] pt-6 font-normal">
           {post.content}
         </div>
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-[#23232a]">
-            <span className="text-xs text-[#8e8e9c] font-semibold">Topics:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-[#22232a]">
+            <span className="text-xs text-[#9ca3af] font-semibold">Tags:</span>
             {post.tags.map((tag: string) => (
               <span
                 key={tag}
-                className="rounded-full border border-[#23232a] bg-[#16161a] px-3 py-1 text-[11px] font-medium text-[#8e8e9c]"
+                className="rounded-full border border-[#22232a] bg-[#111217] px-3 py-1 text-[11px] font-medium text-[#9ca3af]"
               >
                 #{tag}
               </span>
@@ -166,13 +158,13 @@ export default function SingleBlogReaderPage({
         )}
 
         {/* Bottom CTA Card */}
-        <div className="rounded-2xl border border-[#23232a] bg-[#16161a] p-8 text-center space-y-4 mt-12">
-          <h3 className="text-lg font-bold text-white">Ready to master this in practice?</h3>
-          <p className="text-xs text-[#8e8e9c] max-w-md mx-auto">
-            Explore our curated video courses with sequential syllabus, project code, and instant AI doubt assistance.
+        <div className="rounded-3xl border border-[#22232a] bg-[#111217] p-8 text-center space-y-4 mt-12 shadow-2xl">
+          <h3 className="text-xl font-black text-white">Ready to master this in practice?</h3>
+          <p className="text-xs text-[#9ca3af] max-w-md mx-auto">
+            Explore our curated free video courses with sequential syllabus and 24/7 AI tutor.
           </p>
-          <Link href="/">
-            <button className="rounded-full bg-[#d4f76d] px-6 py-2.5 text-xs font-bold text-black hover:bg-[#c4ea5c] transition-all">
+          <Link href="/courses">
+            <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white transition-all">
               Explore All Courses
             </button>
           </Link>
