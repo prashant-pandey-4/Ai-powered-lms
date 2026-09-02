@@ -14,6 +14,7 @@ import enrollmentRoutes from './routes/enrollment.routes';
 import chatbotRoutes from './routes/chatbot.routes';
 import uploadRoutes from './routes/upload.routes';
 import blogRoutes from './routes/blog.routes';
+import scrapeRoutes from './routes/scrape.routes';
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/enrollment', enrollmentRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/scrape', scrapeRoutes);
 
 // ─────────────────────────────────────────
 // 404 Handler
