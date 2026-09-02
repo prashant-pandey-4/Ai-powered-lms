@@ -1,21 +1,25 @@
-﻿'use client';
+'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { SkillUpHeader } from '@/components/skillup-header';
-import { Search, BookOpen, Play, ArrowRight, X, SlidersHorizontal, Star, Flame } from 'lucide-react';
+import { Search, BookOpen, Play, ArrowRight, X, SlidersHorizontal, Star } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const LEVELS = ['All Levels', 'beginner', 'intermediate', 'advanced'];
 
-export default function CoursesCatalogPage() {
+function CoursesCatalogContent() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
+
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Search & filter state
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(urlSearch);
   const [level, setLevel] = useState('All Levels');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -47,8 +51,9 @@ export default function CoursesCatalogPage() {
   }, []);
 
   useEffect(() => {
-    loadCourses('', 'All Levels');
-  }, [loadCourses]);
+    setSearch(urlSearch);
+    loadCourses(urlSearch, 'All Levels');
+  }, [loadCourses, urlSearch]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -78,7 +83,12 @@ export default function CoursesCatalogPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
-      <SkillUpHeader title="Course Library" />
+      <SkillUpHeader
+        title="Course Library"
+        searchValue={search}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Search courses by topic (DSA, React, System Design)..."
+      />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top Header & Search Bar */}
@@ -105,7 +115,7 @@ export default function CoursesCatalogPage() {
 
           {/* Search Input */}
           <div className="relative w-full max-w-2xl">
-            <Search className="absolute left-4 top-3.5 h-4 w-4 text-muted" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4 text-muted pointer-events-none" />
             <input
               type="text"
               placeholder="Search courses by topic (e.g. DSA, React, System Design, Node.js)..."
@@ -117,6 +127,7 @@ export default function CoursesCatalogPage() {
               <button
                 onClick={clearSearch}
                 className="absolute right-3.5 top-3.5 text-muted hover:text-app transition-colors"
+                title="Clear search"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -183,7 +194,7 @@ export default function CoursesCatalogPage() {
         {/* Result Count */}
         {!loading && !error && (
           <p className="text-xs text-muted font-medium">
-            Showing <span className="text-app font-bold">{filteredCourses.length}</span> curated course{filteredCourses.length !== 1 ? 's' : ''}
+            Showing <span className="font-bold text-app">{filteredCourses.length}</span> curated course{filteredCourses.length !== 1 ? 's' : ''}
             {search && <span className="text-[#f97316]"> for &ldquo;{search}&rdquo;</span>}
           </p>
         )}
@@ -311,5 +322,13 @@ export default function CoursesCatalogPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CoursesCatalogPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen bg-app" />}>
+      <CoursesCatalogContent />
+    </Suspense>
   );
 }
