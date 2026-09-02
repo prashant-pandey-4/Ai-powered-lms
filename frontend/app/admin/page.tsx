@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -43,21 +43,21 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
             <h4 className="text-3xl font-black text-[#f97316]">
-              {loading ? 'â€”' : courses.length}
+              {loading ? '—' : courses.length}
             </h4>
             <p className="text-xs font-bold text-muted">Total Courses</p>
           </div>
 
           <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
             <h4 className="text-3xl font-black text-[#f59e0b]">
-              {loading ? 'â€”' : courses.filter((c) => c.isPublished).length}
+              {loading ? '—' : courses.filter((c) => c.isPublished).length}
             </h4>
             <p className="text-xs font-bold text-muted">Published Courses</p>
           </div>
 
           <div className="rounded-2xl border border-app bg-card p-5 space-y-1">
             <h4 className="text-3xl font-black text-[#38bdf8]">
-              {loading ? 'â€”' : courses.filter((c) => !c.isPublished).length}
+              {loading ? '—' : courses.filter((c) => !c.isPublished).length}
             </h4>
             <p className="text-xs font-bold text-muted">Draft Tracks</p>
           </div>
@@ -177,7 +177,7 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                     <p className="text-[11px] text-muted mt-0.5">
-                      {c._count?.lectures || 0} Lessons â€¢ {c._count?.enrollments || 0} Students â€¢ {c.price === 0 ? 'Free' : formatPrice(c.price)}
+                      {c._count?.lectures || 0} Lessons &bull; {c._count?.enrollments || 0} Students &bull; {c.price === 0 ? 'Free' : formatPrice(c.price)}
                     </p>
                   </div>
                 </div>

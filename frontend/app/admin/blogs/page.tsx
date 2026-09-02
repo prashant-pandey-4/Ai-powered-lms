@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -74,7 +74,7 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
-      <SkillUpHeader title="Admin â€” Knowledge Hub Articles" />
+      <SkillUpHeader title="Admin Studio &mdash; Knowledge Hub Articles" />
 
       <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top bar */}
@@ -171,7 +171,7 @@ export default function AdminBlogsPage() {
                       </span>
                     </div>
                     <p className="text-[11px] text-muted mt-0.5">
-                      {b.category} â€¢ {b.readTime || 5} min read â€¢ Created {new Date(b.createdAt).toLocaleDateString()}
+                      {b.category} &bull; {b.readTime || 5} min read &bull; Created {new Date(b.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
