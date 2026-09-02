@@ -203,3 +203,23 @@ body {
 .light .prose-content {
   color: #374151;
 }
+
+/* ====================================================
+   YOUTUBE-GRADE SEARCH DROPDOWN ANIMATIONS
+   ==================================================== */
+
+@keyframes searchDropdownSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.search-dropdown-menu {
+  animation: searchDropdownSlide 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}

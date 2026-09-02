@@ -201,7 +201,7 @@ export function SkillUpHeader({
         {/* YouTube-Style Related Suggestions Dropdown */}
         {showDropdown && (
           <div
-            className="absolute left-0 top-full mt-2 w-full overflow-hidden rounded-2xl shadow-2xl animate-in fade-in-50 slide-in-from-top-2 duration-150 z-50"
+            className="search-dropdown-menu absolute left-0 top-full mt-2 w-full overflow-hidden rounded-2xl shadow-2xl z-50"
             style={{
               border: '1px solid var(--border)',
               backgroundColor: 'var(--bg-card)',
