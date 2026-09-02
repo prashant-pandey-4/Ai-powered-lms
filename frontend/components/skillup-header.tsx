@@ -1,13 +1,49 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth, useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { Search } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
-export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string }) {
+interface SkillUpHeaderProps {
+  title?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
+}
+
+export function SkillUpHeader({
+  title = 'Explore & Learn',
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = 'Search DSA, React, System Design...',
+}: SkillUpHeaderProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
+  const router = useRouter();
+  const [localQuery, setLocalQuery] = useState('');
+
+  const currentQuery = onSearchChange ? (searchValue ?? '') : localQuery;
+
+  const handleQueryChange = (val: string) => {
+    if (onSearchChange) {
+      onSearchChange(val);
+    } else {
+      setLocalQuery(val);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearchChange) return;
+    if (currentQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(currentQuery.trim())}`);
+    } else {
+      router.push('/courses');
+    }
+  };
 
   return (
     <header
@@ -25,11 +61,13 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
       </div>
 
       {/* Capsule Search Bar */}
-      <div className="hidden md:flex relative w-80 lg:w-96 items-center">
-        <Search className="absolute left-4 h-4 w-4" style={{ color: 'var(--text-subtle)' }} />
+      <form onSubmit={handleSubmit} className="hidden md:flex relative w-80 lg:w-96 items-center">
+        <Search className="absolute left-4 h-4 w-4 pointer-events-none" style={{ color: 'var(--text-subtle)' }} />
         <input
           type="text"
-          placeholder="Search DSA, React, System Design..."
+          value={currentQuery}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          placeholder={searchPlaceholder}
           style={{
             height: '2.75rem',
             width: '100%',
@@ -37,7 +75,7 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
             border: '1px solid var(--border)',
             backgroundColor: 'var(--bg-card)',
             paddingLeft: '2.75rem',
-            paddingRight: '1rem',
+            paddingRight: currentQuery ? '2.5rem' : '1rem',
             fontSize: '0.75rem',
             color: 'var(--text)',
             outline: 'none',
@@ -45,7 +83,18 @@ export function SkillUpHeader({ title = 'Explore & Learn' }: { title?: string })
           onFocus={(e) => (e.target.style.borderColor = 'var(--primary)')}
           onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
         />
-      </div>
+        {currentQuery && (
+          <button
+            type="button"
+            onClick={() => handleQueryChange('')}
+            className="absolute right-3.5 flex h-4 w-4 items-center justify-center rounded-full text-xs transition-colors"
+            style={{ color: 'var(--text-subtle)' }}
+            title="Clear search"
+          >
+            &times;
+          </button>
+        )}
+      </form>
 
       {/* Right User Area & Theme Toggle */}
       <div className="flex items-center gap-3">
