@@ -11,13 +11,13 @@ import {
   Video,
   Image as ImageIcon,
   Loader2,
-  Play,
+  Sparkles,
 } from 'lucide-react';
 
 interface MediaUploadProps {
   value: string;
   onChange: (url: string) => void;
-  onThumbnailExtracted?: (thumbnailUrl: string) => void; // optional callback when YT thumb is detected
+  onThumbnailExtracted?: (thumbnailUrl: string) => void;
   accept?: 'image' | 'video' | 'pdf' | 'all';
   label?: string;
   placeholder?: string;
@@ -33,7 +33,6 @@ function extractYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-/** Returns the best available YouTube thumbnail URL for a video ID */
 function ytThumbnail(videoId: string, quality: 'max' | 'hq' = 'max'): string {
   return quality === 'max'
     ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
@@ -55,6 +54,7 @@ export function MediaUpload({
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const acceptMime =
@@ -66,11 +66,7 @@ export function MediaUpload({
       ? 'application/pdf'
       : 'image/*,video/*,application/pdf';
 
-  // ── Derived state ──────────────────────────────────────────────
   const ytId = value ? extractYouTubeId(value) : null;
-  const ytThumb = ytId ? ytThumbnail(ytId) : null;
-  const ytThumbFallback = ytId ? ytThumbnail(ytId, 'hq') : null;
-
   const isImage =
     value &&
     (value.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) ||
@@ -84,11 +80,8 @@ export function MediaUpload({
       accept === 'video');
   const isPdf = value && (value.match(/\.pdf($|\?)/i) || accept === 'pdf');
 
-  // ── File Upload ────────────────────────────────────────────────
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const uploadFile = async (file: File) => {
     if (!file) return;
-
     setUploading(true);
     setError('');
 
@@ -107,24 +100,44 @@ export function MediaUpload({
       });
 
       const data = await res.json();
-      if (res.ok && data.success && data.data?.url) {
+      if (data.success && data.data?.url) {
         onChange(data.data.url);
       } else {
-        setError(data.message || 'Upload failed. You can paste a direct URL instead.');
+        setError(data.message || 'Upload failed. Please try again or paste a link.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Upload error. Try pasting direct link.');
+    } catch {
+      setError('Network error during upload. Please try pasting a direct link.');
     } finally {
       setUploading(false);
     }
   };
 
-  // ── URL Input change — auto-fire thumbnail callback on YT links ──
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
+  };
+
   const handleUrlChange = (url: string) => {
     onChange(url);
     const id = extractYouTubeId(url);
     if (id && onThumbnailExtracted) {
-      // Give caller the hqdefault thumbnail (always available, unlike maxresdefault)
       onThumbnailExtracted(ytThumbnail(id, 'hq'));
     }
   };
@@ -133,15 +146,17 @@ export function MediaUpload({
     <div className="space-y-2">
       {/* Header & Mode Tabs */}
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-[#8e8e9c]">{label}</label>
-        <div className="flex items-center rounded-lg border border-[#23232a] bg-[#0d0d10] p-0.5">
+        <label className="text-xs font-semibold text-app flex items-center gap-1.5">
+          {label}
+        </label>
+        <div className="flex items-center rounded-xl border border-app bg-card p-0.5">
           <button
             type="button"
             onClick={() => setMode('upload')}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
               mode === 'upload'
-                ? 'bg-[#d4f76d] text-black shadow-xs'
-                : 'text-[#8e8e9c] hover:text-white'
+                ? 'bg-[#f97316] text-white shadow-sm font-bold'
+                : 'text-muted hover:text-app'
             }`}
           >
             <UploadCloud className="h-3 w-3" />
@@ -150,10 +165,10 @@ export function MediaUpload({
           <button
             type="button"
             onClick={() => setMode('url')}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
               mode === 'url'
-                ? 'bg-[#d4f76d] text-black shadow-xs'
-                : 'text-[#8e8e9c] hover:text-white'
+                ? 'bg-[#f97316] text-white shadow-sm font-bold'
+                : 'text-muted hover:text-app'
             }`}
           >
             <LinkIcon className="h-3 w-3" />
@@ -176,18 +191,24 @@ export function MediaUpload({
           {!value ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-[#23232a] bg-[#0d0d10] p-6 text-center cursor-pointer transition-all hover:border-[#d4f76d] hover:bg-[#121217] ${
-                uploading ? 'opacity-50 pointer-events-none' : ''
-              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200 ${
+                isDragging
+                  ? 'border-[#f97316] bg-[#f97316]/5 scale-[0.99]'
+                  : 'border-app bg-card-2/60 hover:border-[#f97316]/60 hover:bg-card-2'
+              } ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
             >
               {uploading ? (
-                <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#d4f76d]" />
-                  <p className="text-xs font-semibold text-white">Uploading to Cloudinary...</p>
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <Loader2 className="h-7 w-7 animate-spin text-[#f97316]" />
+                  <p className="text-xs font-bold text-app">Uploading to Cloudinary CDN...</p>
+                  <p className="text-[10px] text-muted">Optimizing media compression</p>
                 </div>
               ) : (
                 <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#16161a] text-[#d4f76d] mb-2">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f97316]/10 text-[#f97316] mb-2.5 transition-transform group-hover:scale-110">
                     {accept === 'video' ? (
                       <Video className="h-5 w-5" />
                     ) : accept === 'pdf' ? (
@@ -196,39 +217,39 @@ export function MediaUpload({
                       <ImageIcon className="h-5 w-5" />
                     )}
                   </div>
-                  <p className="text-xs font-bold text-white">
-                    Click or drag & drop to upload {accept === 'all' ? 'media' : accept}
+                  <p className="text-xs font-bold text-app">
+                    Click to browse or drag & drop {accept === 'all' ? 'media file' : accept}
                   </p>
-                  <p className="text-[10px] text-[#8e8e9c] mt-0.5">
-                    Supports high-res files with Cloudinary CDN optimization
+                  <p className="text-[10px] text-muted mt-1">
+                    High-res JPG, PNG, WebP with automated Cloudinary global CDN delivery
                   </p>
                 </>
               )}
             </div>
           ) : (
-            <div className="relative flex items-center justify-between rounded-xl border border-[#23232a] bg-[#0d0d10] p-3">
+            <div className="relative flex items-center justify-between rounded-2xl border border-app bg-card p-3 shadow-sm">
               <div className="flex items-center gap-3 min-w-0">
                 {isImage && (
                   <img
                     src={value}
                     alt="Preview"
-                    className="h-12 w-16 rounded-lg object-cover bg-black shrink-0"
+                    className="h-12 w-20 rounded-xl object-cover border border-app bg-black shrink-0 shadow-xs"
                   />
                 )}
                 {accept === 'pdf' && (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#23232a] text-[#d4f76d] shrink-0">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f97316]/10 text-[#f97316] shrink-0">
                     <FileText className="h-5 w-5" />
                   </div>
                 )}
                 {accept === 'video' && !isImage && (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#23232a] text-[#d4f76d] shrink-0">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f97316]/10 text-[#f97316] shrink-0">
                     <Video className="h-5 w-5" />
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-white truncate max-w-xs">{value}</p>
-                  <span className="text-[10px] font-semibold text-[#d4f76d] flex items-center gap-1 mt-0.5">
-                    <Check className="h-3 w-3" /> Ready & Attached
+                  <p className="text-xs font-bold text-app truncate max-w-xs">{value}</p>
+                  <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1 mt-0.5">
+                    <Check className="h-3 w-3 stroke-[3]" /> CDN Optimized & Attached
                   </span>
                 </div>
               </div>
@@ -237,16 +258,17 @@ export function MediaUpload({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-lg border border-[#23232a] bg-[#16161a] px-3 py-1.5 text-[11px] font-semibold text-white hover:border-[#d4f76d]"
+                  className="rounded-xl border border-app bg-card-2 px-3 py-1.5 text-[11px] font-bold text-app hover:border-[#f97316]/50 transition-colors"
                 >
                   Change
                 </button>
                 <button
                   type="button"
                   onClick={() => onChange('')}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-950/40"
+                  className="flex h-8 w-8 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                  title="Remove file"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -261,79 +283,36 @@ export function MediaUpload({
               placeholder={placeholder}
               value={value}
               onChange={(e) => handleUrlChange(e.target.value)}
-              className="h-10 w-full rounded-xl border border-[#23232a] bg-[#0d0d10] px-3.5 text-xs text-white placeholder:text-[#6c6c7a] focus:border-[#d4f76d] focus:outline-none"
+              className="h-10 w-full rounded-xl border border-app bg-app px-3.5 pr-9 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none transition-colors"
             />
             {value && (
               <button
                 type="button"
                 onClick={() => onChange('')}
-                className="absolute right-2.5 top-2.5 text-[#8e8e9c] hover:text-white"
+                className="absolute right-3 top-3 text-muted hover:text-app"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
-
-          {/* ── YouTube Thumbnail Auto-Preview ── */}
-          {ytId && ytThumb && (
-            <div className="relative overflow-hidden rounded-xl border border-[#23232a] bg-black">
-              <img
-                src={ytThumb}
-                alt="YouTube Thumbnail"
-                className="w-full aspect-video object-cover"
-                onError={(e) => {
-                  // fallback to hqdefault if maxresdefault not available
-                  (e.target as HTMLImageElement).src = ytThumbFallback!;
-                }}
-              />
-              {/* YouTube badge */}
-              <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 backdrop-blur-sm">
-                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-red-600">
-                  <Play className="h-2 w-2 fill-white text-white" />
-                </div>
-                <span className="text-[11px] font-bold text-white">YouTube Preview</span>
-              </div>
-              {/* Remove button */}
-              <button
-                type="button"
-                onClick={() => onChange('')}
-                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+          {value && (
+            <div className="flex items-center gap-2 rounded-xl border border-app bg-card p-2 text-xs">
+              <span className="text-[10px] font-bold text-muted uppercase tracking-wider">Preview:</span>
+              <a
+                href={value}
+                target="_blank"
+                rel="noreferrer"
+                className="truncate text-[#f97316] hover:underline text-[11px] font-medium"
               >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* ── Pasted Image URL quick preview ── */}
-          {value && isImage && !ytId && (
-            <div className="flex items-center gap-3 rounded-xl border border-[#23232a] bg-[#0d0d10] p-2">
-              <img
-                src={value}
-                alt="Preview"
-                className="h-10 w-16 rounded-md object-cover bg-black"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-              <span className="text-[11px] text-[#8e8e9c]">URL Preview Verified</span>
-            </div>
-          )}
-
-          {/* ── Vimeo / other video link confirmed ── */}
-          {value && isVideo && !ytId && (
-            <div className="flex items-center gap-2.5 rounded-xl border border-[#23232a] bg-[#0d0d10] px-3 py-2">
-              <Video className="h-4 w-4 text-[#d4f76d] shrink-0" />
-              <span className="text-[11px] text-white font-semibold">Video link attached</span>
-              <Check className="h-3.5 w-3.5 text-[#d4f76d] ml-auto" />
+                {value}
+              </a>
             </div>
           )}
         </div>
       )}
 
       {error && <p className="text-[11px] font-semibold text-red-400">{error}</p>}
-      {helperText && !error && (
-        <p className="text-[10px] text-[#8e8e9c]">{helperText}</p>
-      )}
+      {helperText && <p className="text-[10px] text-muted leading-relaxed">{helperText}</p>}
     </div>
   );
 }
