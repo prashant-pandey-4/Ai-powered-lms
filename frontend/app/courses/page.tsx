@@ -133,6 +133,37 @@ function CoursesCatalogContent() {
               </button>
             )}
           </div>
+
+          {/* YouTube-Style Quick Topic Chips Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+            {[
+              { label: 'All Tracks', query: '' },
+              { label: '🔥 Striver DSA', query: 'dsa' },
+              { label: 'Namaste JS', query: 'javascript' },
+              { label: 'React & Next.js', query: 'react' },
+              { label: 'System Design', query: 'system design' },
+              { label: 'C++ & STL', query: 'cpp' },
+              { label: 'Backend API', query: 'backend' },
+            ].map((chip) => {
+              const isSelected = chip.query === '' ? !search.trim() : search.toLowerCase().includes(chip.query);
+              return (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => {
+                    handleSearchChange(chip.query);
+                  }}
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                    isSelected
+                      ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
+                      : 'border border-app bg-card text-muted hover:text-app hover:bg-card-2'
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Filter Drawer */}
