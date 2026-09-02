@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpen, Play, GraduationCap, Compass, Search, X } from 'lucide-react';
+import { BookOpen, Play, GraduationCap, Compass, Search, X, Sparkles } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
+import { useDebounce } from '@/lib/use-debounce';
 
 export default function StudentDashboardPage() {
   const { getToken } = useAuth();
@@ -15,6 +16,8 @@ export default function StudentDashboardPage() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'in-progress' | 'completed'>('all');
+
+  const debouncedSearch = useDebounce(searchQuery, 150);
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -44,8 +47,30 @@ export default function StudentDashboardPage() {
     const title = item.course?.title?.toLowerCase() || '';
     const desc = item.course?.description?.toLowerCase() || '';
     const cat = item.course?.category?.toLowerCase() || '';
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch = !q || title.includes(q) || desc.includes(q) || cat.includes(q);
+    const q = debouncedSearch.toLowerCase().trim();
+
+    if (!q) {
+      if (statusFilter === 'in-progress') {
+        return (item.progress ?? 0) > 0 && (item.progress ?? 0) < 100;
+      }
+      if (statusFilter === 'completed') {
+        return (item.progress ?? 0) === 100;
+      }
+      return true;
+    }
+
+    // Direct match
+    let matchesSearch = title.includes(q) || desc.includes(q) || cat.includes(q);
+
+    // Smart synonym matching
+    if (!matchesSearch) {
+      if ((q === 'dsa' || q === 'algo') && (title.includes('data structure') || title.includes('algorithm') || title.includes('striver'))) {
+        matchesSearch = true;
+      }
+      if (q === 'js' && title.includes('javascript')) matchesSearch = true;
+      if ((q === 'c++' || q === 'cpp') && (title.includes('c++') || desc.includes('c++'))) matchesSearch = true;
+      if (q === 'react' && (title.includes('next') || desc.includes('react'))) matchesSearch = true;
+    }
 
     if (!matchesSearch) return false;
 
