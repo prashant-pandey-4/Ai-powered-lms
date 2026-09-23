@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth, SignInButton, SignUpButton } from '@clerk/nextjs';
-import { SkillUpHeader } from '@/components/skillup-header';
+import { useAuth, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import {
   BookOpen,
   ArrowRight,
@@ -32,37 +31,42 @@ import {
   Database,
   Cloud,
   Lock,
+  ExternalLink,
+  MessageSquare,
+  Award,
+  Heart,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ThemeToggle } from '@/components/theme-toggle';
 
-// Engineering Disciplines
+// Engineering Tracks
 const DOMAINS = [
   {
     title: 'Data Structures & Algorithms',
     icon: Code2,
     badge: 'DSA & LeetCode',
     color: '#f97316',
-    description: 'Arrays, Trees, Graphs, DP, and Bit Manipulation. Master technical interview patterns.',
-    topics: ['Striver Sheet', 'Graph Algorithms', 'Dynamic Programming', 'Recursion Tree'],
+    description: 'Arrays, Trees, Graphs, DP, and Bit Manipulation. Master core interview patterns.',
+    topics: ['Striver Sheet', 'Graphs & DP', 'Recursion Tree', 'Complexity Analysis'],
     slug: 'dsa',
   },
   {
     title: 'Fullstack & Web Architecture',
     icon: Laptop,
-    badge: 'Frontend & SSR',
+    badge: 'Modern Web Stack',
     color: '#38bdf8',
-    description: 'Next.js 15, React 19, TypeScript, Server Components, and State Machines.',
-    topics: ['Next.js App Router', 'Tailwind CSS', 'WebSockets', 'REST & GraphQL'],
+    description: 'Next.js 15, React 19, TypeScript, Server Components, and Clean UI/UX.',
+    topics: ['Next.js App Router', 'Tailwind CSS', 'WebSockets', 'State Machines'],
     slug: 'react',
   },
   {
     title: 'Backend & Distributed Systems',
     icon: Database,
-    badge: 'Scale & High QPS',
+    badge: 'High QPS & Scaling',
     color: '#10b981',
-    description: 'Node.js, Go, PostgreSQL, Redis Caching, Kafka message queues, and Microservices.',
-    topics: ['Redis Caching', 'PostgreSQL Internals', 'Kafka Events', 'Auth & Security'],
+    description: 'Node.js, Go, PostgreSQL, Redis Caching, Kafka queues, and Microservices.',
+    topics: ['Redis Caching', 'Postgres Internals', 'Kafka Events', 'Auth & JWT'],
     slug: 'backend',
   },
   {
@@ -71,24 +75,24 @@ const DOMAINS = [
     badge: 'Architectural Mastery',
     color: '#a855f7',
     description: 'Load balancers, consistent hashing, rate limiters, CDN, and database sharding.',
-    topics: ['High Level Design', 'Low Level Design', 'Sharding & Replication', 'CAP Theorem'],
+    topics: ['High Level Design', 'Low Level Design', 'Sharding', 'CAP Theorem'],
     slug: 'system design',
   },
   {
     title: 'Artificial Intelligence & GenAI',
     icon: BrainCircuit,
-    badge: 'AI & Vector DBs',
+    badge: 'LLMs & AI Agents',
     color: '#ec4899',
     description: 'LLM fine-tuning, RAG pipelines, LangChain, Vector search, and autonomous agents.',
-    topics: ['RAG Pipelines', 'LangChain & LlamaIndex', 'Vector Embeddings', 'AI Agents'],
+    topics: ['RAG Pipelines', 'LangChain', 'Vector Embeddings', 'AI Agents'],
     slug: 'ai',
   },
   {
-    title: 'DevOps, Containers & Cloud',
+    title: 'DevOps, Cloud & Containers',
     icon: Cloud,
-    badge: 'CI/CD & Cloud Infra',
+    badge: 'Cloud & Infrastructure',
     color: '#f59e0b',
-    description: 'Docker multi-stage builds, Kubernetes orchestration, AWS cloud, and Terraform.',
+    description: 'Docker multi-stage builds, Kubernetes orchestration, AWS cloud, and CI/CD.',
     topics: ['Docker Engine', 'Kubernetes Pods', 'AWS S3 & EC2', 'GitHub Actions'],
     slug: 'devops',
   },
@@ -111,7 +115,7 @@ const VISIONARIES = [
     tag: 'Open Source',
   },
   {
-    quote: 'Everybody should learn to program a computer, because it teaches you how to think.',
+    quote: 'Everybody in this country should learn to program a computer, because it teaches you how to think.',
     name: 'Steve Jobs',
     role: 'Co-Founder, Apple',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
@@ -212,7 +216,7 @@ const FAQS = [
 ];
 
 export default function HomePage() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeAiTab, setActiveAiTab] = useState<string>('dsa');
@@ -234,91 +238,211 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
-      <SkillUpHeader title="SkillUP Academy" />
-
-      <div className="p-6 lg:p-10 space-y-20 max-w-7xl mx-auto w-full">
-        {/* ========================================================= */}
-        {/* HERO SECTION                                             */}
-        {/* ========================================================= */}
-        <div className="relative overflow-hidden rounded-3xl border border-app bg-gradient-to-b from-card via-card to-card-2 p-8 sm:p-12 lg:p-16 shadow-2xl">
-          <div className="relative z-10 max-w-4xl space-y-6">
-            {/* Eyebrow Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-4 py-1.5 text-xs font-bold text-[#f97316] shadow-sm">
-              <Flame className="h-4 w-4 fill-current" />
-              <span>COMMUNITY DRIVEN &bull; 100% FREE FOREVER &bull; ZERO PAYWALLS</span>
+    <div className="flex min-h-screen flex-col bg-app bg-grid-pattern text-app">
+      {/* ========================================================= */}
+      {/* STANDALONE LANDING NAVBAR (CHAI-CODE / MENTIX STYLE)      */}
+      {/* ========================================================= */}
+      <header className="sticky top-0 z-50 w-full border-b border-app bg-app/80 backdrop-blur-xl transition-all">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-lg shadow-[#f97316]/30 group-hover:scale-105 transition-transform">
+              <Flame className="h-6 w-6 fill-current" />
             </div>
-
-            {/* Main Headline */}
-            <h1 className="text-3xl font-black tracking-tight text-app sm:text-5xl lg:text-6xl leading-[1.12]">
-              Master Real-World Engineering With{' '}
-              <span className="gradient-text-orange">24/7 AI-Grounded Mentorship</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-sm sm:text-base lg:text-lg text-muted leading-relaxed max-w-2.5xl font-medium">
-              From Data Structures & Algorithms to Distributed Systems, Cloud Architecture, and Generative AI.
-              Curated sequential video curriculum, downloadable code blueprints, and an intelligent AI tutor grounded in every second of your lesson.
-            </p>
-
-            {/* Key Value Badges */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-app pt-2">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> 1-Click Free Enrollment
-              </span>
-              <span className="flex items-center gap-2">
-                <BrainCircuit className="h-4 w-4 text-[#f97316]" /> In-Player AI Code Mentor
-              </span>
-              <span className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-[#f97316]" /> Downloadable Notes & Code
-              </span>
-              <span className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#f97316]" /> No Credit Card Required
-              </span>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl font-black tracking-tight text-app">
+                  Skill<span className="text-[#f97316]">UP</span>
+                </span>
+                <span className="rounded bg-[#f97316]/20 px-1.5 py-0.2 text-[9px] font-extrabold text-[#f97316]">
+                  ACADEMY
+                </span>
+              </div>
+              <p className="text-[10px] text-muted font-medium">Open-Source Developer Hub</p>
             </div>
+          </Link>
 
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
-              {isSignedIn ? (
+          {/* Center Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 text-xs font-bold text-muted">
+            <Link href="/courses" className="hover:text-[#f97316] transition-colors">
+              All Courses
+            </Link>
+            <Link href="#domains" className="hover:text-[#f97316] transition-colors">
+              Tracks & Roadmaps
+            </Link>
+            <Link href="#ai-mentor" className="hover:text-[#f97316] transition-colors flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-[#f97316]" /> AI Mentor
+            </Link>
+            <Link href="#visionaries" className="hover:text-[#f97316] transition-colors">
+              Visionaries
+            </Link>
+            <Link href="/blog" className="hover:text-[#f97316] transition-colors">
+              Knowledge Hub
+            </Link>
+          </nav>
+
+          {/* Right User Actions & Theme Toggle */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+
+            {!isLoaded ? (
+              <div className="h-9 w-24 animate-pulse rounded-full bg-card" />
+            ) : isSignedIn ? (
+              <div className="flex items-center gap-3">
                 <Link href="/dashboard">
-                  <button className="flex items-center gap-2.5 rounded-full glow-amber-btn px-8 py-4 text-xs sm:text-sm font-black text-white transition-all hover:scale-[1.03]">
-                    <GraduationCap className="h-4 w-4" /> Continue to My Learning
+                  <button className="flex items-center gap-1.5 rounded-full glow-amber-btn px-5 py-2.5 text-xs font-bold text-white transition-all hover:scale-105">
+                    <GraduationCap className="h-4 w-4" /> My Learning
                   </button>
                 </Link>
-              ) : (
+                <UserButton />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <SignInButton mode="modal">
+                  <button className="rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors">
+                    Sign In
+                  </button>
+                </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="flex items-center gap-2.5 rounded-full glow-amber-btn px-8 py-4 text-xs sm:text-sm font-black text-white transition-all hover:scale-[1.03]">
-                    <Sparkles className="h-4 w-4" /> Start Learning Free
+                  <button className="rounded-full glow-amber-btn px-5 py-2 text-xs font-black text-white transition-all hover:scale-105 shadow-md shadow-[#f97316]/20">
+                    Get Started Free
                   </button>
                 </SignUpButton>
-              )}
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
 
-              <Link href="/courses">
-                <button className="flex items-center gap-2 rounded-full border border-app bg-card-2 px-6 py-4 text-xs sm:text-sm font-bold text-app hover:border-[#f97316] transition-colors">
-                  <Compass className="h-4 w-4" /> Explore All Tracks
-                </button>
-              </Link>
+      {/* ========================================================= */}
+      {/* HERO SECTION (WITH CHAD CODING MASCOT ILLUSTRATION)       */}
+      {/* ========================================================= */}
+      <section className="relative overflow-hidden py-12 lg:py-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-7">
+              {/* Pill Tag */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-4 py-1.5 text-xs font-bold text-[#f97316] shadow-sm">
+                <Flame className="h-4 w-4 fill-current" />
+                <span>COMMUNITY DRIVEN &bull; 100% FREE FOREVER &bull; ZERO PAYWALLS</span>
+              </div>
+
+              {/* Punchy ChaiCode / Anime Inspired Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-app leading-[1.12]">
+                Code. Build. Dominate. <br />
+                <span className="gradient-text-orange">Crafting Engineers With Discipline & AI.</span>
+              </h1>
+
+              <p className="text-sm sm:text-base lg:text-lg text-muted leading-relaxed font-medium max-w-2xl">
+                Master Data Structures & Algorithms, Distributed Systems, Cloud Infra, and Generative AI.
+                Curated sequential video curriculum, downloadable code blueprints, and an in-player AI mentor grounded in every second of your lesson.
+              </p>
+
+              {/* Key Features Badges */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-app pt-1">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> 1-Click Free Enrollment
+                </span>
+                <span className="flex items-center gap-2">
+                  <BrainCircuit className="h-4 w-4 text-[#f97316]" /> In-Player AI Code Mentor
+                </span>
+                <span className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#f97316]" /> Downloadable Notes & Code
+                </span>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                {isSignedIn ? (
+                  <Link href="/dashboard">
+                    <button className="flex items-center gap-2.5 rounded-full glow-amber-btn px-8 py-4 text-xs sm:text-sm font-black text-white transition-all hover:scale-105 shadow-xl shadow-[#f97316]/30">
+                      <GraduationCap className="h-4 w-4" /> Open My Learning Room
+                    </button>
+                  </Link>
+                ) : (
+                  <SignUpButton mode="modal">
+                    <button className="flex items-center gap-2.5 rounded-full glow-amber-btn px-8 py-4 text-xs sm:text-sm font-black text-white transition-all hover:scale-105 shadow-xl shadow-[#f97316]/30">
+                      <Zap className="h-4 w-4 fill-current" /> Start Learning Free
+                    </button>
+                  </SignUpButton>
+                )}
+
+                <Link href="/courses">
+                  <button className="flex items-center gap-2 rounded-full border border-app bg-card px-7 py-4 text-xs sm:text-sm font-bold text-app hover:border-[#f97316] transition-colors">
+                    <Compass className="h-4 w-4" /> Explore All Tracks
+                  </button>
+                </Link>
+              </div>
+
+              {/* Platform Statistics */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-app">
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-app">100%</p>
+                  <p className="text-[11px] font-bold text-muted mt-0.5">Free & Open Access</p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-[#f97316]">24/7</p>
+                  <p className="text-[11px] font-bold text-muted mt-0.5">Active AI Mentor</p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-[#f59e0b]">50+</p>
+                  <p className="text-[11px] font-bold text-muted mt-0.5">Structured Lessons</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Chad Developer Mascot Illustration Card */}
+            <div className="lg:col-span-5 relative flex justify-center">
+              <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden border-2 border-[#f97316]/50 shadow-2xl shadow-[#f97316]/20 group">
+                <img
+                  src="/mascot.jpg"
+                  alt="SkillUP Chad Coding Mascot"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+
+                {/* Floating Hologram Badges */}
+                <div className="absolute top-4 left-4 rounded-2xl bg-black/80 backdrop-blur-md border border-[#f97316]/40 p-2.5 px-3.5 shadow-xl animate-bounce duration-1000">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-[11px] font-extrabold text-white font-mono">
+                      🔥 120 Days DSA Streak
+                    </span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-4 right-4 rounded-2xl bg-black/80 backdrop-blur-md border border-[#f97316]/40 p-3 shadow-xl space-y-1 max-w-[220px]">
+                  <div className="flex items-center gap-1.5">
+                    <Bot className="h-3.5 w-3.5 text-[#f97316]" />
+                    <span className="text-[10px] font-bold text-[#f97316] uppercase">AI Mentor</span>
+                  </div>
+                  <p className="text-[10px] text-slate-200 leading-tight">
+                    &ldquo;Optimal LCA identified in O(N) time complexity!&rdquo;
+                  </p>
+                </div>
+              </div>
+
+              {/* Ambient Glow behind Character */}
+              <div className="absolute -inset-4 rounded-full bg-[#f97316]/20 blur-3xl -z-10 pointer-events-none" />
             </div>
           </div>
-
-          {/* Background Ambient Glow */}
-          <div className="absolute top-0 right-0 -mr-24 -mt-24 h-112 w-112 rounded-full bg-[#f97316]/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 -mb-20 h-80 w-80 rounded-full bg-[#ea580c]/10 blur-3xl pointer-events-none" />
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* INTERACTIVE LMS WORKSPACE PREVIEW                         */}
-        {/* ========================================================= */}
-        <div className="space-y-4">
+      {/* ========================================================= */}
+      {/* INTERACTIVE LMS WORKSPACE SPLIT DEMO                      */}
+      {/* ========================================================= */}
+      <section className="py-12 border-t border-app">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
               Interactive Classroom Engine
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-app">
-              Built for Serious Engineering Focus
+              Built for Intense Engineering Focus
             </h2>
             <p className="text-xs sm:text-sm text-muted">
-              Distraction-free video streaming on the left. Instant AI doubt resolution and full syllabus on the right.
+              Zero distractions. Video stream on the left, instant video-grounded AI mentor on the right.
             </p>
           </div>
 
@@ -330,7 +454,7 @@ export default function HomePage() {
                 <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
                 <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
                 <span className="ml-2 font-mono text-[11px] text-muted hidden sm:inline">
-                  skillup.academy/classroom/dsa-trees-graphs
+                  skillup.academy/courses/dsa/learn/episode-04
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -366,7 +490,7 @@ export default function HomePage() {
 
                 <div className="flex items-center justify-between text-xs text-muted">
                   <span className="text-[#f97316] font-bold flex items-center gap-1.5">
-                    <Play className="h-3.5 w-3.5 fill-current" /> Auto-synced with AI Doubt Assistant
+                    <Play className="h-3.5 w-3.5 fill-current" /> Grounded with AI Doubt Mentor
                   </span>
                 </div>
               </div>
@@ -380,7 +504,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-app">AI Doubt Mentor</p>
-                      <p className="text-[10px] text-muted">Active Video Grounded</p>
+                      <p className="text-[10px] text-muted">Video Context Active</p>
                     </div>
                   </div>
                   <span className="rounded bg-[#f97316]/15 px-2 py-0.5 text-[9px] font-bold text-[#f97316]">
@@ -422,21 +546,23 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* ENGINEERING DISCIPLINES & CURRICULUM                      */}
-        {/* ========================================================= */}
-        <div className="space-y-6">
+      {/* ========================================================= */}
+      {/* ENGINEERING DISCIPLINES & CURRICULUM (CHAI-CODE STYLE)    */}
+      {/* ========================================================= */}
+      <section id="domains" className="py-16 border-t border-app">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
-                Comprehensive Tracks
+                Curated Roadmaps
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-app">
-                Master Every Core Computer Science Domain
+              <h2 className="text-2xl sm:text-4xl font-black text-app">
+                Master Every Core Engineering Discipline
               </h2>
               <p className="text-xs sm:text-sm text-muted max-w-2xl">
-                Structured sequential roadmaps designed for college students, bootcamp grads, and senior engineers aiming for Tier-1 product roles.
+                High-yield curriculum designed for students and engineers aiming for Tier-1 product roles and high-scale architecture.
               </p>
             </div>
             <Link href="/courses">
@@ -446,13 +572,13 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {DOMAINS.map((domain) => {
               const Icon = domain.icon;
               return (
                 <div
                   key={domain.title}
-                  className="group flex flex-col justify-between rounded-3xl border border-app bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#f97316]/50 hover:shadow-2xl shadow-lg"
+                  className="group flex flex-col justify-between rounded-3xl border border-app bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#f97316]/50 hover:shadow-2xl shadow-lg"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -468,7 +594,7 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-app group-hover:text-[#f97316] transition-colors">
+                      <h3 className="text-base sm:text-lg font-bold text-app group-hover:text-[#f97316] transition-colors">
                         {domain.title}
                       </h3>
                       <p className="mt-1.5 text-xs text-muted leading-relaxed">
@@ -504,16 +630,105 @@ export default function HomePage() {
             })}
           </div>
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* PIONEERS & LEGENDS OF EDUCATION & TECH QUOTES             */}
-        {/* ========================================================= */}
-        <div className="space-y-6">
+      {/* ========================================================= */}
+      {/* INTERACTIVE AI MENTOR SHOWCASE (WITH MENTOR CHAD)         */}
+      {/* ========================================================= */}
+      <section id="ai-mentor" className="py-16 border-t border-app bg-card-2/30">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* Left Interactive AI Demo */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#f97316]/15 px-3 py-1 text-xs font-bold text-[#f97316]">
+                  <BrainCircuit className="h-3.5 w-3.5" /> 24/7 AI Coding Mentor
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-black text-app">
+                  Never Get Stuck While Coding Again
+                </h2>
+                <p className="text-xs sm:text-sm text-muted">
+                  Test the mentor right now. Select a concept below to see how it simplifies complex technical doubts in seconds.
+                </p>
+              </div>
+
+              {/* Selector Pills */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'dsa', label: 'DSA: QuickSort Partition' },
+                  { id: 'backend', label: 'Backend: Redis vs Postgres' },
+                  { id: 'systemDesign', label: 'System Design: Scaling' },
+                  { id: 'ai', label: 'GenAI: What is RAG?' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveAiTab(tab.id)}
+                    className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                      activeAiTab === tab.id
+                        ? 'bg-[#f97316] text-white shadow-md shadow-[#f97316]/30 scale-105'
+                        : 'border border-app bg-card text-muted hover:text-app'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Live Preview Response Box */}
+              <div className="rounded-2xl border border-app bg-card p-6 space-y-4 shadow-xl">
+                <div className="flex items-start gap-2.5">
+                  <span className="rounded-lg bg-card-2 border border-app px-2.5 py-1 text-xs font-bold text-muted font-mono">
+                    Prompt
+                  </span>
+                  <p className="text-xs sm:text-sm font-bold text-app pt-0.5">
+                    {AI_DEMO_PREVIEWS[activeAiTab].q}
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3 border-t border-app pt-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs sm:text-sm text-app leading-relaxed whitespace-pre-wrap">
+                      {AI_DEMO_PREVIEWS[activeAiTab].a}
+                    </p>
+                    <p className="text-[10px] text-muted pt-1">
+                      &bull; Grounded in active video lecture context &bull; Available 24/7
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Mentor Chad Illustration */}
+            <div className="lg:col-span-5 relative flex justify-center">
+              <div className="relative w-full max-w-sm aspect-square rounded-3xl overflow-hidden border-2 border-[#f97316]/50 shadow-2xl shadow-[#f97316]/20 group">
+                <img
+                  src="/mentor-chad.jpg"
+                  alt="SkillUP AI Mentor Chad"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-black/85 backdrop-blur-md border border-[#f97316]/40 p-3 shadow-xl text-center">
+                  <p className="text-xs font-bold text-white">Always in your corner ☕</p>
+                  <p className="text-[10px] text-slate-300">Explaining code, architecture & bugs 24/7</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* PIONEERS & LEGENDS OF EDUCATION & TECH QUOTES             */}
+      {/* ========================================================= */}
+      <section id="visionaries" className="py-16 border-t border-app">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
-              Standing on the Shoulders of Giants
+              Standing On The Shoulders Of Giants
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-app">
+            <h2 className="text-2xl sm:text-4xl font-black text-app">
               Wisdom From Pioneers of Science & Education
             </h2>
             <p className="text-xs sm:text-sm text-muted">
@@ -521,7 +736,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {VISIONARIES.map((v, i) => (
               <div
                 key={i}
@@ -554,142 +769,17 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* INTERACTIVE AI MENTOR DEMO BOX                            */}
-        {/* ========================================================= */}
-        <div className="rounded-3xl border border-app bg-gradient-to-br from-card via-card-2 to-card p-8 lg:p-12 space-y-6 shadow-2xl relative overflow-hidden">
-          <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#f97316]/15 px-3 py-1 text-xs font-bold text-[#f97316]">
-              <BrainCircuit className="h-3.5 w-3.5" /> Interactive AI Simulator
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-app">
-              Test the AI Mentor Right Now
-            </h2>
-            <p className="text-xs sm:text-sm text-muted">
-              Select a topic below to see how our AI breaks down complex engineering doubts in seconds.
-            </p>
-          </div>
-
-          {/* Prompt Selector Pills */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'dsa', label: 'DSA: QuickSort Partition' },
-              { id: 'backend', label: 'Backend: Redis vs Postgres' },
-              { id: 'systemDesign', label: 'System Design: Scaling' },
-              { id: 'ai', label: 'GenAI: What is RAG?' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveAiTab(tab.id)}
-                className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                  activeAiTab === tab.id
-                    ? 'bg-[#f97316] text-white shadow-md shadow-[#f97316]/30 scale-105'
-                    : 'border border-app bg-card text-muted hover:text-app'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Live Preview Box */}
-          <div className="rounded-2xl border border-app bg-app p-6 space-y-4">
-            <div className="flex items-start gap-2.5">
-              <span className="rounded-lg bg-card-2 border border-app px-2.5 py-1 text-xs font-bold text-muted font-mono">
-                Prompt
-              </span>
-              <p className="text-xs sm:text-sm font-bold text-app pt-0.5">
-                {AI_DEMO_PREVIEWS[activeAiTab].q}
-              </p>
-            </div>
-
-            <div className="flex items-start gap-2.5 border-t border-app pt-4">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white">
-                <Bot className="h-4 w-4" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs sm:text-sm text-app leading-relaxed whitespace-pre-wrap">
-                  {AI_DEMO_PREVIEWS[activeAiTab].a}
-                </p>
-                <p className="text-[10px] text-muted pt-1">
-                  &bull; Instant 24/7 resolution in your video player
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================================= */}
-        {/* SKILLUP VS TRADITIONAL BOOTCAMPS                          */}
-        {/* ========================================================= */}
-        <div className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
-              The SkillUP Advantage
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-app">
-              Why Engineers Choose SkillUP Over Paid Bootcamps
-            </h2>
-            <p className="text-xs sm:text-sm text-muted">
-              High-quality education should be open and accessible to all developers worldwide.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse rounded-3xl overflow-hidden border border-app bg-card">
-              <thead>
-                <tr className="border-b border-app bg-card-2 text-app">
-                  <th className="p-4 font-black">Feature / Dimension</th>
-                  <th className="p-4 font-black text-[#f97316] bg-[#f97316]/10">⚡ SkillUP Academy</th>
-                  <th className="p-4 font-black text-muted">Traditional Bootcamps</th>
-                  <th className="p-4 font-black text-muted">Generic YouTube</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-app">
-                <tr>
-                  <td className="p-4 font-bold text-app">Cost / Tuition</td>
-                  <td className="p-4 font-bold text-emerald-400 bg-[#f97316]/5">100% Free Forever</td>
-                  <td className="p-4 text-muted">$2,000 - $15,000+</td>
-                  <td className="p-4 text-muted">Free (Ad-supported)</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-app">In-Player AI Tutor</td>
-                  <td className="p-4 font-bold text-emerald-400 bg-[#f97316]/5">24/7 Video Grounded</td>
-                  <td className="p-4 text-muted">Limited TA Office Hours</td>
-                  <td className="p-4 text-muted">None</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-app">Curriculum Structure</td>
-                  <td className="p-4 font-bold text-emerald-400 bg-[#f97316]/5">Sequential Episode Syllabus</td>
-                  <td className="p-4 text-muted">Rigid Fixed Schedules</td>
-                  <td className="p-4 text-muted">Scattered & Unorganized</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-app">Downloadable Notes & Code</td>
-                  <td className="p-4 font-bold text-emerald-400 bg-[#f97316]/5">Included with Lessons</td>
-                  <td className="p-4 text-muted">Gated behind LMS</td>
-                  <td className="p-4 text-muted">Broken Drive Links</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-bold text-app">Distraction-Free Focus</td>
-                  <td className="p-4 font-bold text-emerald-400 bg-[#f97316]/5">No Ads or Clickbait Feeds</td>
-                  <td className="p-4 text-muted">Proprietary Portals</td>
-                  <td className="p-4 text-muted">Heavy Algorithm Distractions</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* ========================================================= */}
-        {/* FEATURED LIVE COURSES PREVIEW                             */}
-        {/* ========================================================= */}
-        <div className="space-y-5">
+      {/* ========================================================= */}
+      {/* FEATURED LIVE COURSES PREVIEW                             */}
+      {/* ========================================================= */}
+      <section className="py-16 border-t border-app">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Active Courses</p>
-              <h2 className="text-xl sm:text-2xl font-black text-app">Featured Available Tracks</h2>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Active Tracks</p>
+              <h2 className="text-xl sm:text-3xl font-black text-app">Featured Available Courses</h2>
             </div>
             <Link href="/courses" className="text-xs font-bold text-[#f97316] hover:underline flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
@@ -775,21 +865,23 @@ export default function HomePage() {
             </div>
           )}
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* STUDENT TESTIMONIALS                                      */}
-        {/* ========================================================= */}
-        <div className="space-y-6">
+      {/* ========================================================= */}
+      {/* STUDENT TESTIMONIALS & WALL OF LOVE                       */}
+      {/* ========================================================= */}
+      <section className="py-16 border-t border-app bg-card-2/20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
               Learner Stories
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-app">
+            <h2 className="text-2xl sm:text-4xl font-black text-app">
               Loved by Engineers Cracking Top Tech Roles
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {REVIEWS.map((review, i) => (
               <div
                 key={i}
@@ -824,11 +916,13 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* FREQUENTLY ASKED QUESTIONS (FAQ)                          */}
-        {/* ========================================================= */}
-        <div className="space-y-6 max-w-3xl mx-auto w-full">
+      {/* ========================================================= */}
+      {/* FREQUENTLY ASKED QUESTIONS (FAQ)                          */}
+      {/* ========================================================= */}
+      <section className="py-16 border-t border-app">
+        <div className="mx-auto max-w-3xl px-6 space-y-8">
           <div className="text-center space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#f97316]">
               Got Questions?
@@ -868,46 +962,50 @@ export default function HomePage() {
             })}
           </div>
         </div>
+      </section>
 
-        {/* ========================================================= */}
-        {/* FINAL CONVERSION BANNER                                   */}
-        {/* ========================================================= */}
-        <div className="relative overflow-hidden rounded-3xl border border-[#f97316]/40 bg-gradient-to-br from-[#f97316] to-[#ea580c] p-8 sm:p-12 text-center text-white shadow-2xl space-y-6">
-          <div className="relative z-10 max-w-2xl mx-auto space-y-3">
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
-              Ready to Accelerate Your Tech Career?
-            </h2>
-            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-medium">
-              Join thousands of developers mastering DSA, fullstack architecture, and AI systems without paying a single rupee.
-            </p>
+      {/* ========================================================= */}
+      {/* FINAL HIGH CONVERSION BANNER                              */}
+      {/* ========================================================= */}
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div className="relative overflow-hidden rounded-3xl border border-[#f97316]/40 bg-gradient-to-br from-[#f97316] to-[#ea580c] p-8 sm:p-14 text-center text-white shadow-2xl space-y-6">
+            <div className="relative z-10 max-w-2xl mx-auto space-y-3">
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
+                Ready to Level Up Your Tech Career?
+              </h2>
+              <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-medium">
+                Join thousands of engineers mastering DSA, distributed architecture, and AI systems without paying a single rupee.
+              </p>
 
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
-              {isSignedIn ? (
-                <Link href="/dashboard">
-                  <button className="rounded-full bg-white px-8 py-3.5 text-xs sm:text-sm font-black text-[#f97316] hover:bg-slate-100 transition-all shadow-xl hover:scale-105">
-                    Open My Learning Room
+              <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+                {isSignedIn ? (
+                  <Link href="/dashboard">
+                    <button className="rounded-full bg-white px-8 py-3.5 text-xs sm:text-sm font-black text-[#f97316] hover:bg-slate-100 transition-all shadow-xl hover:scale-105">
+                      Open My Learning Room
+                    </button>
+                  </Link>
+                ) : (
+                  <SignUpButton mode="modal">
+                    <button className="rounded-full bg-white px-8 py-3.5 text-xs sm:text-sm font-black text-[#f97316] hover:bg-slate-100 transition-all shadow-xl hover:scale-105">
+                      Create Free Account & Start Learning
+                    </button>
+                  </SignUpButton>
+                )}
+
+                <Link href="/courses">
+                  <button className="rounded-full bg-black/30 border border-white/30 px-6 py-3.5 text-xs sm:text-sm font-bold text-white hover:bg-black/50 transition-colors">
+                    Browse All Tracks
                   </button>
                 </Link>
-              ) : (
-                <SignUpButton mode="modal">
-                  <button className="rounded-full bg-white px-8 py-3.5 text-xs sm:text-sm font-black text-[#f97316] hover:bg-slate-100 transition-all shadow-xl hover:scale-105">
-                    Create Free Account & Start Learning
-                  </button>
-                </SignUpButton>
-              )}
-
-              <Link href="/courses">
-                <button className="rounded-full bg-black/30 border border-white/30 px-6 py-3.5 text-xs sm:text-sm font-bold text-white hover:bg-black/50 transition-colors">
-                  Browse All Tracks
-                </button>
-              </Link>
+              </div>
             </div>
-          </div>
 
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-black/20 blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-black/20 blur-2xl pointer-events-none" />
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

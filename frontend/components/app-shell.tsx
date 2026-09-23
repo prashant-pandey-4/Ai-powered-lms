@@ -8,6 +8,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
   const isLearnRoute = pathname.includes('/learn');
+  const isLandingPage = pathname === '/';
+
+  if (isLandingPage) {
+    return (
+      <div className="flex min-h-screen flex-col bg-app min-w-0">
+        <main className="flex-1">{children}</main>
+        <SkillUpFooter />
+      </div>
+    );
+  }
 
   return (
     <>
