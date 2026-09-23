@@ -178,33 +178,35 @@ export function SkillUpHeader({
       }}
     >
       {/* Left: Mobile Hamburger + Brand/Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0 flex-1 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
         {/* Mobile Hamburger Button */}
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(true)}
-          className="flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-app bg-card text-app hover:border-[#f97316]/60 transition-colors focus:outline-none"
+          className="flex lg:hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-app bg-card text-app hover:border-[#f97316]/60 transition-colors focus:outline-none"
           aria-label="Open Navigation Menu"
         >
           <Menu className="h-5 w-5" />
         </button>
 
         {/* Mobile Mini Logo */}
-        <Link href="/" className="flex lg:hidden items-center gap-2 group">
+        <Link href="/" className="flex lg:hidden items-center gap-2 shrink-0 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md shadow-[#f97316]/20">
             <Flame className="h-4 w-4 fill-current" />
           </div>
         </Link>
 
         {/* Page Title */}
-        <h1 className="text-lg font-black tracking-tight sm:text-2xl truncate max-w-[200px] sm:max-w-none" style={{ color: 'var(--text)' }}>
+        <h1
+          className="text-base sm:text-xl font-black tracking-tight truncate text-app"
+          title={title}
+        >
           {title}
         </h1>
       </div>
 
-
       {/* YouTube-Grade Interactive Search Bar */}
-      <div ref={searchContainerRef} className="hidden md:flex relative w-80 lg:w-105 items-center">
+      <div ref={searchContainerRef} className="hidden md:flex relative w-64 lg:w-80 xl:w-96 items-center shrink-0 mx-3">
         <form onSubmit={handleSubmit} className="relative w-full flex items-center">
           <Search className="absolute left-4 h-4 w-4 pointer-events-none transition-colors" style={{ color: isFocused ? 'var(--primary)' : 'var(--text-subtle)' }} />
           <input
@@ -390,26 +392,26 @@ export function SkillUpHeader({
       </div>
 
       {/* Right User Area & Theme Toggle */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 ml-auto">
         {/* Dark/Light Theme Toggle */}
         <ThemeToggle />
 
         {!isLoaded ? (
-          <div className="h-10 w-28 animate-pulse rounded-full" style={{ backgroundColor: 'var(--bg-card)' }} />
+          <div className="h-9 w-24 sm:w-28 animate-pulse rounded-full shrink-0" style={{ backgroundColor: 'var(--bg-card)' }} />
         ) : isSignedIn ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* User Profile Pill */}
             <div
-              className="flex items-center gap-2.5 rounded-full p-1.5 pr-4"
+              className="hidden md:flex items-center gap-2.5 rounded-full p-1.5 pr-4 shrink-0 shadow-sm"
               style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <img
                 src={user?.imageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'}
                 alt={user?.fullName || 'User'}
-                className="h-7 w-7 rounded-full object-cover"
+                className="h-7 w-7 rounded-full object-cover shrink-0"
               />
-              <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold leading-none" style={{ color: 'var(--text)' }}>
+              <div className="text-left">
+                <p className="text-xs font-bold leading-none truncate max-w-[110px]" style={{ color: 'var(--text)' }}>
                   {user?.fullName || 'Student'}
                 </p>
                 <p className="text-[10px] leading-none mt-1 font-semibold" style={{ color: 'var(--primary)' }}>
@@ -418,7 +420,7 @@ export function SkillUpHeader({
               </div>
             </div>
 
-            <div className="ml-1">
+            <div className="shrink-0 flex items-center">
               <UserButton />
             </div>
           </div>
