@@ -195,10 +195,11 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
 
     const updateSchema = createCourseSchema.partial();
     const validated = updateSchema.parse(req.body);
+    const { lectures, ...courseData } = validated;
 
     const updated = await prisma.course.update({
       where: { id },
-      data: validated,
+      data: courseData,
     });
 
     return res.json({ success: true, data: updated });
