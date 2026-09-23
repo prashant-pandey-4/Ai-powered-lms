@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Flame, Mail, Phone, MessageSquare, Github, Twitter, Youtube, ExternalLink, Heart, ShieldCheck } from 'lucide-react';
+import { Flame, Mail, Phone, MessageSquare, ExternalLink, ShieldCheck } from 'lucide-react';
+
 
 export function SkillUpFooter() {
   return (
