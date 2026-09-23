@@ -287,9 +287,9 @@ export default function StudentDashboardPage() {
                     {/* CTA Button */}
                     <div className="mt-4 pt-3 border-t border-app">
                       <Link href={`/courses/${course.id}`} className="block">
-                        <button className="flex w-full items-center justify-center gap-2 rounded-xl glow-amber-btn py-2.5 text-xs font-bold text-white transition-all">
+                        <button className="flex w-full items-center justify-center gap-2 rounded-xl glow-amber-btn py-2.5 text-xs font-bold text-white transition-all hover:scale-[1.02]">
                           <Play className="h-3.5 w-3.5 fill-current" />
-                          {item.progress === 100 ? 'Review Course' : item.progress > 0 ? 'Continue Learning' : 'Start Learning'}
+                          {item.progress === 100 ? 'Review' : item.progress > 0 ? 'Continue' : 'Start'}
                         </button>
                       </Link>
                     </div>

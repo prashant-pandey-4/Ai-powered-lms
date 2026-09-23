@@ -103,11 +103,10 @@ function CoursesCatalogContent() {
             {/* Filter Toggle Button */}
             <button
               onClick={() => setShowFilters((s) => !s)}
-              className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-xs font-bold transition-all ${
-                showFilters || hasActiveFilter
+              className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-xs font-bold transition-all ${showFilters || hasActiveFilter
                   ? 'border-[#f97316] bg-[#f97316]/10 text-[#f97316]'
                   : 'border-app bg-card text-muted hover:text-app'
-              }`}
+                }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
               Filters{hasActiveFilter ? ' • Active' : ''}
@@ -139,12 +138,11 @@ function CoursesCatalogContent() {
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
             {[
               { label: 'All Tracks', query: '' },
-              { label: '🔥 Striver DSA', query: 'dsa' },
-              { label: 'Namaste JS', query: 'javascript' },
+              { label: ' DSA', query: 'dsa' },
               { label: 'React & Next.js', query: 'react' },
               { label: 'System Design', query: 'system design' },
-              { label: 'C++ & STL', query: 'cpp' },
-              { label: 'Backend API', query: 'backend' },
+              { label: 'C++', query: 'cpp' },
+              { label: 'Backend', query: 'backend' },
             ].map((chip) => {
               const isSelected = chip.query === '' ? !search.trim() : search.toLowerCase().includes(chip.query);
               return (
@@ -154,11 +152,10 @@ function CoursesCatalogContent() {
                   onClick={() => {
                     handleSearchChange(chip.query);
                   }}
-                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-                    isSelected
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${isSelected
                       ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
                       : 'border border-app bg-card text-muted hover:text-app hover:bg-card-2'
-                  }`}
+                    }`}
                 >
                   {chip.label}
                 </button>
@@ -179,11 +176,10 @@ function CoursesCatalogContent() {
                     <button
                       key={lvl}
                       onClick={() => handleLevelChange(lvl)}
-                      className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all ${
-                        level === lvl
+                      className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all ${level === lvl
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
                           : 'border border-app bg-card-2 text-muted hover:text-app'
-                      }`}
+                        }`}
                     >
                       {lvl === 'All Levels' ? 'All' : lvl}
                     </button>
@@ -199,11 +195,10 @@ function CoursesCatalogContent() {
                     <button
                       key={cat}
                       onClick={() => setCategory(cat)}
-                      className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-                        category === cat
+                      className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${category === cat
                           ? 'bg-[#f97316] text-white font-bold shadow-md shadow-[#f97316]/20'
                           : 'border border-app bg-card-2 text-muted hover:text-app'
-                      }`}
+                        }`}
                     >
                       {cat === 'All Categories' ? 'All' : cat}
                     </button>
@@ -270,9 +265,9 @@ function CoursesCatalogContent() {
             secondaryAction={
               hasActiveFilter
                 ? {
-                    label: 'Clear All Filters',
-                    onClick: clearSearch,
-                  }
+                  label: 'Clear All Filters',
+                  onClick: clearSearch,
+                }
                 : undefined
             }
           />

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, useRef, use, useCallback } from 'react';
 import Link from 'next/link';
@@ -272,35 +272,27 @@ export default function LecturePlayerPage({
               </div>
             )}
 
-            {/* Action Bar (Prev / Complete / Next) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app pb-5">
+            {/* Navigation Bar (Prev / Next only) */}
+            <div className="flex items-center justify-between gap-3 border-b border-app pb-4">
               {prevLecture ? (
                 <button
                   onClick={() => handleSelectLecture(prevLecture)}
                   className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Previous
+                  <ArrowLeft className="h-3.5 w-3.5" /> Prev
                 </button>
               ) : (
                 <div />
               )}
 
-              <button
-                onClick={handleMarkComplete}
-                className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold transition-all ${
-                  isCompleted
-                    ? 'bg-[#f97316] text-white shadow-lg shadow-[#f97316]/25'
-                    : 'bg-card-2 border border-app text-white hover:bg-[#f97316] hover:text-white'
-                }`}
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                {isCompleted ? 'Lesson Completed' : 'Mark as Complete'}
-              </button>
+              <span className="text-[11px] font-bold text-muted">
+                Episode {currentIndex >= 0 ? currentIndex + 1 : 1} / {lectures.length}
+              </span>
 
               {nextLecture ? (
                 <button
                   onClick={() => handleSelectLecture(nextLecture)}
-                  className="flex items-center gap-1.5 rounded-full bg-card border border-app px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
+                  className="flex items-center gap-1.5 rounded-full glow-amber-btn px-4 py-2 text-xs font-bold text-white transition-all"
                 >
                   Next <ArrowRight className="h-3.5 w-3.5" />
                 </button>
@@ -309,31 +301,46 @@ export default function LecturePlayerPage({
               )}
             </div>
 
-            {/* Title & Notes */}
-            <div className="space-y-3">
-              <span className="text-[11px] font-bold text-[#f97316] uppercase tracking-wider">
-                Episode {currentIndex >= 0 ? currentIndex + 1 : 1} of {lectures.length}
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-app">{currentLecture?.title}</h2>
-              {currentLecture?.description && (
-                <p className="text-xs sm:text-sm leading-relaxed text-muted">
-                  {currentLecture.description}
-                </p>
+            {/* Title & Full Description */}
+            <div className="space-y-4 rounded-3xl border border-app bg-card p-6 shadow-xl">
+              <div className="space-y-2">
+                <span className="inline-block rounded-md bg-[#f97316]/15 border border-[#f97316]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#f97316] uppercase tracking-wider">
+                  Episode {currentIndex >= 0 ? currentIndex + 1 : 1}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-app leading-snug">
+                  {currentLecture?.title}
+                </h2>
+              </div>
+
+              {currentLecture?.description ? (
+                <div className="border-t border-app pt-3">
+                  <p className="text-xs sm:text-sm leading-relaxed text-muted font-normal whitespace-pre-wrap">
+                    {currentLecture.description}
+                  </p>
+                </div>
+              ) : (
+                course?.description && (
+                  <div className="border-t border-app pt-3">
+                    <p className="text-xs sm:text-sm leading-relaxed text-muted font-normal whitespace-pre-wrap">
+                      {course.description}
+                    </p>
+                  </div>
+                )
               )}
 
               {currentLecture?.pdfUrl && (
-                <div className="mt-4 flex items-center justify-between rounded-2xl border border-app bg-card p-4">
+                <div className="mt-4 flex items-center justify-between rounded-2xl border border-app bg-card-2 p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f97316]/15 text-[#f97316]">
                       <FileText className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-app">Lesson Notes & Cheatsheet PDF</p>
-                      <p className="text-[10px] text-muted">Downloadable code & interview notes</p>
+                      <p className="text-xs font-bold text-app">Lesson Notes & PDF Resource</p>
+                      <p className="text-[10px] text-muted">Study notes & code cheatsheet</p>
                     </div>
                   </div>
                   <a href={currentLecture.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    <button className="flex items-center gap-1 rounded-full bg-card-2 px-3.5 py-1.5 text-xs font-bold text-app hover:bg-[#f97316] hover:text-app transition-colors border border-app">
+                    <button className="flex items-center gap-1 rounded-full bg-card px-3.5 py-1.5 text-xs font-bold text-app hover:border-[#f97316] transition-colors border border-app">
                       <span>View PDF</span>
                       <ExternalLink className="h-3 w-3" />
                     </button>
@@ -419,14 +426,14 @@ export default function LecturePlayerPage({
                 {/* Chat Log Area */}
                 <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                   {chatLogs.length === 0 && !aiLoading && (
-                    <div className="py-10 text-center text-xs text-muted space-y-3">
+                    <div className="py-8 text-center text-xs text-muted space-y-3">
                       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f97316]/15 text-[#f97316]">
                         <BrainCircuit className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-bold text-app text-sm">Ask any coding doubt</p>
+                        <p className="font-bold text-app text-sm">Ask AI Mentor Anything</p>
                         <p className="text-[11px] text-muted mt-0.5">
-                          Instant explanation & code help for this video.
+                          Instant doubt resolution grounded in this active video.
                         </p>
                       </div>
 
@@ -437,7 +444,7 @@ export default function LecturePlayerPage({
                             key={i}
                             type="button"
                             onClick={() => askAi(prompt)}
-                            className="rounded-xl border border-app bg-card-2 px-3 py-2 text-left text-[11px] text-[#f4f4f5] hover:border-[#f97316] hover:text-[#f97316] transition-colors"
+                            className="rounded-xl border border-app bg-card-2 px-3 py-2 text-left text-[11px] text-app hover:border-[#f97316] hover:text-[#f97316] transition-colors"
                           >
                             {prompt}
                           </button>
@@ -450,17 +457,17 @@ export default function LecturePlayerPage({
                     <div key={idx} className="space-y-2 text-xs">
                       {/* User Query */}
                       <div className="flex items-start justify-end gap-2">
-                        <div className="rounded-2xl bg-[#22232a] px-4 py-2.5 text-white max-w-[85%] font-medium">
+                        <div className="rounded-2xl bg-[#f97316]/15 border border-[#f97316]/30 px-3.5 py-2 text-app max-w-[85%] font-medium">
                           {log.question}
                         </div>
                       </div>
 
                       {/* AI Mentor Answer */}
                       <div className="flex items-start gap-2.5">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-white shadow-md">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md">
                           <Bot className="h-4 w-4" />
                         </div>
-                        <div className="group relative flex-1 rounded-2xl border border-app bg-card-2 p-4 text-xs text-[#f4f4f5] leading-relaxed shadow-lg">
+                        <div className="group relative flex-1 rounded-2xl border border-app bg-card-2 p-4 text-xs text-app leading-relaxed shadow-md">
                           <div className="whitespace-pre-wrap font-sans">
                             {log.answer}
                           </div>
@@ -469,7 +476,7 @@ export default function LecturePlayerPage({
                           {log.answer && (
                             <button
                               onClick={() => copyToClipboard(log.answer, idx)}
-                              className="absolute top-3 right-3 rounded-lg border border-app bg-card p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:text-white transition-all"
+                              className="absolute top-2.5 right-2.5 rounded-lg border border-app bg-card p-1 text-muted opacity-0 group-hover:opacity-100 hover:text-app transition-all"
                               title="Copy answer"
                             >
                               {copiedIndex === idx ? (
@@ -492,7 +499,7 @@ export default function LecturePlayerPage({
                       </div>
                       <div className="rounded-2xl border border-app bg-card-2 p-3 text-xs text-[#f97316] flex items-center gap-2">
                         <span className="h-2 w-2 rounded-full bg-[#f97316] animate-ping" />
-                        <span>Thinking...</span>
+                        <span className="font-semibold">AI is thinking...</span>
                       </div>
                     </div>
                   )}
@@ -534,6 +541,7 @@ export default function LecturePlayerPage({
                 </form>
               </div>
             )}
+
           </div>
         </div>
       </div>

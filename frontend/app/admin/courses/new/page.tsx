@@ -263,7 +263,7 @@ export default function AdminNewCoursePage() {
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  ⚡ Extract Video Info
+                  Extract
                 </>
               )}
             </button>
@@ -437,12 +437,12 @@ export default function AdminNewCoursePage() {
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading & Publishing Live...
+                  Uploading...
                 </>
               ) : (
                 <>
                   <Upload className="h-4 w-4" />
-                  🚀 Upload Video & Publish Course Now
+                  Upload
                 </>
               )}
             </button>

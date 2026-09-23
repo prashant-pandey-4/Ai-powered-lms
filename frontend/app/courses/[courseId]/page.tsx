@@ -299,12 +299,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               {/* Action Button */}
               {isEnrolled ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 rounded-2xl bg-[#f97316]/10 p-3.5 text-xs font-bold text-[#f97316] border border-[#f97316]/30">
-                    <CheckCircle2 className="h-4 w-4" /> You are enrolled in this track
-                  </div>
                   <Link href={`/courses/${courseId}/learn/${firstLectureId}`} className="block">
-                    <button className="flex w-full items-center justify-center gap-2 rounded-full glow-amber-btn py-3.5 text-xs sm:text-sm font-bold text-white transition-all">
-                      Continue Learning <ArrowRight className="h-4 w-4" />
+                    <button className="flex w-full items-center justify-center gap-2 rounded-full glow-amber-btn py-3 text-sm font-bold text-white transition-all hover:scale-[1.02]">
+                      Continue <ArrowRight className="h-4 w-4" />
                     </button>
                   </Link>
                 </div>
@@ -313,13 +310,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   <button
                     onClick={handleEnroll}
                     disabled={enrolling}
-                    className="w-full rounded-full glow-amber-btn py-3.5 text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50"
+                    className="w-full rounded-full glow-amber-btn py-3 text-sm font-bold text-white transition-all disabled:opacity-50 hover:scale-[1.02]"
                   >
-                    {enrolling ? 'Joining...' : 'Start Learning Now (Free)'}
+                    {enrolling ? 'Joining...' : 'Join (Free)'}
                   </button>
                   <Link href={`/courses/${courseId}/learn/${firstLectureId}`} className="block text-center">
                     <span className="text-xs text-muted hover:text-[#f97316] underline">
-                      Or preview 1st lesson directly
+                      Preview 1st lesson
                     </span>
                   </Link>
                 </div>
@@ -327,16 +324,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
               {/* Course Benefits List */}
               <div className="border-t border-app pt-4 space-y-2.5 text-xs text-muted">
-                <p className="flex items-center gap-2.5 text-[#d1d5db] font-semibold">
+                <p className="flex items-center gap-2.5 text-app font-semibold">
                   <CheckCircle2 className="h-4 w-4 text-[#f97316]" /> {course.lectures?.length || 0} Sequential Video Lectures
                 </p>
-                <p className="flex items-center gap-2.5 text-[#d1d5db] font-semibold">
+                <p className="flex items-center gap-2.5 text-app font-semibold">
                   <BrainCircuit className="h-4 w-4 text-[#f97316]" /> 24/7 AI Coding Mentor in Player
                 </p>
-                <p className="flex items-center gap-2.5 text-[#d1d5db] font-semibold">
+                <p className="flex items-center gap-2.5 text-app font-semibold">
                   <FileText className="h-4 w-4 text-[#f97316]" /> Downloadable Study PDFs & Notes
                 </p>
-                <p className="flex items-center gap-2.5 text-[#d1d5db] font-semibold">
+                <p className="flex items-center gap-2.5 text-app font-semibold">
                   <Code2 className="h-4 w-4 text-[#f97316]" /> Real-world Algorithm & Code Walkthroughs
                 </p>
               </div>
