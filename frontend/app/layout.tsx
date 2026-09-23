@@ -6,9 +6,53 @@ import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SkillUP — Open-Source Developer Academy & AI LMS',
-  description: 'Learn Data Structures, Web Development, and System Design with zero paywalls. Powered by AI Tutor.',
+  title: {
+    default: 'SkillUP — Open-Source Developer Academy & AI LMS',
+    template: '%s | SkillUP',
+  },
+  description: 'Master Data Structures, Full-Stack Web Development, System Design, and AI Engineering with zero paywalls. Free interactive video syllabus, 24/7 AI mentor, and study notes.',
+  applicationName: 'SkillUP',
+  keywords: [
+    'AI LMS',
+    'Developer Academy',
+    'Data Structures & Algorithms',
+    'System Design',
+    'Full Stack Development',
+    'Free Coding Courses',
+    'AI Tutor',
+    'Next.js LMS',
+    'Open Source Education',
+  ],
+  authors: [{ name: 'SkillUP Team', url: 'https://skillup.dev' }],
+  creator: 'SkillUP',
+  publisher: 'SkillUP',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://skillup.dev',
+    title: 'SkillUP — Open-Source Developer Academy & AI LMS',
+    description: 'Learn tech with zero paywalls. Video syllabus, 24/7 AI mentor, and developer guides.',
+    siteName: 'SkillUP',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SkillUP — Open-Source Developer Academy & AI LMS',
+    description: 'Master Data Structures, Web Development, and System Design with zero paywalls.',
+    creator: '@skillup_dev',
+  },
 };
+
 
 export default function RootLayout({
   children,

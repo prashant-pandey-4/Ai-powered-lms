@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="appleFlameGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(249, 115, 22, 0.25)" />
+      <stop offset="100%" stop-color="rgba(11, 12, 16, 0)" />
+    </radialGradient>
+  </defs>
+  <!-- Dark Obsidian Background -->
+  <rect width="180" height="180" rx="40" fill="#060709"/>
+  <circle cx="90" cy="90" r="80" fill="url(#ambientGlow)"/>
+  <rect x="2" y="2" width="176" height="176" rx="38" fill="none" stroke="#22232a" stroke-width="2"/>
+  <!-- Scaled Flame Path -->
+  <g transform="translate(42, 28) scale(3)">
+    <path d="M16 4C14.5 7.5 12 9.5 10 13C8 16.5 8.5 20.5 11 23C13.5 25.5 17.5 26 20.5 24C23.5 22 25 18.5 23.5 15C22.5 12.5 20.5 10.5 19 8.5C18.5 11 17 12.5 15.5 13C15 11.5 15.5 9 16 4Z" 
+          fill="url(#appleFlameGrad)"/>
+  </g>
+</svg>
