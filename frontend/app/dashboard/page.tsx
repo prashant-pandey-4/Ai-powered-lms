@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, Play, GraduationCap, Compass, Search, X, Sparkles } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { useDebounce } from '@/lib/use-debounce';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function StudentDashboardPage() {
   const { getToken } = useAuth();
@@ -197,38 +198,33 @@ export default function StudentDashboardPage() {
 
         {/* Empty State: No courses enrolled */}
         {!loading && !error && enrollments.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-16 text-center bg-card">
-            <GraduationCap className="mb-4 h-10 w-10 text-subtle" />
-            <h3 className="text-base font-bold text-app">No courses enrolled yet</h3>
-            <p className="mt-2 max-w-xs text-xs text-muted">
-              Join any of our 100% free computer science tracks and start learning today.
-            </p>
-            <Link href="/courses" className="mt-6">
-              <button className="rounded-full glow-amber-btn px-6 py-2.5 text-xs font-bold text-white">
-                Explore Courses
-              </button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={GraduationCap}
+            title="No Courses Enrolled Yet"
+            description="Join any of our 100% free computer science tracks and start learning with video lectures & AI mentor today."
+            badge="FREE"
+            primaryAction={{
+              label: 'Explore Catalog',
+              href: '/courses',
+              icon: BookOpen,
+            }}
+          />
         )}
 
         {/* Search Result Empty State: Filter yielded no matches */}
         {!loading && !error && enrollments.length > 0 && filteredEnrollments.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-12 text-center bg-card">
-            <BookOpen className="mb-3 h-8 w-8 text-subtle" />
-            <h3 className="text-sm font-bold text-app">No enrolled tracks match your search</h3>
-            <p className="mt-1 text-xs text-muted">
-              No results found for &ldquo;{searchQuery}&rdquo; {statusFilter !== 'all' ? `with status "${statusFilter}"` : ''}.
-            </p>
-            <button
-              onClick={() => {
+          <EmptyState
+            icon={Search}
+            title="No Matching Tracks Found"
+            description={`No enrolled courses match "${searchQuery}" ${statusFilter !== 'all' ? `with filter "${statusFilter}"` : ''}.`}
+            secondaryAction={{
+              label: 'Reset Filters',
+              onClick: () => {
                 setSearchQuery('');
                 setStatusFilter('all');
-              }}
-              className="mt-4 rounded-full border border-app bg-card-2 px-4 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
-            >
-              Reset Filters
-            </button>
-          </div>
+              },
+            }}
+          />
         )}
 
         {/* Enrolled Courses Grid */}

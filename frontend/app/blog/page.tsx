@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+
 
 export default function PublicBlogPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -168,15 +170,27 @@ export default function PublicBlogPage() {
 
         {/* Empty State */}
         {!loading && filteredBlogs.length === 0 && (
-          <div className="rounded-3xl border border-app bg-card p-12 text-center space-y-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f97316]/10 text-[#f97316] mx-auto">
-              <Newspaper className="h-6 w-6" />
-            </div>
-            <h3 className="text-base font-bold text-app">No articles or references found</h3>
-            <p className="text-xs text-muted max-w-sm mx-auto">
-              Try adjusting your search keywords or switching category filters.
-            </p>
-          </div>
+          <EmptyState
+            icon={Newspaper}
+            title="No Knowledge Articles Found"
+            description={
+              search
+                ? `No articles or reference books match "${search}". Try adjusting your keywords or clearing the category filter.`
+                : 'No published articles in this category yet. Check back soon for deep-dive technical guides.'
+            }
+            secondaryAction={
+              search || selectedCategory !== 'all' || selectedType !== 'all'
+                ? {
+                    label: 'Reset Filters',
+                    onClick: () => {
+                      setSearch('');
+                      setSelectedCategory('all');
+                      setSelectedType('all');
+                    },
+                  }
+                : undefined
+            }
+          />
         )}
 
         {/* Blog / Resources Grid */}

@@ -7,6 +7,7 @@ import { SkillUpHeader } from '@/components/skillup-header';
 import { Search, BookOpen, Play, ArrowRight, X, SlidersHorizontal, Star } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 const LEVELS = ['All Levels', 'beginner', 'intermediate', 'advanced'];
 
@@ -258,25 +259,23 @@ function CoursesCatalogContent() {
 
         {/* Empty State */}
         {!loading && !error && filteredCourses.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-app p-16 text-center bg-card">
-            <BookOpen className="mb-4 h-10 w-10 text-subtle" />
-            <h3 className="text-base font-bold text-app">
-              {hasActiveFilter ? 'No courses match your filters' : 'No courses yet'}
-            </h3>
-            <p className="mt-2 text-xs text-muted">
-              {hasActiveFilter
-                ? 'Try adjusting your search or clearing the filters.'
-                : 'Check back soon for newly published courses.'}
-            </p>
-            {hasActiveFilter && (
-              <button
-                onClick={clearSearch}
-                className="mt-5 rounded-full bg-card-2 border border-app px-5 py-2 text-xs font-bold text-app hover:border-[#f97316] transition-colors"
-              >
-                Clear Filters
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={BookOpen}
+            title={hasActiveFilter ? 'No Courses Match Your Filters' : 'No Courses Published Yet'}
+            description={
+              hasActiveFilter
+                ? 'Try searching with different keywords, removing level filters, or clearing the query.'
+                : 'Check back soon as top engineering tracks and curriculum are published.'
+            }
+            secondaryAction={
+              hasActiveFilter
+                ? {
+                    label: 'Clear All Filters',
+                    onClick: clearSearch,
+                  }
+                : undefined
+            }
+          />
         )}
 
         {/* Course Grid */}
