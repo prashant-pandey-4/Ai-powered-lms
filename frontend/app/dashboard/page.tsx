@@ -117,6 +117,9 @@ export default function StudentDashboardPage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Active Tracks</p>
             <h2 className="text-xl sm:text-2xl font-black text-app">Your Enrolled Courses</h2>
+            <p className="text-xs sm:text-sm text-muted mt-1">
+              Continue your journey with <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong>.
+            </p>
           </div>
           <Link href="/courses">
             <button className="flex items-center gap-1.5 text-xs font-bold text-[#f97316] hover:underline">

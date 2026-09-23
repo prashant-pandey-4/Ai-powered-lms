@@ -98,6 +98,9 @@ function CoursesCatalogContent() {
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-[#f97316]">Catalog</p>
               <h1 className="text-2xl sm:text-3xl font-black text-app">All Engineering Courses</h1>
+              <p className="text-xs sm:text-sm text-muted mt-1">
+                Explore <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong> across software development, algorithms, and systems.
+              </p>
             </div>
 
             {/* Filter Toggle Button */}

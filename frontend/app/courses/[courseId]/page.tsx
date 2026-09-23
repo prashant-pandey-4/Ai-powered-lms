@@ -207,7 +207,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 <div>
                   <h2 className="text-xl font-black text-app">Curriculum & Syllabus</h2>
                   <p className="text-xs text-muted mt-0.5">
-                    {course.lectures?.length || 0} sequential video episodes with AI doubt assistance.
+                    {course.lectures?.length || 0} sequential video episodes for{' '}
+                    <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong>.
                   </p>
                 </div>
               </div>
@@ -292,7 +293,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   </span>
                 </div>
                 <p className="text-xs text-muted mt-1 font-medium">
-                  Zero hidden fees • Lifetime open access
+                  Zero hidden fees &bull; <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong>
                 </p>
               </div>
 

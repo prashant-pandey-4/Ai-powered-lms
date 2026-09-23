@@ -433,7 +433,7 @@ export default function LecturePlayerPage({
                       <div>
                         <p className="font-bold text-app text-sm">Ask AI Mentor Anything</p>
                         <p className="text-[11px] text-muted mt-0.5">
-                          Instant doubt resolution grounded in this active video.
+                          Instant doubts resolution for <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong>.
                         </p>
                       </div>
 

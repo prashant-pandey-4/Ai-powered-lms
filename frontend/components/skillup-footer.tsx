@@ -23,7 +23,9 @@ export function SkillUpFooter() {
             </Link>
 
             <p className="text-xs text-muted leading-relaxed max-w-sm">
-              Empowering engineers worldwide with zero-paywall computer science education. Structured video syllabus, 24/7 AI mentor, and real-world tech guides.
+              Empowering engineers worldwide with{' '}
+              <strong style={{ color: '#f97316' }}>A Structured, AI-Powered Learning Experience</strong>.
+              Zero-paywall computer science syllabus, real-time in-player AI mentoring, and downloadable technical notes.
             </p>
 
             {/* Direct Contact Links: Email, Phone, WhatsApp */}

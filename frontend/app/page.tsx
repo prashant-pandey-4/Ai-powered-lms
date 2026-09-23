@@ -176,14 +176,14 @@ export default function HomePage() {
             <div className="relative flex justify-center lg:justify-end">
               <div className="relative w-72 sm:w-80 lg:w-96">
                 <img
-                  src="/mascot.jpg"
+                  src="/mascot.png"
                   alt="SkillUP Mascot"
                   className="w-full h-auto object-contain relative z-10"
                 />
                 {/* Bottom fade into page bg */}
-                <div className="absolute bottom-0 left-0 right-0 h-24 z-20" style={{ background: 'linear-gradient(to top, var(--bg), transparent)' }} />
+                <div className="absolute bottom-0 left-0 right-0 h-24 z-20 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--bg), transparent)' }} />
                 {/* Subtle glow behind */}
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-[#f97316]/10 blur-3xl -z-10" />
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-[#f97316]/10 blur-3xl -z-10 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -313,12 +313,12 @@ export default function HomePage() {
             <div className="relative flex justify-center">
               <div className="relative w-64 sm:w-72 lg:w-80">
                 <img
-                  src="/mentor-chad.jpg"
+                  src="/mentor-chad.png"
                   alt="AI Mentor"
                   className="w-full h-auto object-contain relative z-10"
                 />
-                <div className="absolute bottom-0 left-0 right-0 h-20 z-20" style={{ background: 'linear-gradient(to top, var(--bg), transparent)' }} />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[#f97316]/8 blur-3xl -z-10" />
+                <div className="absolute bottom-0 left-0 right-0 h-20 z-20 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--bg), transparent)' }} />
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[#f97316]/8 blur-3xl -z-10 pointer-events-none" />
               </div>
             </div>
 
