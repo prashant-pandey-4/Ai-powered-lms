@@ -2,13 +2,35 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth, useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { Search, Flame, ArrowRight, BookOpen, Sparkles, X } from 'lucide-react';
+import {
+  Search,
+  Flame,
+  ArrowRight,
+  BookOpen,
+  Sparkles,
+  X,
+  Menu,
+  LayoutGrid,
+  GraduationCap,
+  Shield,
+  Newspaper,
+  Phone,
+  Mail,
+  MessageSquare,
+} from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useDebounce } from '@/lib/use-debounce';
 import { getSmartSearchSuggestions, SearchSuggestionResult } from '@/lib/search-suggestions';
 import { fetchApi } from '@/lib/api';
+
+const mobileNavItems = [
+  { label: 'Explore & Home', href: '/', icon: LayoutGrid },
+  { label: 'All Courses', href: '/courses', icon: BookOpen },
+  { label: 'My Learning', href: '/dashboard', icon: GraduationCap },
+  { label: 'Knowledge Hub', href: '/blog', icon: Newspaper },
+];
 
 interface SkillUpHeaderProps {
   title?: string;
@@ -26,6 +48,13 @@ export function SkillUpHeader({
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'moneymaking24into7@gmail.com').toLowerCase();
+  const userEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
+  const isAdmin = isLoaded && userEmail === adminEmail;
 
   const [localQuery, setLocalQuery] = useState('');
   const currentQuery = onSearchChange ? (searchValue ?? '') : localQuery;
@@ -148,12 +177,31 @@ export function SkillUpHeader({
         backgroundColor: 'color-mix(in srgb, var(--bg) 90%, transparent)',
       }}
     >
-      {/* Title */}
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl" style={{ color: 'var(--text)' }}>
+      {/* Left: Mobile Hamburger + Brand/Title */}
+      <div className="flex items-center gap-3">
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-app bg-card text-app hover:border-[#f97316]/60 transition-colors focus:outline-none"
+          aria-label="Open Navigation Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Mobile Mini Logo */}
+        <Link href="/" className="flex lg:hidden items-center gap-2 group">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md shadow-[#f97316]/20">
+            <Flame className="h-4 w-4 fill-current" />
+          </div>
+        </Link>
+
+        {/* Page Title */}
+        <h1 className="text-lg font-black tracking-tight sm:text-2xl truncate max-w-[200px] sm:max-w-none" style={{ color: 'var(--text)' }}>
           {title}
         </h1>
       </div>
+
 
       {/* YouTube-Grade Interactive Search Bar */}
       <div ref={searchContainerRef} className="hidden md:flex relative w-80 lg:w-105 items-center">
@@ -389,6 +437,171 @@ export function SkillUpHeader({
           </div>
         )}
       </div>
+
+      {/* Mobile Navigation Drawer Sheet */}
+
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop Blur */}
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Slide-out Drawer Panel */}
+          <div
+            className="relative z-50 flex h-full w-4/5 max-w-xs flex-col justify-between p-6 shadow-2xl transition-all"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              borderRight: '1px solid var(--border)',
+            }}
+          >
+            {/* Drawer Header */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5"
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md shadow-[#f97316]/20">
+                    <Flame className="h-5 w-5 fill-current" />
+                  </div>
+                  <div>
+                    <span className="text-lg font-black tracking-tight flex items-center gap-1" style={{ color: 'var(--text)' }}>
+                      Skill<span style={{ color: 'var(--primary)' }}>UP</span>
+                    </span>
+                    <p className="text-[9px] font-semibold text-muted">Developer Academy</p>
+                  </div>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-app bg-card-2 text-muted hover:text-app"
+                  aria-label="Close Navigation Menu"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Mobile Quick Search Input */}
+              <form onSubmit={handleSubmit} className="relative w-full">
+                <Search className="absolute left-3 top-3 h-3.5 w-3.5 text-muted pointer-events-none" />
+                <input
+                  type="text"
+                  value={currentQuery}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  placeholder="Search courses, DSA..."
+                  className="h-9.5 w-full rounded-xl border border-app bg-input pl-9 pr-3 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+                />
+              </form>
+
+              {/* Mobile Nav Links */}
+              <nav className="space-y-1.5 pt-2">
+                {mobileNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : pathname.startsWith(item.href);
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all"
+                      style={
+                        isActive
+                          ? {
+                              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                              color: '#ffffff',
+                              fontWeight: 700,
+                              boxShadow: '0 4px 15px -2px rgba(249, 115, 22, 0.35)',
+                            }
+                          : {
+                              color: 'var(--text-muted)',
+                              backgroundColor: 'transparent',
+                            }
+                      }
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+
+                {/* Mobile Admin Link */}
+                {isAdmin && (
+                  <div className="pt-2 mt-2" style={{ borderTop: '1px solid var(--border)' }}>
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-semibold"
+                      style={{
+                        border: '1px solid var(--border)',
+                        backgroundColor: 'var(--bg-card-2)',
+                        color: 'var(--text)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Shield className="h-4 w-4 shrink-0 text-[#f97316]" />
+                        <span>Admin Studio</span>
+                      </div>
+                      <span className="rounded-md px-1.5 py-0.5 text-[8px] font-bold bg-[#f97316]/15 text-[#f97316]">
+                        Studio ↗
+                      </span>
+                    </Link>
+                  </div>
+                )}
+              </nav>
+            </div>
+
+            {/* Drawer Footer Contact & Auth */}
+            <div className="space-y-4 pt-4 border-t border-app">
+              {/* Quick Contact Links */}
+              <div className="space-y-1.5 text-[11px] text-muted">
+                <a href="mailto:support@skillup.dev" className="flex items-center gap-2 hover:text-[#f97316]">
+                  <Mail className="h-3 w-3 text-[#f97316]" /> support@skillup.dev
+                </a>
+                <a href="tel:+918000000000" className="flex items-center gap-2 hover:text-[#f59e0b]">
+                  <Phone className="h-3 w-3 text-[#f59e0b]" /> +91 80000 00000
+                </a>
+              </div>
+
+              {/* Mobile Auth Buttons */}
+              {!isSignedIn ? (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <SignInButton mode="modal">
+                    <button className="w-full rounded-xl border border-app bg-card-2 py-2 text-xs font-bold text-app">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="w-full rounded-xl glow-amber-btn py-2 text-xs font-bold text-white">
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="h-7 w-7 rounded-full bg-[#f97316] flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      {(user?.firstName || 'U').charAt(0)}
+                    </div>
+                    <span className="text-xs font-bold truncate text-app">
+                      {user?.fullName || 'Student'}
+                    </span>
+                  </div>
+                  <UserButton />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
+
