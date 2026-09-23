@@ -18,6 +18,10 @@ import {
   HelpCircle,
   Clock,
   Compass,
+  Video,
+  ListVideo,
+  Loader2,
+  Zap,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { MediaUpload } from '@/components/media-upload';
@@ -51,6 +55,12 @@ export default function AdminNewCoursePage() {
   const [hasDraft, setHasDraft] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // YouTube 1-Click Scraper States
+  const [ytUrl, setYtUrl] = useState('');
+  const [scrapingYt, setScrapingYt] = useState(false);
+  const [ytPreviewData, setYtPreviewData] = useState<any>(null);
+  const [importingFull, setImportingFull] = useState(false);
 
   // 1. Restore saved draft on mount
   useEffect(() => {
@@ -91,6 +101,99 @@ export default function AdminNewCoursePage() {
     setHasDraft(false);
     toast.success('Draft cleared. Form reset to fresh state.');
   };
+
+  // 4. Scrape YouTube Playlist / Video
+  const handleScrapeYt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ytUrl.trim()) {
+      toast.error('Please enter a YouTube playlist or video URL.');
+      return;
+    }
+
+    setScrapingYt(true);
+    setYtPreviewData(null);
+    try {
+      const token = await getToken();
+      const res = await fetchApi<any>('/courses/preview-playlist', {
+        method: 'POST',
+        token,
+        body: JSON.stringify({ playlistUrl: ytUrl }),
+      });
+
+      if (res.success && res.data) {
+        setYtPreviewData(res.data);
+        // Auto-fill form fields
+        setFormData((prev) => ({
+          ...prev,
+          title: res.data.title || prev.title,
+          description: `Comprehensive structured engineering track covering ${res.data.videoCount} lessons extracted from YouTube playlist.`,
+          thumbnail: res.data.thumbnail || prev.thumbnail,
+        }));
+        toast.success(`Successfully extracted ${res.data.videoCount} lessons from YouTube! 🚀`);
+      } else {
+        toast.error(res.message || 'Could not fetch YouTube playlist. Ensure the playlist is Public or Unlisted.');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error connecting to YouTube scraper.');
+    } finally {
+      setScrapingYt(false);
+    }
+  };
+
+  // 5. 1-Click Create Course AND Import all scraped lectures
+  const handleOneClickCreateAndImport = async () => {
+    if (!ytPreviewData || !ytUrl) return;
+
+    setImportingFull(true);
+    try {
+      const token = await getToken();
+      // Step A: Create Course
+      const courseRes = await fetchApi<any>('/courses', {
+        method: 'POST',
+        token,
+        body: JSON.stringify({
+          title: formData.title || ytPreviewData.title,
+          description: formData.description || `Comprehensive track with ${ytPreviewData.videoCount} video lessons.`,
+          category: formData.category,
+          level: formData.level,
+          thumbnail: formData.thumbnail || ytPreviewData.thumbnail,
+          language: formData.language,
+        }),
+      });
+
+      if (!courseRes.success || !courseRes.data) {
+        throw new Error(courseRes.message || 'Failed to create course container.');
+      }
+
+      const newCourseId = courseRes.data.id;
+
+      // Step B: Import Playlist
+      const importRes = await fetchApi<any>(`/courses/${newCourseId}/import-playlist`, {
+        method: 'POST',
+        token,
+        body: JSON.stringify({
+          playlistUrl: ytUrl,
+          isFreeFirstLecture: true,
+        }),
+      });
+
+      if (importRes.success) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+        toast.success(`Course created and ${ytPreviewData.videoCount} lessons imported successfully! 🎉`);
+        router.push(`/admin/courses/${newCourseId}/edit`);
+      } else {
+        toast.warning('Course created, but some lectures could not be imported automatically.');
+        router.push(`/admin/courses/${newCourseId}/edit`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed during 1-click import.');
+    } finally {
+      setImportingFull(false);
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,6 +285,122 @@ export default function AdminNewCoursePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left 7 Columns: Core Editor Fields */}
             <div className="lg:col-span-7 space-y-6">
+              {/* ⚡ 1-Click YouTube Playlist / Video Scraper Section */}
+              <div className="rounded-3xl border border-[#f97316]/40 bg-gradient-to-br from-card to-card-2 p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden">
+                {/* Background Ambient Glow */}
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-[#f97316]/10 blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-lg shadow-[#f97316]/20">
+                      <Zap className="h-5 w-5 fill-current" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm sm:text-base font-black text-app">1-Click YouTube Scraper & Importer</h3>
+                        <span className="rounded-md bg-[#f97316]/15 px-2 py-0.5 text-[9px] font-extrabold text-[#f97316] uppercase tracking-wider">
+                          Instant
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted">
+                        Paste any YouTube playlist or video URL to auto-extract the curriculum, thumbnail, and all video episodes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scraper Input Form */}
+                <div className="relative z-10 flex flex-col sm:flex-row gap-2.5">
+                  <div className="relative flex-1">
+                    <ListVideo className="absolute left-3.5 top-3.5 h-4 w-4 text-muted pointer-events-none" />
+                    <input
+                      type="url"
+                      value={ytUrl}
+                      onChange={(e) => setYtUrl(e.target.value)}
+                      placeholder="Paste YouTube Playlist (e.g. youtube.com/playlist?list=...) or Video URL"
+                      className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleScrapeYt}
+                    disabled={scrapingYt || !ytUrl.trim()}
+                    className="flex items-center justify-center gap-2 rounded-2xl glow-amber-btn px-5 py-2.5 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
+                  >
+                    {scrapingYt ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Scraping...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Scrape & Auto-Extract
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Scraped Preview Results */}
+                {ytPreviewData && (
+                  <div className="relative z-10 rounded-2xl border border-app bg-card-2 p-4 space-y-4 animate-fadeIn">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-app pb-3">
+                      <div>
+                        <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 inline-flex items-center gap-1 mb-1">
+                          <CheckCircle2 className="h-3 w-3" /> {ytPreviewData.videoCount} Lessons Extracted Successfully
+                        </span>
+                        <h4 className="text-sm font-bold text-app line-clamp-1">{ytPreviewData.title}</h4>
+                      </div>
+
+                      {/* 1-Click Full Import Action */}
+                      <button
+                        type="button"
+                        onClick={handleOneClickCreateAndImport}
+                        disabled={importingFull}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f97316] to-[#ea580c] px-4 py-2 text-xs font-black text-white shadow-md shadow-[#f97316]/25 hover:brightness-110 transition-all disabled:opacity-50 shrink-0"
+                      >
+                        {importingFull ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Creating & Importing {ytPreviewData.videoCount} Lessons...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="h-3.5 w-3.5 fill-current" />
+                            1-Click Create & Import All {ytPreviewData.videoCount} Lessons
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Lesson Snippet Explorer */}
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                      {ytPreviewData.videos?.slice(0, 10).map((v: any, idx: number) => (
+                        <div
+                          key={v.videoId || idx}
+                          className="flex items-center justify-between rounded-lg border border-app bg-card px-3 py-1.5 text-xs"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-mono text-[10px] text-muted shrink-0">
+                              #{String(v.order || idx + 1).padStart(2, '0')}
+                            </span>
+                            <span className="truncate text-app font-medium">{v.title}</span>
+                          </div>
+                          <span className="rounded bg-card-2 px-1.5 py-0.5 text-[10px] font-mono text-muted shrink-0 ml-2">
+                            {v.durationFormatted || '10:00'}
+                          </span>
+                        </div>
+                      ))}
+                      {ytPreviewData.videoCount > 10 && (
+                        <p className="text-[10px] text-muted text-center pt-1 font-medium">
+                          + {ytPreviewData.videoCount - 10} additional lessons will be imported automatically
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Section 1: Course Identity */}
               <div className="rounded-3xl border border-app bg-card p-6 sm:p-8 space-y-6 shadow-xl">
                 <div className="flex items-center justify-between">
@@ -195,6 +414,7 @@ export default function AdminNewCoursePage() {
                     </div>
                   </div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#f97316] bg-[#f97316]/10 px-2 py-0.5 rounded-full">
+
                     Required
                   </span>
                 </div>

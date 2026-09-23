@@ -4,14 +4,70 @@ import { AppError } from '../middleware/errorHandler';
 import https from 'https';
 import { z } from 'zod';
 
-function extractPlaylistId(urlOrId: string): string | null {
+function extractYouTubeSource(urlOrId: string): { type: 'playlist' | 'video'; id: string } | null {
   const trimmed = urlOrId.trim();
-  if (/^[a-zA-Z0-9_-]{12,}$/.test(trimmed) && !trimmed.includes('http')) {
-    return trimmed;
+  // 1. Check playlist list= parameter
+  const listMatch = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  if (listMatch) {
+    return { type: 'playlist', id: listMatch[1] };
   }
-  const match = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-  return match ? match[1] : null;
+  if (/^[a-zA-Z0-9_-]{12,}$/.test(trimmed) && !trimmed.includes('http')) {
+    return { type: 'playlist', id: trimmed };
+  }
+  // 2. Check single video ID
+  const videoMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (videoMatch) {
+    return { type: 'video', id: videoMatch[1] };
+  }
+  return null;
 }
+
+function fetchYouTubeVideo(videoId: string): Promise<ParsedPlaylist> {
+  return new Promise((resolve, reject) => {
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    https
+      .get(oembedUrl, (res) => {
+        let body = '';
+        res.on('data', (chunk) => (body += chunk));
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            const title = data.title || 'YouTube Engineering Lecture';
+            const thumbnail = data.thumbnail_url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+            resolve({
+              title,
+              videos: [
+                {
+                  videoId,
+                  title,
+                  durationFormatted: '15:00',
+                  duration: 900,
+                  thumbnail,
+                },
+              ],
+            });
+          } catch {
+            resolve({
+              title: 'YouTube Video Lecture',
+              videos: [
+                {
+                  videoId,
+                  title: 'Video Lecture',
+                  durationFormatted: '15:00',
+                  duration: 900,
+                  thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                },
+              ],
+            });
+          }
+        });
+      })
+      .on('error', (err) => {
+        reject(new AppError(`Network error fetching YouTube video: ${err.message}`, 500));
+      });
+  });
+}
+
 
 interface ParsedVideo {
   videoId: string;
@@ -172,13 +228,16 @@ const importPlaylistSchema = z.object({
 export const previewPlaylist = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { playlistUrl } = importPlaylistSchema.parse(req.body);
-    const listId = extractPlaylistId(playlistUrl);
+    const source = extractYouTubeSource(playlistUrl);
 
-    if (!listId) {
-      throw new AppError('Could not extract valid playlist ID from URL', 400);
+    if (!source) {
+      throw new AppError('Could not extract valid YouTube playlist or video URL', 400);
     }
 
-    const playlist = await fetchYouTubePlaylist(listId);
+    const playlist =
+      source.type === 'video'
+        ? await fetchYouTubeVideo(source.id)
+        : await fetchYouTubePlaylist(source.id);
 
     const videosWithOrder = playlist.videos.map((v, index) => ({
       order: index + 1,
@@ -195,6 +254,7 @@ export const previewPlaylist = async (req: Request, res: Response, next: NextFun
       data: {
         title: playlist.title,
         videoCount: videosWithOrder.length,
+        thumbnail: playlist.videos[0]?.thumbnail || '',
         videos: videosWithOrder,
       },
     });
@@ -215,12 +275,16 @@ export const importPlaylist = async (req: Request, res: Response, next: NextFunc
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw new AppError('Course not found', 404);
 
-    const listId = extractPlaylistId(playlistUrl);
-    if (!listId) {
-      throw new AppError('Could not extract valid playlist ID from URL', 400);
+    const source = extractYouTubeSource(playlistUrl);
+    if (!source) {
+      throw new AppError('Could not extract valid YouTube playlist or video URL', 400);
     }
 
-    const playlist = await fetchYouTubePlaylist(listId);
+    const playlist =
+      source.type === 'video'
+        ? await fetchYouTubeVideo(source.id)
+        : await fetchYouTubePlaylist(source.id);
+
 
     // Determine starting order index
     const lastLecture = await prisma.lecture.findFirst({
