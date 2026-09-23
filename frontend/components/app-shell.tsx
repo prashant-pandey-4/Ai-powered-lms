@@ -12,8 +12,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLandingPage) {
     return (
-      <div className="flex min-h-screen flex-col bg-app min-w-0">
-        <main className="flex-1">{children}</main>
+      <div className="flex min-h-screen w-full flex-col bg-app">
+        <main className="flex-1 w-full">{children}</main>
         <SkillUpFooter />
       </div>
     );

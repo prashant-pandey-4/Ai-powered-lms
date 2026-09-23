@@ -62,7 +62,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning className="h-full">
-        <body className="flex min-h-full antialiased" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
+        <body className="flex w-full min-h-full antialiased" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <AppShell>{children}</AppShell>
 
