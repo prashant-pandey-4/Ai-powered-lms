@@ -3,16 +3,28 @@ import { prisma } from '../config/prisma';
 import { AppError } from '../middleware/errorHandler';
 import { z } from 'zod';
 
+const lectureInputSchema = z.object({
+  title: z.string().min(1, 'Lecture title required'),
+  description: z.string().optional().default(''),
+  videoUrl: z.string().min(1, 'Video URL required'),
+  duration: z.number().default(600),
+  isFree: z.boolean().default(true),
+  pdfUrl: z.string().optional(),
+});
+
 const createCourseSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters'),
   description: z.string().min(5, 'Description must be at least 5 characters'),
   thumbnail: z.string().url().optional().or(z.literal('')),
   level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
   category: z.string().optional(),
-  language: z.string().default('English'),
+  language: z.string().default('English / Hindi'),
+  isPublished: z.boolean().default(true),
+  lectures: z.array(lectureInputSchema).optional(),
   // Platform is free — price is always 0, ignored from client input
   price: z.number().default(0).transform(() => 0),
 });
+
 
 function extractYouTubeThumb(url?: string | null): string | null {
   if (!url) return null;
@@ -127,17 +139,41 @@ export const getCourseById = async (req: Request, res: Response, next: NextFunct
  */
 export const createCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const validated = createCourseSchema.parse(req.body);
+    const { lectures, ...courseData } = createCourseSchema.parse(req.body);
     const instructorId = req.dbUser!.id;
 
     const course = await prisma.course.create({
       data: {
-        ...validated,
+        ...courseData,
         instructorId,
+        isPublished: true, // Auto-publish course
+        ...(lectures && lectures.length > 0
+          ? {
+              lectures: {
+                create: lectures.map((lec, idx) => ({
+                  title: lec.title || `Episode ${idx + 1}`,
+                  description: lec.description || '',
+                  videoUrl: lec.videoUrl,
+                  duration: lec.duration || 600,
+                  order: idx + 1,
+                  isFree: idx === 0 || lec.isFree,
+                  pdfUrl: lec.pdfUrl,
+                })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        lectures: true,
+        _count: { select: { lectures: true } },
       },
     });
 
-    return res.status(201).json({ success: true, data: course });
+    return res.status(201).json({
+      success: true,
+      message: 'Course and lectures created successfully!',
+      data: course,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, errors: error.flatten().fieldErrors });
@@ -145,6 +181,7 @@ export const createCourse = async (req: Request, res: Response, next: NextFuncti
     return next(error);
   }
 };
+
 
 /**
  * PATCH /api/courses/:id — Admin: Update course

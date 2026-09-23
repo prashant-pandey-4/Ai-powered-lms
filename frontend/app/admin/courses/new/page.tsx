@@ -7,27 +7,21 @@ import { useAuth } from '@clerk/nextjs';
 import { SkillUpHeader } from '@/components/skillup-header';
 import {
   ArrowLeft,
-  Plus,
   Sparkles,
-  RotateCcw,
   BookOpen,
-  Star,
-  Play,
-  Layers,
-  CheckCircle2,
-  HelpCircle,
-  Clock,
-  Compass,
   Video,
   ListVideo,
   Loader2,
+  CheckCircle2,
+  Upload,
+  Plus,
+  Trash2,
+  Image as ImageIcon,
   Zap,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { MediaUpload } from '@/components/media-upload';
 import { toast } from 'sonner';
-
-const STORAGE_KEY = 'skillup_draft_new_course';
 
 const CATEGORIES = [
   'DSA & Algorithms',
@@ -38,171 +32,138 @@ const CATEGORIES = [
   'DevOps & Cloud',
 ];
 
-const initialForm = {
-  title: '',
-  description: '',
-  category: 'DSA & Algorithms',
-  level: 'beginner',
-  thumbnail: '',
-  language: 'English / Hindi',
-};
+interface LectureItem {
+  title: string;
+  videoUrl: string;
+  duration?: number;
+  durationFormatted?: string;
+  description?: string;
+}
 
 export default function AdminNewCoursePage() {
   const router = useRouter();
   const { getToken } = useAuth();
 
-  const [formData, setFormData] = useState(initialForm);
-  const [hasDraft, setHasDraft] = useState(false);
+  // 1. YouTube Quick Scraper input
+  const [ytUrl, setYtUrl] = useState('');
+  const [scraping, setScraping] = useState(false);
+  const [extractedCount, setExtractedCount] = useState<number | null>(null);
+
+  // 2. Main Unified Course Form
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('DSA & Algorithms');
+  const [level, setLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+  const [thumbnail, setThumbnail] = useState('');
+  const [lectures, setLectures] = useState<LectureItem[]>([]);
+  const [singleVideoUrl, setSingleVideoUrl] = useState('');
+
+  // 3. Submitting State
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // YouTube 1-Click Scraper States
-  const [ytUrl, setYtUrl] = useState('');
-  const [scrapingYt, setScrapingYt] = useState(false);
-  const [ytPreviewData, setYtPreviewData] = useState<any>(null);
-  const [importingFull, setImportingFull] = useState(false);
-
-  // 1. Restore saved draft on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.title || parsed.description || parsed.thumbnail) {
-          setFormData((prev) => ({ ...prev, ...parsed }));
-          setHasDraft(true);
-          toast.info('Restored your course draft from browser storage', {
-            description: 'You can continue editing or clear it anytime.',
-          });
-        }
-      }
-    } catch {
-      // ignore JSON parse error
-    }
-  }, []);
-
-  // 2. Auto-save form changes to localStorage
-  const updateField = (field: string, value: any) => {
-    setFormData((prev) => {
-      const next = { ...prev, [field]: value };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-  };
-
-  // 3. Clear draft
-  const handleClearDraft = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-    setFormData(initialForm);
-    setHasDraft(false);
-    toast.success('Draft cleared. Form reset to fresh state.');
-  };
-
-  // 4. Scrape YouTube Playlist / Video
-  const handleScrapeYt = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 4. Auto Extract from YouTube
+  const handleExtractFromYouTube = async () => {
     if (!ytUrl.trim()) {
-      toast.error('Please enter a YouTube playlist or video URL.');
+      toast.error('Kripya YouTube Video ya Playlist ka URL enter karein.');
       return;
     }
 
-    setScrapingYt(true);
-    setYtPreviewData(null);
+    setScraping(true);
+    setErrorMessage('');
     try {
       const token = await getToken();
       const res = await fetchApi<any>('/courses/preview-playlist', {
         method: 'POST',
         token,
-        body: JSON.stringify({ playlistUrl: ytUrl }),
+        body: JSON.stringify({ playlistUrl: ytUrl.trim() }),
       });
 
       if (res.success && res.data) {
-        setYtPreviewData(res.data);
-        // Auto-fill form fields
-        setFormData((prev) => ({
-          ...prev,
-          title: res.data.title || prev.title,
-          description: `Comprehensive structured engineering track covering ${res.data.videoCount} lessons extracted from YouTube playlist.`,
-          thumbnail: res.data.thumbnail || prev.thumbnail,
-        }));
-        toast.success(`Successfully extracted ${res.data.videoCount} lessons from YouTube! 🚀`);
+        const data = res.data;
+        setTitle(data.title || '');
+        setDescription(
+          `Master modern software engineering concepts in this comprehensive course with ${data.videoCount} video lesson${data.videoCount > 1 ? 's' : ''}.`
+        );
+        if (data.thumbnail) {
+          setThumbnail(data.thumbnail);
+        }
+
+        // Set lectures
+        if (Array.isArray(data.videos) && data.videos.length > 0) {
+          const mapped: LectureItem[] = data.videos.map((v: any) => ({
+            title: v.title,
+            videoUrl: v.videoUrl,
+            duration: v.duration || 600,
+            durationFormatted: v.durationFormatted || '10:00',
+            description: '',
+          }));
+          setLectures(mapped);
+          if (mapped.length === 1) {
+            setSingleVideoUrl(mapped[0].videoUrl);
+          }
+        }
+
+        setExtractedCount(data.videoCount);
+        toast.success(`Success! ${data.videoCount} video(s) extract ho gayi hain. Form auto-fill ho gaya!`);
       } else {
-        toast.error(res.message || 'Could not fetch YouTube playlist. Ensure the playlist is Public or Unlisted.');
+        toast.error(res.message || 'YouTube se video fetch nahi ho paya. URL check karein.');
       }
     } catch (err: any) {
-      toast.error(err.message || 'Error connecting to YouTube scraper.');
+      toast.error(err.message || 'Error connecting to YouTube extractor.');
     } finally {
-      setScrapingYt(false);
+      setScraping(false);
     }
   };
 
-  // 5. 1-Click Create Course AND Import all scraped lectures
-  const handleOneClickCreateAndImport = async () => {
-    if (!ytPreviewData || !ytUrl) return;
-
-    setImportingFull(true);
-    try {
-      const token = await getToken();
-      // Step A: Create Course
-      const courseRes = await fetchApi<any>('/courses', {
-        method: 'POST',
-        token,
-        body: JSON.stringify({
-          title: formData.title || ytPreviewData.title,
-          description: formData.description || `Comprehensive track with ${ytPreviewData.videoCount} video lessons.`,
-          category: formData.category,
-          level: formData.level,
-          thumbnail: formData.thumbnail || ytPreviewData.thumbnail,
-          language: formData.language,
-        }),
-      });
-
-      if (!courseRes.success || !courseRes.data) {
-        throw new Error(courseRes.message || 'Failed to create course container.');
-      }
-
-      const newCourseId = courseRes.data.id;
-
-      // Step B: Import Playlist
-      const importRes = await fetchApi<any>(`/courses/${newCourseId}/import-playlist`, {
-        method: 'POST',
-        token,
-        body: JSON.stringify({
-          playlistUrl: ytUrl,
-          isFreeFirstLecture: true,
-        }),
-      });
-
-      if (importRes.success) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch {}
-        toast.success(`Course created and ${ytPreviewData.videoCount} lessons imported successfully! 🎉`);
-        router.push(`/admin/courses/${newCourseId}/edit`);
-      } else {
-        toast.warning('Course created, but some lectures could not be imported automatically.');
-        router.push(`/admin/courses/${newCourseId}/edit`);
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed during 1-click import.');
-    } finally {
-      setImportingFull(false);
-    }
-  };
-
-
+  // 5. One-Step Course & Video Creation + Auto-Publish
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) {
+      toast.error('Course Title likhna zaroori hai.');
+      return;
+    }
+    if (!description.trim()) {
+      toast.error('Description likhna zaroori hai.');
+      return;
+    }
+
+    // Determine final lectures to attach
+    let finalLectures: LectureItem[] = [...lectures];
+
+    // If user provided a single video URL in the field but didn't extract via playlist
+    if (finalLectures.length === 0 && singleVideoUrl.trim()) {
+      finalLectures = [
+        {
+          title: title.trim(),
+          videoUrl: singleVideoUrl.trim(),
+          duration: 600,
+          description: description.trim(),
+        },
+      ];
+    }
+
     setSubmitting(true);
     setErrorMessage('');
 
     try {
       const token = await getToken();
-      const payload = { ...formData };
+      const payload = {
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        level,
+        thumbnail: thumbnail.trim() || undefined,
+        language: 'English / Hindi',
+        isPublished: true, // Automatically publish live!
+        lectures: finalLectures.map((l, idx) => ({
+          title: l.title || `Episode ${idx + 1}`,
+          videoUrl: l.videoUrl,
+          duration: l.duration || 600,
+          description: l.description || '',
+          isFree: idx === 0,
+        })),
+      };
 
       const res = await fetchApi<any>('/courses', {
         method: 'POST',
@@ -211,23 +172,19 @@ export default function AdminNewCoursePage() {
       });
 
       if (res.success && res.data) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch {}
-
-        toast.success('Course created! Now add your video syllabus.');
-        router.push(`/admin/courses/${res.data.id}/edit`);
+        toast.success('🎉 Course & Video successfully uploaded and published live!');
+        router.push('/admin'); // Redirect straight to course manager
       } else {
         const errorDetail =
           res.message ||
           (res.errors
             ? Object.values(res.errors).flat().join(', ')
-            : 'Failed to create course. Please verify required fields.');
+            : 'Course upload karne me error aaya.');
         setErrorMessage(errorDetail);
         toast.error(errorDetail);
       }
     } catch (err: any) {
-      const msg = err.message || 'An error occurred while creating course';
+      const msg = err.message || 'Server error occurred.';
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
@@ -237,41 +194,23 @@ export default function AdminNewCoursePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-app bg-grid-pattern">
-      <SkillUpHeader title="Admin Studio &mdash; Create Course" />
+      <SkillUpHeader title="Admin Studio &mdash; Video & Course Upload" />
 
-      <div className="mx-auto w-full max-w-7xl p-6 lg:p-10 space-y-8">
-        {/* Studio Breadcrumb & Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-app pb-6">
-          <div className="space-y-1">
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-[#f97316] transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to Studio Overview
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-app">Create Engineering Course</h1>
-            <p className="text-xs text-muted">
-              Configure course overview, curriculum tags, and poster with real-time public preview.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {hasDraft && (
-              <button
-                type="button"
-                onClick={handleClearDraft}
-                className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3.5 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500/20 transition-colors"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Reset Draft
-              </button>
-            )}
-
-            <div className="flex items-center gap-2 rounded-full border border-app bg-card px-3.5 py-1.5 text-xs font-medium text-muted">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Draft Auto-Saved</span>
-            </div>
-          </div>
+      <div className="mx-auto w-full max-w-4xl p-6 lg:p-10 space-y-8">
+        {/* Back Link & Title */}
+        <div className="space-y-1.5 border-b border-app pb-5">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-[#f97316] transition-colors mb-1"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to Courses Manager
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-black text-app">
+            Upload Video & Publish Course
+          </h1>
+          <p className="text-xs text-muted">
+            YouTube video link paste karke extract karein, title/description review karein aur 1-click me publish karein.
+          </p>
         </div>
 
         {errorMessage && (
@@ -280,343 +219,233 @@ export default function AdminNewCoursePage() {
           </div>
         )}
 
-        {/* 2-Column Studio Grid */}
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left 7 Columns: Core Editor Fields */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* ⚡ 1-Click YouTube Playlist / Video Scraper Section */}
-              <div className="rounded-3xl border border-[#f97316]/40 bg-gradient-to-br from-card to-card-2 p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden">
-                {/* Background Ambient Glow */}
-                <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-[#f97316]/10 blur-3xl pointer-events-none" />
+        {/* STEP 1: Quick YouTube Video / Playlist Extractor */}
+        <div className="rounded-3xl border border-[#f97316]/40 bg-gradient-to-br from-card to-card-2 p-6 sm:p-7 space-y-4 shadow-xl relative overflow-hidden">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-md shadow-[#f97316]/20 shrink-0">
+              <Zap className="h-5 w-5 fill-current" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-app flex items-center gap-2">
+                1. YouTube Video ya Playlist Link Paste Karein
+                <span className="rounded-md bg-[#f97316]/20 px-2 py-0.5 text-[9px] font-extrabold text-[#f97316]">
+                  Auto-Fill
+                </span>
+              </h2>
+              <p className="text-[11px] text-muted">
+                Single Video URL ya Playlist URL paste karke &quot;Extract&quot; dabayein. Title, Description, Poster & Videos auto-fill ho jayenge.
+              </p>
+            </div>
+          </div>
 
-                <div className="relative z-10 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-lg shadow-[#f97316]/20">
-                      <Zap className="h-5 w-5 fill-current" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-black text-app">1-Click YouTube Video & Playlist Scraper</h3>
-                        <span className="rounded-md bg-[#f97316]/15 px-2 py-0.5 text-[9px] font-extrabold text-[#f97316] uppercase tracking-wider">
-                          Instant Upload
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-muted">
-                        Single YouTube video ya poori Playlist ka URL paste karke 1-click me video upload aur course create karein.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+            <div className="relative flex-1">
+              <ListVideo className="absolute left-3.5 top-3.5 h-4 w-4 text-muted pointer-events-none" />
+              <input
+                type="url"
+                value={ytUrl}
+                onChange={(e) => setYtUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=... ya playlist link"
+                className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleExtractFromYouTube}
+              disabled={scraping || !ytUrl.trim()}
+              className="flex items-center justify-center gap-2 rounded-2xl glow-amber-btn px-6 py-2.5 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
+            >
+              {scraping ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Extracting...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  ⚡ Extract Video Info
+                </>
+              )}
+            </button>
+          </div>
 
-                {/* Scraper Input Form */}
-                <div className="relative z-10 flex flex-col sm:flex-row gap-2.5">
-                  <div className="relative flex-1">
-                    <ListVideo className="absolute left-3.5 top-3.5 h-4 w-4 text-muted pointer-events-none" />
-                    <input
-                      type="url"
-                      value={ytUrl}
-                      onChange={(e) => setYtUrl(e.target.value)}
-                      placeholder="YouTube Video URL ya Playlist Link yahan paste karein (e.g. youtube.com/watch?v=... ya playlist)"
-                      className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleScrapeYt}
-                    disabled={scrapingYt || !ytUrl.trim()}
-                    className="flex items-center justify-center gap-2 rounded-2xl glow-amber-btn px-6 py-2.5 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
-                  >
-                    {scrapingYt ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Fetching Video...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-3.5 w-3.5" />
-                        📥 Fetch & Preview Video
-                      </>
-                    )}
-                  </button>
-                </div>
+          {extractedCount !== null && (
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 flex items-center gap-2 text-xs font-semibold text-emerald-400">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>
+                {extractedCount} video(s) extracted successfully! Niche diye gaye form me Title, Description aur Video check karein aur &quot;Upload & Publish&quot; karein.
+              </span>
+            </div>
+          )}
+        </div>
 
-                {/* Scraped Preview Results */}
-                {ytPreviewData && (
-                  <div className="relative z-10 rounded-2xl border border-app bg-card-2 p-4 space-y-4 animate-fadeIn">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-app pb-3">
-                      <div>
-                        <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 inline-flex items-center gap-1 mb-1">
-                          <CheckCircle2 className="h-3 w-3" /> {ytPreviewData.videoCount} {ytPreviewData.videoCount === 1 ? 'Video' : 'Videos'} Detected
-                        </span>
-                        <h4 className="text-sm font-bold text-app line-clamp-1">{ytPreviewData.title}</h4>
-                      </div>
+        {/* STEP 2: Unified Simple Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="rounded-3xl border border-app bg-card p-6 sm:p-8 space-y-5 shadow-xl">
+            <h2 className="text-sm sm:text-base font-bold text-app border-b border-app pb-3 flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-[#f97316]" />
+              2. Course Details & Video Content
+            </h2>
 
-                      {/* 1-Click Full Import & Upload Action */}
-                      <button
-                        type="button"
-                        onClick={handleOneClickCreateAndImport}
-                        disabled={importingFull}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f97316] to-[#ea580c] px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-[#f97316]/25 hover:brightness-110 transition-all disabled:opacity-50 shrink-0"
-                      >
-                        {importingFull ? (
-                          <>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Uploading Video & Publishing...
-                          </>
-                        ) : (
-                          <>
-                            <Zap className="h-3.5 w-3.5 fill-current" />
-                            🚀 Upload Video & Publish Course Now
-                          </>
-                        )}
-                      </button>
-                    </div>
+            {/* Course Title */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-app">
+                Course / Video Title <span className="text-[#f97316]">*</span>
+              </label>
+              <input
+                required
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Complete Backend & System Design Masterclass"
+                className="h-11 w-full rounded-xl border border-app bg-app px-4 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+              />
+            </div>
 
+            {/* Description */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-app">
+                Course Description <span className="text-[#f97316]">*</span>
+              </label>
+              <textarea
+                required
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Explain what concepts are covered in this course/video..."
+                className="w-full rounded-xl border border-app bg-app p-3 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+              />
+            </div>
 
-                    {/* Lesson Snippet Explorer */}
-                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                      {ytPreviewData.videos?.slice(0, 10).map((v: any, idx: number) => (
-                        <div
-                          key={v.videoId || idx}
-                          className="flex items-center justify-between rounded-lg border border-app bg-card px-3 py-1.5 text-xs"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-mono text-[10px] text-muted shrink-0">
-                              #{String(v.order || idx + 1).padStart(2, '0')}
-                            </span>
-                            <span className="truncate text-app font-medium">{v.title}</span>
-                          </div>
-                          <span className="rounded bg-card-2 px-1.5 py-0.5 text-[10px] font-mono text-muted shrink-0 ml-2">
-                            {v.durationFormatted || '10:00'}
-                          </span>
-                        </div>
-                      ))}
-                      {ytPreviewData.videoCount > 10 && (
-                        <p className="text-[10px] text-muted text-center pt-1 font-medium">
-                          + {ytPreviewData.videoCount - 10} additional lessons will be imported automatically
-                        </p>
-                      )}
-                    </div>
-                  </div>
+            {/* Direct Video Source URL (if manual or single video) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-app flex items-center justify-between">
+                <span>Video Source URL (YouTube link ya Video Stream)</span>
+                {lectures.length > 1 && (
+                  <span className="text-[11px] font-bold text-[#f97316]">
+                    ({lectures.length} Playlist Videos Attached)
+                  </span>
                 )}
+              </label>
+              <input
+                type="url"
+                value={lectures.length > 0 ? lectures[0].videoUrl : singleVideoUrl}
+                onChange={(e) => {
+                  setSingleVideoUrl(e.target.value);
+                  if (lectures.length <= 1) {
+                    setLectures([
+                      {
+                        title: title || 'Main Video Lecture',
+                        videoUrl: e.target.value,
+                        duration: 600,
+                      },
+                    ]);
+                  }
+                }}
+                placeholder="https://www.youtube.com/watch?v=... (ya upar extract karein)"
+                className="h-11 w-full rounded-xl border border-app bg-app px-4 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
+              />
+            </div>
+
+            {/* Category & Level Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-app">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app focus:border-[#f97316] focus:outline-none"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Section 1: Course Identity */}
-              <div className="rounded-3xl border border-app bg-card p-6 sm:p-8 space-y-6 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f97316]/15 text-[#f97316]">
-                      <BookOpen className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-app">Course Basics</h3>
-                      <p className="text-[11px] text-muted">Primary title and overview description</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#f97316] bg-[#f97316]/10 px-2 py-0.5 rounded-full">
-
-                    Required
-                  </span>
-                </div>
-
-                {/* Course Title */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-app">
-                    Course Title <span className="text-[#f97316]">*</span>
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    placeholder="e.g. Striver's A2Z DSA Sheet: Master Data Structures & Algorithms"
-                    value={formData.title}
-                    onChange={(e) => updateField('title', e.target.value)}
-                    className="h-11 w-full rounded-xl border border-app bg-app px-4 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all"
-                  />
-                  <p className="text-[10px] text-muted">
-                    Clear, descriptive title highlighting the core language and practical roadmap.
-                  </p>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-app">
-                    Comprehensive Description <span className="text-[#f97316]">*</span>
-                  </label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="Provide a comprehensive summary of what students will build, key milestones, interview patterns, and prerequisites..."
-                    value={formData.description}
-                    onChange={(e) => updateField('description', e.target.value)}
-                    className="w-full rounded-2xl border border-app bg-app p-4 text-xs sm:text-sm text-app placeholder:text-subtle focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/50 focus:outline-none transition-all leading-relaxed"
-                  />
-                  <div className="flex justify-between text-[10px] text-muted">
-                    <span>Supports multi-line text and highlights.</span>
-                    <span>{formData.description.length} characters</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 2: Poster & Thumbnail Asset */}
-              <div className="rounded-3xl border border-app bg-card p-6 sm:p-8 space-y-5 shadow-xl">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f59e0b]/15 text-[#f59e0b]">
-                    <Layers className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-app">Cover Poster / Thumbnail</h3>
-                    <p className="text-[11px] text-muted">High-res 16:9 banner with CDN delivery</p>
-                  </div>
-                </div>
-
-                <MediaUpload
-                  accept="image"
-                  label="Upload 16:9 Poster (or paste public image URL)"
-                  placeholder="https://images.unsplash.com/... or Cloudinary link"
-                  value={formData.thumbnail}
-                  onChange={(url) => updateField('thumbnail', url)}
-                  helperText="Recommended: 1280x720px JPG/PNG/WebP. If empty, the first YouTube lecture thumbnail will be auto-applied."
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-app">Difficulty Level</label>
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as any)}
+                  className="h-11 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app focus:border-[#f97316] focus:outline-none"
+                >
+                  <option value="beginner">Beginner Level</option>
+                  <option value="intermediate">Intermediate Level</option>
+                  <option value="advanced">Advanced Level</option>
+                </select>
               </div>
             </div>
 
-            {/* Right 5 Columns: Inspector & Live Real-Time Card Preview */}
-            <div className="lg:col-span-5 space-y-6 sticky top-24">
-              {/* Live Card Preview Box */}
-              <div className="rounded-3xl border border-app bg-card p-5 space-y-3.5 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-[#f97316]" /> Live Public Preview
-                  </p>
-                  <span className="rounded-full bg-[#f97316]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#f97316]">
-                    Student View
-                  </span>
-                </div>
+            {/* Thumbnail Poster */}
+            <div className="space-y-2 pt-2">
+              <MediaUpload
+                accept="image"
+                label="Course Thumbnail / Poster (Auto-Extracted from YouTube or Custom Upload)"
+                placeholder="https://img.youtube.com/..."
+                value={thumbnail}
+                onChange={(url) => setThumbnail(url)}
+                helperText="YouTube video thumbnail auto-extract ho jata hai. Aap custom poster bhi upload kar sakte hain."
+              />
+            </div>
 
-                {/* Real-time Rendered Course Card */}
-                <div className="overflow-hidden rounded-2xl border border-app bg-card-2 p-3 transition-all">
-                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black border border-app">
-                    {formData.thumbnail ? (
-                      <img
-                        src={formData.thumbnail}
-                        alt="Preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-card">
-                        <BookOpen className="h-8 w-8 text-subtle" />
+            {/* Extracted Playlist Lessons Preview (if multiple) */}
+            {lectures.length > 1 && (
+              <div className="space-y-2 pt-2">
+                <p className="text-xs font-bold text-app">
+                  Playlist Episodes ({lectures.length} Total Lessons)
+                </p>
+                <div className="max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-app bg-card-2 p-3">
+                  {lectures.map((l, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-lg border border-app bg-card px-3 py-1.5 text-xs"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-mono text-[10px] text-[#f97316] font-bold">
+                          #{String(i + 1).padStart(2, '0')}
+                        </span>
+                        <span className="truncate text-app">{l.title}</span>
                       </div>
-                    )}
-                    <div className="absolute top-2.5 left-2.5">
-                      <span className="rounded-md bg-black/80 px-2 py-0.5 text-[10px] font-bold text-[#f97316] backdrop-blur-md border border-[#f97316]/20">
-                        {formData.category || 'General'}
+                      <span className="text-[10px] text-muted font-mono shrink-0 ml-2">
+                        {l.durationFormatted || '10:00'}
                       </span>
                     </div>
-                  </div>
-
-                  <div className="pt-3 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] text-muted">
-                      <span className="flex items-center gap-1 text-[#f59e0b] font-bold">
-                        <Star className="h-3 w-3 fill-current" /> 4.9
-                      </span>
-                      <span className="capitalize">{formData.level} Level</span>
-                      <span className="rounded bg-card px-1.5 py-0.5 text-[10px] text-muted">
-                        {formData.language}
-                      </span>
-                    </div>
-
-                    <h4 className="text-sm font-bold text-app line-clamp-2">
-                      {formData.title || 'Your Course Title Will Appear Here'}
-                    </h4>
-
-                    <p className="text-xs text-muted line-clamp-2 leading-relaxed">
-                      {formData.description || 'Provide a compelling description so learners understand the core concepts covered in this track.'}
-                    </p>
-
-                    <div className="mt-2 pt-2.5 flex items-center justify-between border-t border-app">
-                      <span className="rounded-full bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-extrabold text-[#f97316]">
-                        100% Free
-                      </span>
-                      <span className="text-xs font-bold text-app flex items-center gap-1">
-                        View Details &rarr;
-                      </span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* Taxonomy & Metadata Settings */}
-              <div className="rounded-3xl border border-app bg-card p-6 space-y-5 shadow-xl">
-                <h3 className="text-sm font-bold text-app">Track Taxonomy & Settings</h3>
+          {/* Big Single Action Upload & Publish Button */}
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+            <Link href="/admin" className="w-full sm:w-auto">
+              <button
+                type="button"
+                className="w-full rounded-full border border-app bg-card-2 px-6 py-3 text-xs font-bold text-app hover:bg-[#22232a] transition-colors"
+              >
+                Cancel
+              </button>
+            </Link>
 
-                {/* Category Selector */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-app">Category</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => updateField('category', e.target.value)}
-                    className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app focus:border-[#f97316] focus:outline-none transition-colors"
-                  >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Difficulty Level Pills */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-app">Difficulty Level</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['beginner', 'intermediate', 'advanced'].map((lvl) => {
-                      const isSelected = formData.level === lvl;
-                      return (
-                        <button
-                          key={lvl}
-                          type="button"
-                          onClick={() => updateField('level', lvl)}
-                          className={`rounded-xl py-2 text-xs font-bold capitalize transition-all ${
-                            isSelected
-                              ? 'bg-[#f97316] text-white shadow-md shadow-[#f97316]/20'
-                              : 'border border-app bg-app text-muted hover:text-app'
-                          }`}
-                        >
-                          {lvl}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Language Selection */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-app">Delivery Language</label>
-                  <select
-                    value={formData.language}
-                    onChange={(e) => updateField('language', e.target.value)}
-                    className="h-10 w-full rounded-xl border border-app bg-app px-3.5 text-xs text-app focus:border-[#f97316] focus:outline-none transition-colors"
-                  >
-                    <option value="English / Hindi">Bilingual (English / Hindi)</option>
-                    <option value="English">English</option>
-                    <option value="Hindi">Hindi</option>
-                  </select>
-                </div>
-
-                {/* Primary Action Button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full flex items-center justify-center gap-2 rounded-2xl glow-amber-btn py-3.5 text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50"
-                  >
-                    <Plus className="h-4 w-4" />
-                    {submitting ? 'Creating Track...' : 'Create Course & Add Lectures'}
-                  </button>
-                </div>
-              </div>
-            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-full glow-amber-btn px-8 py-3.5 text-xs sm:text-sm font-black text-white shadow-xl transition-all disabled:opacity-50"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading & Publishing Live...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  🚀 Upload Video & Publish Course Now
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>
