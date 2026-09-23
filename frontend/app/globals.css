@@ -5,29 +5,8 @@
    ==================================================== */
 
 @layer base {
-  /* ---------- DARK MODE (default) ---------- */
+  /* ---------- LIGHT MODE (default) ---------- */
   :root,
-  .dark {
-    --bg:           #060709;
-    --bg-card:      #111217;
-    --bg-card-2:    #17181f;
-    --bg-input:     #0b0c10;
-    --border:       #22232a;
-    --border-hover: #3f3f4e;
-    --text:         #f4f4f5;
-    --text-muted:   #9ca3af;
-    --text-subtle:  #6b7280;
-    --primary:      #f97316;
-    --primary-glow: rgba(249, 115, 22, 0.25);
-    --accent:       #f59e0b;
-    --cyan:         #38bdf8;
-    --scrollbar-bg: #060709;
-    --scrollbar-thumb: #22232a;
-    --scrollbar-thumb-hover: #3f3f4e;
-    --grid-dot: rgba(255, 255, 255, 0.05);
-  }
-
-  /* ---------- LIGHT MODE ---------- */
   .light {
     --bg:           #f8f9fa;
     --bg-card:      #ffffff;
@@ -46,6 +25,27 @@
     --scrollbar-thumb: #d1d5db;
     --scrollbar-thumb-hover: #9ca3af;
     --grid-dot: rgba(0, 0, 0, 0.04);
+  }
+
+  /* ---------- DARK MODE ---------- */
+  .dark {
+    --bg:           #060709;
+    --bg-card:      #111217;
+    --bg-card-2:    #17181f;
+    --bg-input:     #0b0c10;
+    --border:       #22232a;
+    --border-hover: #3f3f4e;
+    --text:         #f4f4f5;
+    --text-muted:   #9ca3af;
+    --text-subtle:  #6b7280;
+    --primary:      #f97316;
+    --primary-glow: rgba(249, 115, 22, 0.25);
+    --accent:       #f59e0b;
+    --cyan:         #38bdf8;
+    --scrollbar-bg: #060709;
+    --scrollbar-thumb: #22232a;
+    --scrollbar-thumb-hover: #3f3f4e;
+    --grid-dot: rgba(255, 255, 255, 0.05);
   }
 }
 

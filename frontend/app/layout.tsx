@@ -63,7 +63,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning className="h-full">
         <body className="flex w-full min-h-full antialiased" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <AppShell>{children}</AppShell>
 
             {/* Global Toast Notifications */}
