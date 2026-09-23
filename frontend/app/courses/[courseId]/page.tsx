@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
+
 
 const featureHighlights = [
   { num: '01', title: 'High-Quality Video Syllabus', desc: 'Curated structured lessons from top engineers.' },
@@ -84,6 +86,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const handleEnroll = async () => {
     if (!isSignedIn) {
+      toast.info('Please sign in to enroll and track your progress.');
       router.push(`/sign-in?redirect_url=/courses/${courseId}`);
       return;
     }
@@ -94,13 +97,18 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       const res = await fetchApi(`/enrollment/free/${courseId}`, { method: 'POST', token });
       if (res.success) {
         setIsEnrolled(true);
+        toast.success('Successfully enrolled in track! Welcome aboard 🚀');
+      } else {
+        toast.error(res.message || 'Failed to enroll in this track.');
       }
     } catch (err) {
       console.error(err);
+      toast.error('Unable to connect to server. Please try again.');
     } finally {
       setEnrolling(false);
     }
   };
+
 
   if (loading) {
     return (
