@@ -24,16 +24,30 @@ function extractYouTubeSource(urlOrId: string): { type: 'playlist' | 'video'; id
 
 function fetchYouTubeVideo(videoId: string): Promise<ParsedPlaylist> {
   return new Promise((resolve, reject) => {
-    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const encodedVideoUrl = encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`);
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodedVideoUrl}&format=json`;
+
+    const requestOptions = {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    };
+
     https
-      .get(oembedUrl, (res) => {
+      .get(oembedUrl, requestOptions, (res) => {
         let body = '';
         res.on('data', (chunk) => (body += chunk));
         res.on('end', () => {
           try {
+            if (res.statusCode && res.statusCode >= 400) {
+              throw new Error(`YouTube oEmbed returned status ${res.statusCode}`);
+            }
             const data = JSON.parse(body);
             const title = data.title || 'YouTube Engineering Lecture';
-            const thumbnail = data.thumbnail_url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+            const thumbnail =
+              data.thumbnail_url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
             resolve({
               title,
               videos: [
@@ -47,26 +61,82 @@ function fetchYouTubeVideo(videoId: string): Promise<ParsedPlaylist> {
               ],
             });
           } catch {
-            resolve({
-              title: 'YouTube Video Lecture',
-              videos: [
-                {
-                  videoId,
-                  title: 'Video Lecture',
-                  durationFormatted: '15:00',
-                  duration: 900,
-                  thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-                },
-              ],
-            });
+            // Fallback: Fetch directly from YouTube video page
+            fetchDirectYouTubePage(videoId)
+              .then(resolve)
+              .catch(() => {
+                resolve({
+                  title: 'YouTube Video Lecture',
+                  videos: [
+                    {
+                      videoId,
+                      title: 'Video Lecture',
+                      durationFormatted: '15:00',
+                      duration: 900,
+                      thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                    },
+                  ],
+                });
+              });
           }
         });
       })
-      .on('error', (err) => {
-        reject(new AppError(`Network error fetching YouTube video: ${err.message}`, 500));
+      .on('error', () => {
+        fetchDirectYouTubePage(videoId)
+          .then(resolve)
+          .catch((err) => {
+            reject(new AppError(`Network error connecting to YouTube: ${err.message}`, 500));
+          });
       });
   });
 }
+
+function fetchDirectYouTubePage(videoId: string): Promise<ParsedPlaylist> {
+  return new Promise((resolve, reject) => {
+    const pageUrl = `https://www.youtube.com/watch?v=${videoId}&hl=en`;
+    https
+      .get(
+        pageUrl,
+        {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+        },
+        (res) => {
+          let body = '';
+          res.on('data', (chunk) => (body += chunk));
+          res.on('end', () => {
+            try {
+              let title = 'YouTube Engineering Lecture';
+              const titleMatch = body.match(/<title>([^<]+)<\/title>/);
+              if (titleMatch) {
+                title = titleMatch[1].replace(' - YouTube', '').trim();
+              }
+              const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+              resolve({
+                title,
+                videos: [
+                  {
+                    videoId,
+                    title,
+                    durationFormatted: '15:00',
+                    duration: 900,
+                    thumbnail,
+                  },
+                ],
+              });
+            } catch (err: any) {
+              reject(err);
+            }
+          });
+        }
+      )
+      .on('error', reject);
+  });
+}
+
 
 
 interface ParsedVideo {
@@ -306,13 +376,17 @@ export const importPlaylist = async (req: Request, res: Response, next: NextFunc
       data: lecturesData,
     });
 
-    // Auto-set course thumbnail from 1st video if course has no custom thumbnail
-    if (!course.thumbnail && playlist.videos[0]?.thumbnail) {
-      await prisma.course.update({
-        where: { id: courseId },
-        data: { thumbnail: playlist.videos[0].thumbnail },
-      });
-    }
+    // Auto-set course thumbnail and automatically publish the course so it is live
+    await prisma.course.update({
+      where: { id: courseId },
+      data: {
+        isPublished: true,
+        ...(!course.thumbnail && playlist.videos[0]?.thumbnail
+          ? { thumbnail: playlist.videos[0].thumbnail }
+          : {}),
+      },
+    });
+
 
     const createdLectures = await prisma.lecture.findMany({
       where: { courseId },

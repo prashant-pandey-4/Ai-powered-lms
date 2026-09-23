@@ -297,13 +297,13 @@ export default function AdminNewCoursePage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-black text-app">1-Click YouTube Scraper & Importer</h3>
+                        <h3 className="text-sm sm:text-base font-black text-app">1-Click YouTube Video & Playlist Scraper</h3>
                         <span className="rounded-md bg-[#f97316]/15 px-2 py-0.5 text-[9px] font-extrabold text-[#f97316] uppercase tracking-wider">
-                          Instant
+                          Instant Upload
                         </span>
                       </div>
                       <p className="text-[11px] text-muted">
-                        Paste any YouTube playlist or video URL to auto-extract the curriculum, thumbnail, and all video episodes.
+                        Single YouTube video ya poori Playlist ka URL paste karke 1-click me video upload aur course create karein.
                       </p>
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function AdminNewCoursePage() {
                       type="url"
                       value={ytUrl}
                       onChange={(e) => setYtUrl(e.target.value)}
-                      placeholder="Paste YouTube Playlist (e.g. youtube.com/playlist?list=...) or Video URL"
+                      placeholder="YouTube Video URL ya Playlist Link yahan paste karein (e.g. youtube.com/watch?v=... ya playlist)"
                       className="h-11 w-full rounded-2xl border border-app bg-app pl-10 pr-4 text-xs text-app placeholder:text-subtle focus:border-[#f97316] focus:outline-none transition-colors"
                     />
                   </div>
@@ -325,17 +325,17 @@ export default function AdminNewCoursePage() {
                     type="button"
                     onClick={handleScrapeYt}
                     disabled={scrapingYt || !ytUrl.trim()}
-                    className="flex items-center justify-center gap-2 rounded-2xl glow-amber-btn px-5 py-2.5 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
+                    className="flex items-center justify-center gap-2 rounded-2xl glow-amber-btn px-6 py-2.5 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
                   >
                     {scrapingYt ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Scraping...
+                        Fetching Video...
                       </>
                     ) : (
                       <>
                         <Sparkles className="h-3.5 w-3.5" />
-                        Scrape & Auto-Extract
+                        📥 Fetch & Preview Video
                       </>
                     )}
                   </button>
@@ -347,31 +347,32 @@ export default function AdminNewCoursePage() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-app pb-3">
                       <div>
                         <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 inline-flex items-center gap-1 mb-1">
-                          <CheckCircle2 className="h-3 w-3" /> {ytPreviewData.videoCount} Lessons Extracted Successfully
+                          <CheckCircle2 className="h-3 w-3" /> {ytPreviewData.videoCount} {ytPreviewData.videoCount === 1 ? 'Video' : 'Videos'} Detected
                         </span>
                         <h4 className="text-sm font-bold text-app line-clamp-1">{ytPreviewData.title}</h4>
                       </div>
 
-                      {/* 1-Click Full Import Action */}
+                      {/* 1-Click Full Import & Upload Action */}
                       <button
                         type="button"
                         onClick={handleOneClickCreateAndImport}
                         disabled={importingFull}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f97316] to-[#ea580c] px-4 py-2 text-xs font-black text-white shadow-md shadow-[#f97316]/25 hover:brightness-110 transition-all disabled:opacity-50 shrink-0"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f97316] to-[#ea580c] px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-[#f97316]/25 hover:brightness-110 transition-all disabled:opacity-50 shrink-0"
                       >
                         {importingFull ? (
                           <>
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Creating & Importing {ytPreviewData.videoCount} Lessons...
+                            Uploading Video & Publishing...
                           </>
                         ) : (
                           <>
                             <Zap className="h-3.5 w-3.5 fill-current" />
-                            1-Click Create & Import All {ytPreviewData.videoCount} Lessons
+                            🚀 Upload Video & Publish Course Now
                           </>
                         )}
                       </button>
                     </div>
+
 
                     {/* Lesson Snippet Explorer */}
                     <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">

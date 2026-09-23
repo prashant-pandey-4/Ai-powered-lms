@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
@@ -104,13 +104,13 @@ export function PlaylistImporterModal({
             </div>
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                1-Click YouTube Playlist Importer
+                YouTube Video & Playlist Importer
                 <span className="rounded-full bg-[#f97316]/20 px-2 py-0.5 text-[10px] font-bold text-[#f97316]">
-                  Auto-Syllabus
+                  Instant
                 </span>
               </h3>
               <p className="text-[11px] text-muted">
-                Paste any YouTube playlist link to auto-generate all course lessons & durations
+                Single YouTube video ya poori Playlist ka URL paste karke direct syllabus me upload karein
               </p>
             </div>
           </div>
@@ -128,13 +128,13 @@ export function PlaylistImporterModal({
           {/* Input Form */}
           <form onSubmit={handlePreview} className="space-y-3">
             <label className="text-xs font-semibold text-muted">
-              YouTube Playlist Link
+              YouTube Video URL ya Playlist Link
             </label>
             <div className="flex gap-2">
               <input
                 required
                 type="url"
-                placeholder="https://www.youtube.com/playlist?list=PL..."
+                placeholder="https://www.youtube.com/watch?v=... ya playlist link"
                 value={playlistUrl}
                 onChange={(e) => setPlaylistUrl(e.target.value)}
                 className="h-10 flex-1 rounded-xl border border-app bg-app px-3.5 text-xs text-white placeholder:text-subtle focus:border-[#f97316] focus:outline-none"
@@ -145,11 +145,16 @@ export function PlaylistImporterModal({
                 className="flex items-center gap-1.5 rounded-xl glow-amber-btn px-4 py-2 text-xs font-bold text-white transition-all disabled:opacity-50 shrink-0"
               >
                 {loadingPreview ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Fetching...
+                  </>
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    📥 Fetch & Preview Video
+                  </>
                 )}
-                {loadingPreview ? 'Fetching...' : 'Preview'}
               </button>
             </div>
           </form>
@@ -238,15 +243,16 @@ export function PlaylistImporterModal({
             {importing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Importing {previewData?.videoCount || ''} Lessons...
+                Uploading & Importing {previewData?.videoCount || ''} Videos...
               </>
             ) : (
               <>
                 <ArrowRight className="h-4 w-4" />
-                Import All Into Course Syllabus
+                🚀 Upload & Import {previewData?.videoCount || ''} Videos Now
               </>
             )}
           </button>
+
         </div>
       </div>
     </div>

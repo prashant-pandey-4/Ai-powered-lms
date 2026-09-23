@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
@@ -228,15 +228,15 @@ export default function AdminEditCourseLecturesPage({
               disabled={publishing}
               className={`rounded-full px-5 py-2 text-xs font-bold transition-all ${
                 course.isPublished
-                  ? 'border border-app bg-card-2 text-app hover:border-[#f97316]'
+                  ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500'
                   : 'glow-amber-btn text-white'
               }`}
             >
               {publishing
                 ? 'Updating...'
                 : course.isPublished
-                ? 'Unpublish (Set to Draft)'
-                : 'Publish Course Live'}
+                ? '✅ Published (Click to Unpublish)'
+                : '🚀 Publish Course Live (Make Public)'}
             </button>
 
             <button
@@ -259,11 +259,11 @@ export default function AdminEditCourseLecturesPage({
                 <span
                   className={`rounded-md px-2.5 py-0.5 text-[10px] font-bold ${
                     course.isPublished
-                      ? 'bg-[#f97316]/15 text-[#f97316]'
-                      : 'bg-card-2 text-muted'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'bg-card-2 text-muted border border-app'
                   }`}
                 >
-                  {course.isPublished ? 'Published' : 'Draft'}
+                  {course.isPublished ? 'Live & Published' : 'Draft Mode'}
                 </span>
               </div>
               <p className="text-xs text-muted line-clamp-1">{course.description}</p>
@@ -283,7 +283,7 @@ export default function AdminEditCourseLecturesPage({
             <div>
               <h2 className="text-lg font-black text-app">Curriculum & Video Lessons</h2>
               <p className="text-xs text-muted">
-                Add sequential video lectures, supporting PDF notes, or 1-click import a full YouTube playlist.
+                YouTube video / playlist import karein ya direct custom video upload karein.
               </p>
             </div>
 
@@ -294,7 +294,7 @@ export default function AdminEditCourseLecturesPage({
                 className="flex items-center gap-1.5 rounded-full border border-app bg-card px-4 py-2 text-xs font-bold text-[#f97316] hover:border-[#f97316] transition-all"
               >
                 <ListVideo className="h-3.5 w-3.5" />
-                Import YouTube Playlist
+                📥 Import from YouTube (Video / Playlist)
               </button>
               <button
                 type="button"
@@ -302,10 +302,11 @@ export default function AdminEditCourseLecturesPage({
                 className="flex items-center gap-1.5 rounded-full glow-amber-btn px-4 py-2 text-xs font-bold text-white transition-all"
               >
                 <Plus className="h-3.5 w-3.5" />
-                {showAddForm ? 'Close Form' : 'Add Lesson'}
+                {showAddForm ? 'Close Form' : '➕ Upload / Add Video Lecture'}
               </button>
             </div>
           </div>
+
 
           {/* Add Lecture Card */}
           {showAddForm && (
