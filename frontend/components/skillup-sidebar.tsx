@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { LayoutGrid, GraduationCap, Shield, Newspaper, Flame, BookOpen } from 'lucide-react';
+import { LayoutGrid, GraduationCap, Shield, Newspaper, Flame, BookOpen, Sparkles } from 'lucide-react';
 
 const navItems = [
   { label: 'Explore & Home', href: '/', icon: LayoutGrid },
   { label: 'All Courses', href: '/courses', icon: BookOpen },
   { label: 'My Learning', href: '/dashboard', icon: GraduationCap },
   { label: 'Knowledge Hub', href: '/blog', icon: Newspaper },
+  { label: 'Landing Page', href: '/landing', icon: Sparkles },
 ];
 
 export function SkillUpSidebar() {
