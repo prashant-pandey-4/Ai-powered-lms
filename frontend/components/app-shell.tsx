@@ -16,8 +16,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // Landing page layout (standalone full-width, no sidebar) is used for:
   // 1. The dedicated /landing route
-  // 2. The root "/" route ONLY when the user is not signed in
-  const isLandingLayout = isLandingRoute || (pathname === '/' && isLoaded && !isSignedIn);
+  // 2. The root "/" route whenever the user is NOT signed in
+  const isLandingLayout = isLandingRoute || (pathname === '/' && (!isLoaded || !isSignedIn));
 
   if (isLandingLayout) {
     return (
